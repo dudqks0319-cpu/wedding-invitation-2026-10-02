@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" preserveAspectRatio="xMidYMid slice">
+<defs><radialGradient id="b" cx=".5" cy=".4" r=".8"><stop offset="0" stop-color="#FFFBF5"/><stop offset="1" stop-color="#F7E6DD"/></radialGradient>
+<g id="rose"><circle r="40" fill="#F4B5C1"/><circle r="28" fill="#EE9FAF"/><path d="M-14 -6 q14 -18 28 0 q-6 16 -14 18 q-10 -2 -14 -18z" fill="#E68599"/><path d="M-26 8 q26 26 52 0" fill="none" stroke="#E68599" stroke-width="3"/></g>
+<g id="peony"><circle r="46" fill="#FFE1D3"/><circle r="32" fill="#FFD0BD"/><circle r="16" fill="#F9BCA5"/></g>
+<g id="leaf"><path d="M0 0 q30 -30 70 -10 q-30 30 -70 10z" fill="#9FC18A"/></g></defs>
+<rect width="600" height="800" fill="url(#b)"/>
+<g stroke="#9DB88B" stroke-width="6" stroke-linecap="round"><path d="M300 420 L260 700"/><path d="M300 420 L300 710"/><path d="M300 420 L340 700"/></g>
+<path d="M250 540 L350 540 L340 600 L260 600Z" fill="#fff" stroke="#E8C9B5" stroke-width="3"/>
+<path d="M260 560 q40 30 80 0 M300 575 l-30 60 M300 575 l30 60" stroke="#E7A9B3" stroke-width="5" fill="none" stroke-linecap="round"/>
+<use href="#leaf" transform="translate(190 380) rotate(200)"/><use href="#leaf" transform="translate(410 380) rotate(-20)"/><use href="#leaf" transform="translate(220 250) rotate(230)"/><use href="#leaf" transform="translate(380 250) rotate(-50)"/><use href="#leaf" transform="translate(300 220) rotate(-90)"/>
+<use href="#peony" transform="translate(230 330)"/><use href="#rose" transform="translate(300 290)"/><use href="#peony" transform="translate(370 330)"/>
+<use href="#rose" transform="translate(255 410) scale(.85)"/><use href="#rose" transform="translate(345 410) scale(.85)"/><use href="#peony" transform="translate(300 380) scale(.8)"/>
+<g fill="#fff"><circle cx="190" cy="300" r="10"/><circle cx="410" cy="300" r="10"/><circle cx="300" cy="215" r="9"/><circle cx="200" cy="420" r="8"/><circle cx="400" cy="420" r="8"/></g>
+<g fill="#F4B5C1" opacity=".6"><ellipse cx="120" cy="160" rx="8" ry="5" transform="rotate(30 120 160)"/><ellipse cx="480" cy="140" rx="8" ry="5" transform="rotate(-30 480 140)"/><ellipse cx="500" cy="620" rx="8" ry="5"/><ellipse cx="90" cy="650" rx="8" ry="5" transform="rotate(60 90 650)"/></g>
+</svg>

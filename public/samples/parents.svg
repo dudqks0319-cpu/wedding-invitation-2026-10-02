@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" preserveAspectRatio="xMidYMid slice">
+<defs><radialGradient id="bg" cx=".5" cy=".35" r=".9"><stop offset="0" stop-color="#FFF9F3"/><stop offset="1" stop-color="#FBE3DD"/></radialGradient>
+<g id="peony"><circle r="54" fill="#F2A9B1"/><circle r="40" fill="#EB8F9A"/><circle r="24" fill="#E07683"/><circle r="10" fill="#F9D56E"/></g>
+<g id="lf"><path d="M0 0 q34 -34 80 -12 q-34 34 -80 12z" fill="#A7C08F"/></g></defs>
+<rect width="600" height="800" fill="url(#bg)"/>
+<circle cx="300" cy="330" r="200" fill="#FFF3E6"/>
+<use href="#lf" transform="translate(130 150) rotate(20)"/><use href="#lf" transform="translate(470 150) rotate(160)"/><use href="#lf" transform="translate(110 520) rotate(-30)"/><use href="#lf" transform="translate(490 520) rotate(210)"/>
+<use href="#peony" transform="translate(110 140)"/><use href="#peony" transform="translate(490 140) scale(.8)"/><use href="#peony" transform="translate(90 560) scale(.9)"/><use href="#peony" transform="translate(510 560)"/>
+<g transform="translate(245 480)">
+  <circle cx="0" cy="-120" r="42" fill="#FFE2D2"/><path d="M-42 -130 q0 -46 42 -46 q42 0 42 46 q-20 -24 -42 -22 q-22 -2 -42 22z" fill="#C7C2BE"/>
+  <circle cx="-14" cy="-120" r="4" fill="#4A3B35"/><circle cx="14" cy="-120" r="4" fill="#4A3B35"/><path d="M-10 -100 q10 8 20 0" stroke="#C0706A" stroke-width="3" fill="none"/>
+  <path d="M-60 -70 q60 -20 120 0 l20 170 h-160z" fill="#6E86A8"/><path d="M0 -76 l-14 40 l14 10 l14 -10z" fill="#fff"/>
+</g>
+<g transform="translate(365 490)">
+  <circle cx="0" cy="-120" r="40" fill="#FFE2D2"/><path d="M-44 -110 q-6 -64 44 -60 q50 -4 44 60 q-4 -30 -44 -34 q-40 4 -44 34z" fill="#8F8580"/><circle cx="0" cy="-168" r="16" fill="#8F8580"/>
+  <circle cx="-14" cy="-118" r="4" fill="#4A3B35"/><circle cx="14" cy="-118" r="4" fill="#4A3B35"/><path d="M-10 -98 q10 8 20 0" stroke="#C0706A" stroke-width="3" fill="none"/>
+  <path d="M-58 -72 q58 -18 116 0 l30 162 h-176z" fill="#E88E9A"/><path d="M-20 -60 q20 30 40 0" stroke="#F9D56E" stroke-width="6" fill="none"/>
+</g>
+<rect x="0" y="650" width="600" height="150" fill="#F6D6CF"/>
+</svg>

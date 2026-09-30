@@ -1,0 +1,116 @@
+@import "tailwindcss";
+
+/* ───────── 플랫폼 공통 색상 (밝고 따뜻한 톤) ───────── */
+@theme {
+  --color-brand-50: #fff5f6;
+  --color-brand-100: #ffe8ec;
+  --color-brand-200: #ffd0d9;
+  --color-brand-300: #ffadbd;
+  --color-brand-400: #fb8199;
+  --color-brand-500: #f25f7d;
+  --color-brand-600: #dc4466;
+  --color-brand-700: #b83453;
+  --color-cream: #fffbf7;
+  --color-peach: #ffeee4;
+  --color-butter: #fff6d9;
+  --color-mint: #e3f6ef;
+  --color-sky: #e6f1fc;
+  --color-lilac: #efe9fb;
+  --color-ink: #2f2a2c;
+  --color-muted: #8a8083;
+
+  --font-sans: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", sans-serif;
+  --font-serif: "Gowun Batang", serif;
+  --font-script: "Great Vibes", cursive;
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-fade-up: fade-up 0.8s ease both;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  word-break: keep-all;
+}
+
+::selection {
+  background: var(--color-brand-200);
+}
+
+/* 스크롤바 숨김 (가로 스크롤 영역) */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+
+/* 얇은 스크롤바 (휴대폰 프레임 안) */
+.thin-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,.15) transparent; }
+.thin-scrollbar::-webkit-scrollbar { width: 4px; }
+.thin-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); border-radius: 4px; }
+
+/* ───────── 청첩장 공통 ───────── */
+.inv {
+  background: var(--inv-bg);
+  color: var(--inv-text);
+  font-family: var(--inv-body);
+  line-height: 1.8;
+}
+.inv-title { font-family: var(--inv-title); }
+.inv-script { font-family: var(--inv-script); }
+
+/* 스크롤하면 스르륵 나타나는 효과 */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* 떨어지는 효과 (꽃잎/눈/반짝이) */
+@keyframes fall {
+  0% { transform: translate3d(0, -10%, 0) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translate3d(var(--drift, 40px), 110vh, 0) rotate(var(--spin, 360deg)); opacity: 0.2; }
+}
+@keyframes fall-frame {
+  0% { transform: translate3d(0, -10%, 0) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translate3d(var(--drift, 40px), 900px, 0) rotate(var(--spin, 360deg)); opacity: 0.2; }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0; transform: scale(0.4); }
+  50% { opacity: 1; transform: scale(1); }
+}
+@keyframes sway {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+@keyframes rise {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+  100% { transform: translateY(0); }
+}
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .fx-layer { display: none; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+}
