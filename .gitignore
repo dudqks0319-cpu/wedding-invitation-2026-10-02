@@ -42,3 +42,6 @@ next-env.d.ts
 
 # 예시 환경변수 파일은 저장소에 포함
 !.env.example
+
+# 미리보기 빌드 결과물
+/dist-preview

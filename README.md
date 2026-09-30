@@ -12,6 +12,12 @@ npm install      # 처음 한 번만
 npm run dev      # 개발 서버 실행 → http://localhost:3000
 ```
 
+## 설치 없이 미리보기 (한 파일)
+
+```bash
+npm run build:preview   # → dist-preview/index.html (더블클릭으로 열기)
+```
+
 ## 화면 구성
 
 | 주소 | 화면 |

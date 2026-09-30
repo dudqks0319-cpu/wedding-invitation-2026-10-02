@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import type { EventType } from "@/types/invitation";
 import { CATEGORY_LABEL, TEMPLATES } from "@/data/templates";
@@ -14,6 +15,7 @@ const TABS: { key: Filter; label: string; emoji: string }[] = [
 ];
 
 export function TemplateBrowser({ initialType }: { initialType: Filter }) {
+  const router = useRouter();
   const [type, setType] = useState<Filter>(initialType);
   const [tag, setTag] = useState<string | null>(null);
   const [sort, setSort] = useState<"best" | "new">("best");
@@ -28,7 +30,7 @@ export function TemplateBrowser({ initialType }: { initialType: Filter }) {
     setType(t);
     setTag(null);
     const url = t === "all" ? "/templates" : `/templates?type=${t}`;
-    window.history.replaceState(null, "", url);
+    router.replace(url, { scroll: false });
   };
 
   return (

@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { getSampleBySlug, SAMPLE_SLUGS } from "@/data/samples";
-import { getTemplate } from "@/data/templates";
-import { InvitationView } from "@/components/invitation/InvitationView";
-import { LocalInvitation } from "./LocalInvitation";
+import { InvitationRoute } from "./InvitationRoute";
 
 /**
  * 하객이 보는 실제 청첩장 페이지
@@ -28,9 +26,5 @@ export async function generateMetadata({ params }: PageProps<"/i/[slug]">): Prom
 
 export default async function InvitationPage({ params }: PageProps<"/i/[slug]">) {
   const { slug } = await params;
-  const sample = getSampleBySlug(slug);
-  if (sample) {
-    return <InvitationView invitation={sample} theme={getTemplate(sample.templateId)!} />;
-  }
-  return <LocalInvitation slug={slug} />;
+  return <InvitationRoute slug={slug} />;
 }
