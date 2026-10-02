@@ -20,7 +20,8 @@
 ## 배포
 
 - GitHub: `https://github.com/dudqks0319-cpu/wedding-invitation-2026-10-02` (비공개). 업로드 커밋·상태는 `docs/evidence/deployment.json` 확인.
-- Sites ID: `appgprj_6abf84676b4881918d32542f0e76190c`. 주소 생성 완료, 배포 상태는 `docs/evidence/deployment.json` 확인.
+- Sites ID: `appgprj_6abf84676b4881918d32542f0e76190c`. 소유자 전용 배포 성공, 배포 상태는 `docs/evidence/deployment.json` 확인.
+- Sites: https://wedding-invitation-2026-10-02.jyb1126.chatgpt.site — `succeeded`, 배포 소스 `2862fb3555a7a320af5b63459c3858f4a5aed73d`.
 - Sites 배포는 미리보기 산출물이고 Next API 서버 배포 증거가 아닙니다.
 
 - 통합 release harness: ATTENTION (공통 release-ledger.yaml·RELEASE_STATUS.md 없음). 실제 백엔드 release-ready 주장 없음. 프로젝트 상태는 이 문서가 관리함.

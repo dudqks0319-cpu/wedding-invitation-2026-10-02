@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-02",
+  "github": {
+    "url": "https://github.com/dudqks0319-cpu/wedding-invitation-2026-10-02",
+    "private": true,
+    "branch": "main",
+    "code_commit": "2862fb3555a7a320af5b63459c3858f4a5aed73d",
+    "verified_remote_commit": "2862fb3555a7a320af5b63459c3858f4a5aed73d"
+  },
+  "sites": {
+    "status": "succeeded",
+    "url": "https://wedding-invitation-2026-10-02.jyb1126.chatgpt.site",
+    "project_id": "appgprj_6abf84676b4881918d32542f0e76190c",
+    "deployment_id": "appgdep_6abf877725bc819183bb32f8b1bd6a0f",
+    "version_id": "appgprj_6abf84676b4881918d32542f0e76190c~appgver_d2aabd24abac8191a1df10775b0cbbf3",
+    "source_commit": "2862fb3555a7a320af5b63459c3858f4a5aed73d",
+    "audience": "owner-private",
+    "runtime": "static browser-local preview; Next API not hosted",
+    "env_set_revision": 0,
+    "updated_at": "2026-10-02T10:29:37.315784+00:00"
+  },
+  "backend": {
+    "fixture_scenarios_passed": 28,
+    "live_supabase_connected": false,
+    "sql_rls_executed": false,
+    "real_oauth_verified": false
+  }
+}
