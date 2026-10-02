@@ -25,5 +25,5 @@ export function LocalInvitation({ slug }: { slug: string }) {
       </div>
     );
   }
-  return <>{inv.published === false && <p className="bg-cream p-3 text-center text-[13px]">내 초안 · 공유를 시작하면 하객이 볼 수 있어요</p>}<InvitationView invitation={inv} theme={theme} readOnly={inv.published === false} /></>;
+  return <>{inv.ownerView && inv.published && <p className="bg-cream p-3 text-center text-[13px]">작성자 미리보기 · 수정 내용은 공유 내용 업데이트를 누르면 반영돼요</p>}{inv.published === false && <p className="bg-cream p-3 text-center text-[13px]">내 초안 · 공유를 시작하면 하객이 볼 수 있어요</p>}<InvitationView invitation={inv} theme={theme} readOnly={inv.published === false} /></>;
 }

@@ -23,10 +23,10 @@ const STEPS = [
 ];
 
 const FAQ = [
-  ["정말 무료로 만들 수 있나요?", "기본 디자인과 모든 필수 기능(지도, 계좌, 방명록, 참석 의사)은 무료예요. 광고 제거·사진 무제한 같은 프리미엄 옵션만 유료로 준비 중입니다."],
-  ["청첩장을 보낸 뒤에도 수정할 수 있나요?", "네! 같은 링크 그대로 내용이 바로 바뀌어요. 예식장 정보나 오타도 걱정 없어요."],
+  ["정말 무료로 만들 수 있나요?", "현재 무료 시험 운영 중이에요. 디자인, 지도, 계좌, 방명록, 참석 의사를 사용할 수 있어요. 결제 기능은 제공하지 않습니다."],
+  ["청첩장을 보낸 뒤에도 수정할 수 있나요?", "네! 수정한 내용을 저장하고 ‘공유 내용 업데이트’를 누르면 같은 링크에 반영돼요. 저장만 하면 나만 보는 초안으로 남아요."],
   ["돌잔치나 칠순 잔치도 만들 수 있나요?", "돌잔치 전용 디자인 4종, 부모님 잔치(회갑·칠순·팔순) 디자인 2종이 준비되어 있어요."],
-  ["청첩장은 언제까지 볼 수 있나요?", "행사일로부터 6개월 동안 유지되고, 원하시면 기간을 연장할 수 있어요."],
+  ["청첩장은 언제까지 볼 수 있나요?", "새 청첩장과 사진은 행사일로부터 30일 후 정리돼요. 공유 중지는 즉시 반영되며, 이전 서비스에서 만든 초대장은 기존 보관 규칙을 따릅니다."],
 ];
 
 export default function Home() {
@@ -49,7 +49,7 @@ export default function Home() {
         <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 pb-20 pt-14 md:grid-cols-[1.1fr_1fr] md:pt-20">
           <div className="animate-fade-up">
             <span className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-white/80 px-4 py-1.5 text-[13px] font-medium text-brand-600">
-              🌸 2027 봄 신상 디자인 오픈
+              내 사진으로 완성하는 모바일 초대장
             </span>
             <h1 className="mt-6 font-serif text-[40px] font-bold leading-[1.3] tracking-tight text-ink md:text-[54px]">
               가장 설레는 소식을,
@@ -99,8 +99,8 @@ export default function Home() {
               </PhoneFrame>
             </div>
             <div className="absolute left-0 bottom-24 rounded-2xl bg-white px-4 py-3 text-[13px] shadow-xl md:-left-10">
-              <p className="font-semibold">💌 참석 의사 12건 도착</p>
-              <p className="text-muted">신랑측 7 · 신부측 5</p>
+              <p className="font-semibold">💌 참석 의사 예시</p>
+              <p className="text-muted">참석 인원과 식사 여부 확인</p>
             </div>
             <div className="absolute right-0 top-16 rounded-2xl bg-white px-4 py-3 text-[13px] shadow-xl md:-right-8">
               <p className="font-semibold">🗺️ 지도 연결 완료</p>

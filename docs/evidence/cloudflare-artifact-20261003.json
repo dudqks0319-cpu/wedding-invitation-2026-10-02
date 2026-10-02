@@ -1,0 +1,11 @@
+{
+  "legacy_next_version": "16.3.7",
+  "legacy_source": "preserved release snapshot; original checkout untouched",
+  "rollback_worker_version": "8954c75b-87b1-48d0-8982-029eee80a353",
+  "sha256": {
+    "cloudflare/worker.ts": "6b077f1be13e96a33d8423ccdb685055f01b10c4229e7cc49560710d3f4229d4",
+    "cloudflare/replacement.mjs": "c7dcae53b4e34acae3020a5980d5b6170573d0e22e035e37f14838447b5be0a8",
+    ".open-next/assets/replacement/index.html": "8431ef2e6058156762846140b0e8b6899002c0e82060553befdef930d297963b",
+    ".open-next/worker.js": "d05223bf4d44c84108a102ab62aa3bc9c5568f0c3ac2064c37be5cc65c64bc45"
+  }
+}

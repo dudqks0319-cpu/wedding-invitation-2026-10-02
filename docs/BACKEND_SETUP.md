@@ -1,3 +1,5 @@
+> 2026-10-03: 운영 백엔드는 Cloudflare로 변경했습니다. 아래 Supabase 절차는 초기 구현 기록입니다. 현재 설정은 [Cloudflare 안내](CLOUDFLARE.md)를 참고하세요.
+
 # 실제 서버 연결 안내
 
 2026-10-02: Next API와 Supabase 마이그레이션 구현 완료. 현재 기본 모드는 `local`이고 Sites는 정적 편집 미리보기입니다. **실제 Supabase 프로젝트, SQL 적용, OAuth 공급자 설정, 원격 서버 배포는 아직 연결되지 않았습니다.**

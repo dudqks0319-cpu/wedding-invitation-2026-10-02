@@ -51,6 +51,10 @@ export function writeStored<T>(key: string, value: T) {
   }
   listeners.forEach((l) => l());
 }
+export function clearPrivateDrafts(){
+ const keys=Object.keys(window.localStorage).filter(k=>k.startsWith(PREFIX+'editor-v2:'));
+ keys.forEach(k=>window.localStorage.removeItem(k));cache.clear();
+}
 
 /** fallback 은 컴포넌트 밖에서 만든 고정된 값을 넘겨 주세요. */
 export function useStored<T>(key: string, fallback: T): T {

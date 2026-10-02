@@ -45,6 +45,10 @@ next-env.d.ts
 
 # 미리보기 빌드 결과물
 /dist-preview
+/dist-cloudflare/
+/cloudflare/build/
+/cloudflare/.wrangler/
+/docs/evidence/cloudflare-private/
 /dist/
 /.sites-runtime/
 /supabase/.temp/
@@ -63,3 +67,6 @@ next-env.d.ts
 /docs/evidence/backend-next.log
 /docs/evidence/typecheck-first.log
 /docs/evidence/build-webpack.log
+
+# 이전부터 있던 로컬 화면 원본은 그대로 보존
+/docs/evidence/public-site-home.png

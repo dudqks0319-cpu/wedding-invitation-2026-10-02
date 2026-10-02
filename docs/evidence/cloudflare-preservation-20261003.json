@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-03",
+  "original_users_before": 2,
+  "after": {
+    "users": 3,
+    "previous_users": 2,
+    "new_provider_accounts": 1,
+    "remaining_test_users": 0,
+    "legacy_drafts": 0,
+    "new_drafts": 0,
+    "new_photos": 0,
+    "photo_bytes": 0,
+    "uploads_enabled": 1
+  }
+}

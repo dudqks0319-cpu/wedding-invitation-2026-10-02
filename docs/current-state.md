@@ -1,47 +1,39 @@
-# 봄결 현재 작업 상태
+# 청첩장 웹서비스 현재 상태
 
-2026-10-03. 원본 GitHub HEAD: `6cead052dec70f9b4434e026dc271545bd62cc70`. 최초 Claude 검토 HEAD: `2066a31a1006f6026d915ad0aa7606c9bf610a0d`. 후속 실행 점검 HEAD: `147f0cef3a6462e1e903a3335967fa19f71cf7e5` (이전 검토 뒤 앱 코드 변경 없음).
+2026-10-03. 상호 미정. 사용자 결정: **웹서비스 먼저 완성, iPhone/Android 앱은 이후 교체**.
 
-## 완료한 구현
+## 현재 배포
 
-- 기존 19종 디자인에 실사 AI 예시 사진 26장 적용. 가상 인물임을 안내하고 실제 사진으로 교체 가능. 최대 사진 216KiB, 합계 약 2.3MiB WebP.
-- Next 서버에 저장·초안·게시·카카오/구글 PKCE·비공개 사진·방명록·RSVP API, 입력·소유권·해시·CSRF·한도·중복 방지 구현.
-- 새 운영 패키지 없이 기존 Next/Node와 Supabase HTTP API 사용. 기존 의존성 lockfile 유지.
-- Sites는 정적 편집 미리보기로 구성. 2026-10-03 사용자 요청으로 전체 공개했으며, 내용은 그 브라우저에만 보관하고 하객 공유는 비활성화. 새로고침·뒤로가기 지원.
+- 정식 웹 진입: https://osamosam-app.jyb1126.chatgpt.site — 기존 오삼오삼 홈페이지를 새 실사 청첩장 화면으로 교체했다. 기존 Sites 게이트웨이 유지.
+- Cloudflare Worker: `osamosam-api`, 최종 version `d5404406-e683-4588-8783-766ad4033824`.
+- D1 `osamosam-db`, R2 `osamosam-media`, Images binding 실제 사용. 신규 테이블은 `w2_`, 사진 경로는 `w2/`.
+- 기존 Google/카카오 등록·계정·네이티브 인증·이전 API 유지. 로그인 런타임은 보안 수정된 Next 16.3.7로 격리 빌드했다. 원본 오삼오삼 checkout과 기존 작업은 보존했다.
+- 기존 계정 2개 보존, 이번 실제 Google 로그인으로 공급자 계정 1개 추가되어 현재 3개. 모든 합성 테스트 계정·새 초대장·사진은 0개로 정리 확인.
+- 신규 관리 `/my`, 기존 초대장 `/dashboard`. 실제 브라우저에서 기존 계정 연결과 기기 초안 2개 표시를 확인했다. 가져오기·삭제는 실행하지 않았다.
+- 기존 청첩장 Sites 링크는 같은 서비스를 열도록 게시 준비 중이다. 공개 GitHub 업로드 및 Sites 영수증은 게시 완료 후 기록한다.
 
-## 확인한 증거
+## 완료와 증거
 
-- 모바일 375×812에서 19종 표지 사진 로딩·화면 넘침 검사 통과. 표지 캡처와 전체 비교 이미지를 `docs/evidence/`에 보관.
-- 실제 브라우저에서 사진 선택·신랑 이름 변경·저장·내 청첩장 목록 확인. `editor-saved.jpg`.
-- 로컬 Sites 산출물에서 편집·저장·새로고침 복원, 유효/무효 WebMCP 도구 검증 통과. `sites-preview-qa.json`.
-- TypeScript, Next webpack production build, preview build 및 백엔드 HTTP fixture 28개 통합 검사 완료 기록. 마지막 검증 결과는 `verification.json` 참고.
-- npm audit 알려진 취약점 0개. lint 기존 미리보기 shim의 미사용 변수 경고 2개, 오류 없음.
-- 2026-10-03 백엔드 HTTP fixture 28개 재실행 통과. 추가 진단에서 공개 사진 21번째 요청 429와 한도 서버 장애 시 공개 페이지 500을 재현했다.
-- 설치돼 있던 Docker·캐시 공식 이미지로 격리 PostgreSQL에 실제 마이그레이션과 `tests/rls.sql` 적용·실행·rollback 성공. 실제 PostgREST 권한·사진 필터 11개 기대 응답 일치. 익명 공개 항목 목록 조회도 허용되어 최소 권한 잔여 문제를 확인했다. 공급자 Auth/Storage는 최소 fixture 스키마이며 클라우드 검증은 아니다.
-- 같은 Sites 산출물을 로컬 `http://127.0.0.1:4174/`에 실행하고 실제 화면을 보관했다. 합성 테스트 데이터로 새 작성이 기존 미저장 초안과 주소를 복원해 덮어쓰는 문제를 재현했다. [백엔드 점검 보고서](BACKEND_CHECK_20261003.md).
+- Cloudflare 화면·Worker 빌드, Next 개발 빌드, TypeScript·lint 통과. 로컬 D1/R2·실제 이미지 디코더·workerd를 사용한 40개 검사 통과. 두 계정 차단, 중복 요청, 동시 저장 충돌, 만료, 사진 삭제·용량 회수, 장애 응답 포함.
+- 실제 Worker/D1/R2/Images를 기존 Sites 경유로 검증한 13개 운영 검사 통과. 두 임시 합성 계정으로 초안·사진·게시·RSVP·방명록 승인·공유 중지·삭제를 실행하고 임시 자료를 정리했다. 이는 공급자 OAuth 계정 두 개의 검증과 다르다.
+- 실제 Google 로그인 후 `/my` 복귀 확인. 새 Kakao 공급자 흐름은 이번 작업에서 끝까지 실행하지 않았다. 기존 등록과 구현은 보존했다.
+- 실제 모바일 UI에서 사진 업로드·초안 저장·공유·새로고침 복원 확인. 같은 디자인 새 작성이 이전 이름·주소를 덮어쓰지 않고 새 주소와 기본값으로 시작함을 확인했다.
+- 실사 AI 예시 26장·디자인 19종 유지. AI 예시로 실제 게시하는 것을 차단한다. 유료 상품·BGM·6개월 보관 등 기존 시안 문구를 실제 제공 범위로 수정했다.
+- 초안과 게시본 분리, 버전 충돌·복원 안내, 승인형 방명록과 작성자 삭제, RSVP 소유자 조회, 안정된 사진 OG 주소, 공유 중지 즉시 차단, 계정별 미저장 초안 격리, 로그아웃 초안 정리를 구현했다.
+- 소스와 최종 산출물 1,610개 경로 비밀정보 패턴 검사: 발견 0. 새 저장소 전체 의존성 및 패치된 기존 운영 런타임 audit: 취약점 0. 원본 옛 release snapshot의 취약 Next는 운영에서 교체했다.
 
-## 배포
+## 범위와 운영 확인
 
-- GitHub: `https://github.com/dudqks0319-cpu/wedding-invitation-2026-10-02` (공개). 2026-10-03 사용자 요청으로 변경. `isPrivate=false`·`visibility=PUBLIC` 읽기 확인 및 인증 없는 GitHub API HTTP 200 확인. 현재 증거는 `docs/evidence/github-public-access.json`, 이전 업로드 커밋은 `docs/evidence/deployment.json` 확인.
-- Sites ID: `appgprj_6abf84676b4881918d32542f0e76190c`. 최초 소유자 전용 배포 성공 후 2026-10-03 공개로 변경. 배포 기록은 `docs/evidence/deployment.json`, 현재 공개 설정은 `docs/evidence/site-public-access.json` 확인.
-- Sites: https://wedding-invitation-2026-10-02.jyb1126.chatgpt.site — `succeeded`, 배포 소스 `2862fb3555a7a320af5b63459c3858f4a5aed73d`.
-- Sites 배포는 미리보기 산출물이고 Next API 서버 배포 증거가 아닙니다.
-- 공개 설정 `public`, revision 2를 Sites에서 읽어 확인. 인증 없는 HTTP 200, 앱 제목 확인 및 로그인 차단 화면 없음. `docs/evidence/public-access-http.json`.
+현재 무료 시험 운영. 계정별 사진 100MB, 신규 전체 1GB, 사진 변환 100/일 등 서버 한도와 중지 스위치를 적용했다. 실제 사진 검증 후 업로드 ON. 기존 v1 사진 스위치·예산은 바꾸지 않았다. 신규 사진 한도는 Cloudflare 계정 전체 요금 보장이 아니며 요금제 변경도 하지 않았다.
 
-## Claude 검토
+자동 만료·삭제와 공급자 장애는 로컬에서 검증했으며 5분 예약 트리거가 배포됐다. 실제 30일 보관·만료 경과, 대규모 부하, CPU와 청구 비용의 장기 관측은 이번 점검으로 확인할 수 없다. iOS/Android 앱 배포·실기기 교체는 후속 범위다. 결제·네이버·BGM은 제공하지 않는다.
 
-- 로컬 Claude CLI는 OAuth 세션 만료로 검토 미실행. 재로그인/계정 설정 변경 없이 이미 로그인된 Claude 앱의 기존 청첩장 대화에 검토 요청 전달. 개인 대화 링크는 공개 문서에서 제외.
-- 최신 main에서 추출한 83개 텍스트 파일과 19종 실제 모바일 렌더링 화면을 첨부. 파일 수정·push·배포·계정 변경·다른 에이전트 실행은 금지한 읽기 전용 검토 완료. 실사 사진과 디자인은 긍정 평가. 요청 한도(P1), 초안 충돌·예시 사진 게시·anon 읽기·누적 저장량·전역 SQL 잠금(P2)을 지적함.
-- 주요 코드 근거를 Codex가 대조했으며 [검토 보고서](CLAUDE_REVIEW.md)에 우선순위와 재현 한계를 기록. 이후 Codex가 격리 SQL·REST를 실행하고 요청 한도·페이지 오류·초안 덮어쓰기를 재현했다. 실제 클라우드·동시 부하·하객 공유 및 수정은 미실행. CLI 실패·최종 응답·앱 캡처는 로컬 보관하며 공개 커밋에서 제외.
-- Claude 환경은 공개 사이트를 프록시 403으로 열지 못하여 코드·첨부 화면을 검토. Codex가 확인한 Sites 공개 HTTP 200과 구분한다. 이번 후속 커밋은 공개 설정·검토 문서만 갱신하며 앱 재배포는 하지 않는다.
-- 사용자 요청에 따라 같은 Claude 대화에 실제 로컬 화면 2장과 실행 점검 보고서를 전달하고 후속 검토를 완료했다. Claude가 화면·코드를 직접 확인하고 사진 필터 미확인을 해소했으며, 실행 원본은 당시 미업로드로 보고서 기준 평가였다. 최종 판정은 “디자인·편집 미리보기 완성, 실제 하객 서비스 출시에는 수정과 운영 검증 필요”.
+통합 release harness: ATTENTION. 공통 `release-ledger.yaml`·`RELEASE_STATUS.md` 없음. 이 문서가 웹의 검증·재개 기준이며 App Store 출시 준비 완료를 의미하지 않는다.
 
-- 통합 release harness: ATTENTION (공통 release-ledger.yaml·RELEASE_STATUS.md 없음). 실제 백엔드 release-ready 주장 없음. 프로젝트 상태는 이 문서가 관리함.
+## 근거와 재개
 
-## HOLD: 실제 백엔드 연결
+[구현 범위](implementation-20261003.md), [Cloudflare 운영 구조](CLOUDFLARE.md), [로컬 검사](evidence/cloudflare-local-20261003.json), [운영 검사](evidence/cloudflare-production-20261003.json), [산출물 지문](evidence/cloudflare-artifact-20261003.json), [보안 검사](evidence/security-cloudflare-20261003.md).
 
-현재 프로젝트에 실제 Supabase 환경 변수와 원격 Next 서버 연결이 없습니다. 다른 앱의 프로젝트는 변경하지 않았습니다. 로컬 SQL/RLS와 합성 두 계정 권한 검사는 통과했으나, 실제 Supabase 마이그레이션·공급자 로그인·사진 저장소·실제 두 계정·하객 공유·비용 관측은 확인되지 않았습니다. 점검용 임시 컨테이너와 네트워크는 정리했으며 로컬 미리보기는 열어뒀습니다. [연결 절차](BACKEND_SETUP.md).
+초기 Supabase·Claude 점검 기록은 [이전 상태](history/20261003-before-cloudflare.md)와 기존 보고서에 보존했다. 현재 운영 백엔드는 Supabase가 아니다.
 
-## 다음 작업과 재시작
-
-다음 구현에서는 재현된 요청 한도·페이지 오류·초안 충돌과 공개 DB 읽기 권한부터 수정·검증합니다. 소유자가 Supabase 프로젝트를 선택하고 비용을 확인하면 전용 프로젝트에 마이그레이션과 `tests/rls.sql`을 적용하고, 원격 Next 서버·공급자 설정을 연결합니다. 기존 Sites ID와 GitHub 저장소를 재사용합니다. 재시작 요청: “docs/current-state.md와 docs/BACKEND_CHECK_20261003.md를 읽고 봄결의 재현 오류를 수정한 뒤 실제 Supabase·OAuth·서버 저장 연결을 마무리해줘.”
+재개: “docs/current-state.md와 docs/CLOUDFLARE.md를 읽고 현재 웹과 기존 오삼오삼 계정을 보존하면서 후속 앱 교체를 진행해줘. 상호는 아직 미정이야.”

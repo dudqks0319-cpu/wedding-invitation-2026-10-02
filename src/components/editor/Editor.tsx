@@ -6,7 +6,7 @@ import { useRef, useState, type ChangeEvent } from "react";
 import type { Account, Invitation, Partner, Theme } from "@/types/invitation";
 import { TEMPLATES, getTemplate } from "@/data/templates";
 import { ALL_PHOTO_KEYS, photo } from "@/data/photos";
-import { ClientError, newId, publishInvitation, saveInvitation } from "@/lib/api";
+import { ClientError, newId, publishInvitation, request, saveInvitation } from "@/lib/api";
 import { REMOTE_DATA } from "@/lib/dataMode";
 import { writeStored } from "@/lib/localStore";
 import { resizeImage } from "@/lib/image";
@@ -130,6 +130,7 @@ function PhotoPicker({ inv, update, toast }: { inv: Invitation; update: Updater;
         </div>
       </Field>
       <Field label={`갤러리 사진 (${inv.gallery.length}/30)`}>
+        <button type="button" className="mb-3 min-h-11 text-[13px] underline" onClick={()=>update(d=>{d.gallery=d.gallery.filter(url=>!SAMPLE_PHOTOS.includes(url));})}>갤러리 예시 사진 모두 지우기</button>
         <div className="grid grid-cols-4 gap-2">
           {inv.gallery.map((src, i) => (
             <div key={src.slice(-24) + i} className="group relative aspect-square overflow-hidden rounded-lg">
@@ -196,7 +197,7 @@ function AccountsEditor({ inv, update }: { inv: Invitation; update: Updater }) {
 }
 
 /* ─────────── 편집기 본체 ─────────── */
-export function Editor({ initial }: { initial: Invitation }) {
+export function Editor({ initial, draftKey = `editor-v2:new:${initial.templateId}`, existing = false }: { initial: Invitation; draftKey?: string; existing?: boolean }) {
   const router = useRouter();
   const [inv, setInv] = useState<Invitation>(initial);
   const [view, setView] = useState<"edit" | "preview">("edit");
@@ -204,6 +205,7 @@ export function Editor({ initial }: { initial: Invitation }) {
   const [saved, setSaved] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [conflict,setConflict]=useState(false);
   const theme = getTemplate(inv.templateId) as Theme;
 
   const toast = (m: string) => {
@@ -214,7 +216,7 @@ export function Editor({ initial }: { initial: Invitation }) {
     setInv((prev) => {
       const next = structuredClone(prev);
       fn(next);
-      try { writeStored(`editor-draft:${initial.templateId}`, next); } catch { /* 저장 버튼에서 오류를 알려요 */ }
+      try { writeStored(draftKey, next); } catch { /* 저장 버튼에서 오류를 알려요 */ }
       return next;
     });
 
@@ -228,12 +230,13 @@ export function Editor({ initial }: { initial: Invitation }) {
       setSaving(true);
       const result = await saveInvitation(inv);
       setInv(result);
-      writeStored(`editor-draft:${initial.templateId}`, null);
+      writeStored(draftKey, null);
       setSaved(inv.slug);
     } catch (e) {
+      if(e instanceof ClientError && e.status===409)setConflict(true);
       if (e instanceof ClientError && e.status === 401) {
-        writeStored(`editor-draft:${initial.templateId}`, inv);
-        router.push(`/login?next=${encodeURIComponent(`/create/${initial.templateId}`)}`);
+        writeStored(draftKey, inv);
+        router.push(`/login?next=${encodeURIComponent(`/create/${initial.templateId}${existing ? `?edit=${initial.slug}` : ""}`)}`);
         return;
       }
       toast((e as Error).message);
@@ -287,10 +290,14 @@ export function Editor({ initial }: { initial: Invitation }) {
           </div>
 
           <Panel title="청첩장 주소" emoji="🔗" defaultOpen>
+            {conflict && <div role="alert" className="mb-4 rounded-2xl bg-brand-50 p-5 text-[14px]">
+              <p>다른 기기에서 변경되었거나 사용 중인 주소예요. 미저장 내용은 이 기기에 남아 있어요.</p>
+              <button className="mt-3 min-h-11 underline" onClick={async()=>{try{const latest=await request<Invitation>(`/api/invitations/${initial.slug}`);setInv(latest);writeStored(draftKey,null);setConflict(false);}catch(error){toast((error as Error).message);}}}>미저장 내용 대신 서버 내용 불러오기</button>
+            </div>}
             <Field label="주소" hint="영문 소문자, 숫자, - 만 사용할 수 있어요. 예) minjun-seoyeon">
               <div className="flex items-center overflow-hidden rounded-xl border border-black/10 bg-white focus-within:border-brand-300 focus-within:ring-4 focus-within:ring-brand-100">
                 <span className="bg-cream px-3 py-2.5 text-[13px] text-muted">/i/</span>
-                <input className="w-full px-2 py-2.5 text-[14px] outline-none" value={inv.slug} onChange={(e) => update((d) => void (d.slug = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "")))} />
+                <input aria-label="청첩장 주소" readOnly={existing || saved!==null || !!inv.revision} className="w-full px-2 py-2.5 text-[14px] outline-none" value={inv.slug} onChange={(e) => update((d) => void (d.slug = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "")))} />
               </div>
             </Field>
           </Panel>
@@ -385,7 +392,7 @@ export function Editor({ initial }: { initial: Invitation }) {
               <Toggle label="축하 방명록" checked={inv.options.showGuestbook} onChange={(v) => update((d) => void (d.options.showGuestbook = v))} />
               <Toggle label="움직이는 효과" desc="꽃잎·색종이·반짝이 (디자인마다 달라요)" checked={inv.options.showEffect} onChange={(v) => update((d) => void (d.options.showEffect = v))} />
             </div>
-            <TextInput label="배경음악 주소 (mp3, 선택)" value={inv.options.bgmUrl} onChange={(v) => update((d) => void (d.options.bgmUrl = v || undefined))} placeholder="https://.../music.mp3" hint="음원 업로드는 백엔드 연결 후 지원 예정이에요." />
+<p className="text-[13px] text-muted">배경음악은 음원 사용 권한을 확인한 뒤 지원할 예정이에요.</p>
           </Panel>
 
           <Panel title="카카오톡 공유 설정" emoji="💬">
@@ -456,14 +463,15 @@ export function Editor({ initial }: { initial: Invitation }) {
           <div className="w-full max-w-sm rounded-3xl bg-white p-7 text-center" onClick={(e) => e.stopPropagation()}>
             <p className="text-[44px]">🎉</p>
             <p className="mt-2 text-[20px] font-bold">청첩장이 저장되었어요!</p>
-            <p className="mt-2 text-[14px] text-muted">{REMOTE_DATA ? (inv.published ? '하객에게 공유 중인 청첩장이에요.' : '초안으로 저장했어요. 공유를 시작하면 하객이 볼 수 있어요.') : '이 브라우저에 저장된 미리보기예요. 다른 기기에 공유하려면 서버 연결이 필요해요.'}</p>
+            <p className="mt-2 text-[14px] text-muted">{REMOTE_DATA ? (inv.published ? '수정 내용은 공유 내용 업데이트를 누르면 반영돼요.' : '초안으로 저장했어요. 실제 사진으로 교체한 뒤 공유를 시작하세요.') : '이 브라우저에 저장된 미리보기예요. 다른 기기에 공유하려면 서버 연결이 필요해요.'}</p>
             <div className="mt-5 rounded-xl bg-cream px-4 py-3 text-[13px] text-ink/70">/i/{saved}</div>
             <div className="mt-5 flex flex-col gap-2">
               {REMOTE_DATA && <>
                 <p className="text-[12px] text-muted">공유하면 이름·연락처·계좌·사진이 링크를 가진 분에게 공개됩니다.</p>
+                {inv.published && <button disabled={saving} onClick={async()=>{setSaving(true);try {setInv(await publishInvitation(saved,true,inv.revision));toast('공유 내용이 업데이트됐어요');}catch(error){toast((error as Error).message);}finally{setSaving(false);}}} className="rounded-full bg-brand-500 py-3 text-white">공유 내용 업데이트</button>}
                 <button disabled={saving} onClick={async () => {
                   setSaving(true);
-                  try { setInv(await publishInvitation(saved, !inv.published)); }
+                  try { setInv(await publishInvitation(saved, !inv.published,inv.revision)); }
                   catch (error) { toast((error as Error).message); }
                   finally { setSaving(false); }
                 }} className="rounded-full bg-ink py-3 text-[15px] font-semibold text-white disabled:opacity-50">{saving ? '처리 중…' : inv.published ? '공유 중지' : '공유 시작'}</button>

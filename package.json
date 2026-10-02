@@ -9,8 +9,10 @@
     "lint": "eslint",
     "test:backend": "node tests/backend.integration.mjs",
     "build:preview": "vite build --config preview/vite.config.mts",
-    "build:sites": "npm run build:preview && node scripts/prepare-sites.mjs",
-    "photos": "node scripts/generate-photos.mjs"
+    "build:sites": "node scripts/prepare-sites.mjs",
+    "photos": "node scripts/generate-photos.mjs",
+    "build:cloudflare": "node scripts/build-cloudflare.mjs",
+    "test:cloudflare": "node tests/cloudflare.integration.mjs"
   },
   "dependencies": {
     "next": "16.3.7",

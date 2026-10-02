@@ -20,7 +20,8 @@ const listeners = new Set<() => void>();
 function emit() { listeners.forEach((fn) => fn()); }
 function subscribe(fn: () => void) { listeners.add(fn); return () => { listeners.delete(fn); }; }
 export async function request<T>(path: string, method = "GET", body?: unknown): Promise<T> {
-  const response = await fetch(path, {
+  const url = process.env.NEXT_PUBLIC_BACKEND === 'cloudflare' ? path.replace(/^\/api\//, '/api/v2/') : path;
+  const response = await fetch(url, {
     method, credentials: "same-origin", cache: "no-store", signal: AbortSignal.timeout(20_000),
     headers: method === "GET" ? {} : { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
     body: body === undefined ? undefined : JSON.stringify(body),
@@ -37,6 +38,7 @@ function load(path: string) {
     .finally(() => { pending.delete(path); emit(); });
 }
 function refresh(path: string) { cache.delete(path); emit(); load(path); }
+export function refreshApi(path:string){refresh(path);}
 export function useApiState(path: string): State {
   const enabled = REMOTE_DATA && !!path && !path.includes("/sample-");
   const state = useSyncExternalStore(subscribe, () => enabled ? cache.get(path) ?? INITIAL : LOCAL, () => enabled ? INITIAL : LOCAL);
@@ -65,8 +67,10 @@ export async function saveInvitation(inv: Invitation) {
   }
   writeStored(INVITATIONS_KEY, { ...readStored(INVITATIONS_KEY, EMPTY_INVITATIONS), [inv.slug]: inv }); return inv;
 }
-export async function publishInvitation(slug: string, published: boolean) {
-  const saved = await request<Invitation>(`/api/invitations/${slug}/publish`, "POST", { published });
+export async function publishInvitation(slug: string, published: boolean, expectedRevision?:number) {
+  const inv = getInvitation(slug);
+  if (published && inv && [inv.coverPhoto,...inv.gallery].some(url=>url.startsWith('/photos/'))) throw new ClientError('AI 예시 사진을 실제 사진으로 바꾸고, 갤러리의 예시 사진도 지워 주세요.',400);
+  const saved = await request<Invitation>(`/api/invitations/${slug}/publish`, "POST", { published, revision: expectedRevision ?? inv?.revision ?? 0 });
   cache.set(`/api/invitations/${slug}`, { data: saved, loading: false, error: null });
   refresh("/api/invitations"); return saved;
 }

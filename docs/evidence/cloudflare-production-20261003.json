@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-02T23:19:16.326Z",
+  "lane": "Actual Cloudflare Worker + D1 + R2 + Images via existing public Sites gateway; two synthetic temporary account sessions; provider OAuth separate",
+  "checks": [
+    {
+      "name": "live D1 health via Sites gateway",
+      "result": "PASS"
+    },
+    {
+      "name": "anonymous owner list denied",
+      "result": "PASS"
+    },
+    {
+      "name": "live owner draft save and replay",
+      "result": "PASS"
+    },
+    {
+      "name": "live second account and anonymous draft denied",
+      "result": "PASS"
+    },
+    {
+      "name": "live foreign origin denied",
+      "result": "PASS"
+    },
+    {
+      "name": "live AI sample publication denied",
+      "result": "PASS"
+    },
+    {
+      "name": "real Cloudflare Images transform and R2 upload",
+      "result": "PASS"
+    },
+    {
+      "name": "live unused private R2 image denied",
+      "result": "PASS"
+    },
+    {
+      "name": "live publication and OG image",
+      "result": "PASS"
+    },
+    {
+      "name": "live guest RSVP stored once and owner-only",
+      "result": "PASS"
+    },
+    {
+      "name": "live guestbook approval",
+      "result": "PASS"
+    },
+    {
+      "name": "live unpublish revokes page and R2 photo",
+      "result": "PASS"
+    },
+    {
+      "name": "live delete removes invitation and unused R2 photo",
+      "result": "PASS"
+    }
+  ]
+}

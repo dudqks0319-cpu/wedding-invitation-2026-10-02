@@ -34,7 +34,7 @@ function inlineSamples(): Plugin {
 export default defineConfig({
   root,
   base: "./",
-  plugins: [inlineSamples(), react(), tailwindcss(), viteSingleFile()],
+  plugins: [...(process.env.WEDDING_BUILD_MODE === "remote" ? [] : [inlineSamples()]), react(), tailwindcss(), viteSingleFile()],
   resolve: {
     alias: [
       { find: /^next\/link$/, replacement: path.resolve(root, "shims/link.tsx") },
@@ -43,14 +43,15 @@ export default defineConfig({
     ],
   },
   define: {
-    "process.env.NEXT_PUBLIC_DATA_MODE": '"local"',
+    "process.env.NEXT_PUBLIC_DATA_MODE": JSON.stringify(process.env.WEDDING_BUILD_MODE === "remote" ? "remote" : "local"),
+    "process.env.NEXT_PUBLIC_BACKEND": JSON.stringify(process.env.WEDDING_BUILD_MODE === "remote" ? "cloudflare" : ""),
     "process.env.NEXT_PUBLIC_KAKAO_JS_KEY": '""',
     "process.env.NEXT_PUBLIC_KAKAO_MAP_KEY": '""',
     "process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID": '""',
     "process.env.NEXT_PUBLIC_SITE_URL": '""',
   },
   build: {
-    outDir: path.resolve(root, "../dist-preview"),
+    outDir: path.resolve(root, process.env.WEDDING_BUILD_MODE === "remote" ? "../dist-cloudflare" : "../dist-preview"),
     emptyOutDir: true,
     assetsInlineLimit: 100_000_000,
   },

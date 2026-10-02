@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SITE } from "@/lib/site";
 import { Logo } from "./Logo";
+import {REMOTE_DATA} from '@/lib/dataMode';
 
 export function Footer() {
   return (
@@ -17,7 +18,7 @@ export function Footer() {
         {[
           { title: "만들기", links: [["모바일 청첩장", "/templates?type=wedding"], ["돌잔치 초대장", "/templates?type=dol"], ["부모님 잔치", "/templates?type=party"]] },
           { title: "서비스", links: [["요금 안내", "/pricing"], ["내 청첩장", "/my"], ["로그인", "/login"]] },
-          { title: "고객센터", links: [["자주 묻는 질문", "/#faq"], ["1:1 문의 (준비 중)", "#"], ["이용약관 (준비 중)", "#"]] },
+          { title: "이용 안내", links: [["자주 묻는 질문", "/#faq"], ["서비스 안내", "/pricing"]] },
         ].map((col) => (
           <div key={col.title}>
             <p className="text-[14px] font-semibold">{col.title}</p>
@@ -34,7 +35,7 @@ export function Footer() {
         ))}
       </div>
       <p className="border-t border-brand-50 py-6 text-center text-[12px] text-muted">
-        © {new Date().getFullYear()} {SITE.nameEn}. 디자인 시안 (프론트엔드 미리보기)
+        © {new Date().getFullYear()} {SITE.nameEn}. {REMOTE_DATA?'사진과 개인정보는 공유 시작 전까지 나만 볼 수 있어요.':'디자인 시안 (프론트엔드 미리보기)'}
       </p>
     </footer>
   );

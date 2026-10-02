@@ -1,44 +1,40 @@
-# 봄결 · 사진으로 만드는 초대장
+# 내 사진으로 만드는 초대장
 
-모바일 청첩장 13종, 돌잔치 4종, 부모님 잔치 2종을 편집하는 Next.js 앱입니다. 표지와 갤러리에 가상 인물의 **실사 AI 예시 사진 26장**을 적용했습니다. 고객의 실제 사진으로 바꿔 사용할 수 있습니다.
+상호는 아직 정하지 않았습니다. 웹 화면에는 ‘청첩장’으로 표시합니다. 실사 AI 예시 사진 26장과 디자인 19종(청첩장 13·돌잔치 4·부모님 잔치 2)을 제공하며, 공유하기 전 내 사진으로 교체합니다.
 
-## 실행
+[웹서비스](https://osamosam-app.jyb1126.chatgpt.site) · [기존 Sites 링크](https://wedding-invitation-2026-10-02.jyb1126.chatgpt.site) · [현재 검증 상태](docs/current-state.md)
+
+## 현재 배포
+
+Cloudflare Worker의 `/api/v2/`, D1, 비공개 R2, Images를 사용합니다. 오삼오삼의 기존 계정·Google/카카오 등록·네이티브 인증·이전 초대장 API를 보존하면서 홈페이지와 새 작성 화면을 교체했습니다. 이전 초대장은 `/dashboard`, 새 초대장은 `/my`에서 관리합니다. 기존 iPhone/Android 앱 교체는 후속 작업입니다.
+
+작성자만 초안을 읽고 수정할 수 있습니다. 공유 시작·공유 내용 업데이트를 누르면 별도 스냅샷이 공개됩니다. 공유 중지는 페이지와 사진 접근에 즉시 반영됩니다. RSVP 명단은 작성자 전용이며 방명록은 승인 후 공개됩니다. 현재 무료 시험 운영이며 결제·BGM·네이버 로그인은 제공하지 않습니다.
+
+## 로컬 실행과 검증
 
 ```sh
 npm ci
-npm run dev
+npm run dev                 # 브라우저에 저장되는 로컬 미리보기
+npm run build:preview       # 한 파일 로컬 미리보기
+npm run build:cloudflare    # 서버 연결 화면과 Worker 모듈 생성; 배포하지 않음
+npm run build               # 별도 Next 개발 빌드 검증
+npm run lint
 ```
-
-기본값은 `local` 모드입니다. 내용과 사진은 현재 브라우저에 저장하며, 다른 기기의 하객에게 공유되지 않습니다. 예시 초대장은 읽기 전용입니다.
 
 ```sh
-npm run build:preview  # dist-preview/index.html: 한 파일 미리보기
-npm run build:sites    # dist/index.html: Sites 배포용 미리보기
-npm run build         # Next 서버 및 API 빌드
-npm run test:backend  # 실행 중인 Next API + 격리된 Supabase HTTP fixture
+OSAM_TOOLCHAIN=/path/to/osam-rebuild/node_modules npm run test:cloudflare
 ```
 
-Sites 배포는 **전체 공개 디자인·편집 미리보기**입니다. 내용은 해당 브라우저에만 저장되며, Sites 산출물에는 Next API 서버가 포함되지 않습니다. 실제 DB·로그인·하객 공유는 별도 서버 연결 후 활성화해야 합니다. [백엔드 연결 안내](docs/BACKEND_SETUP.md)와 [Claude 코드·화면 검토](docs/CLAUDE_REVIEW.md)를 확인하세요.
+Cloudflare 검사는 기존 오삼오삼 도구에 설치된 Miniflare·sharp를 사용합니다. 실제 로컬 D1/R2, 이미지 디코딩, 두 계정 권한, 게시·취소, 동시 저장, 만료·삭제·용량 회수 40개를 검사합니다. `--serve`를 지정하면 합성 계정만 사용하는 로컬 확인 서버가 4180번에 열립니다.
 
-## 구현 내용
+운영 서비스 점검은 `tests/cloudflare.production.mjs`에 분리했습니다. 권한 있는 Wrangler와 이미 빌드된 기존 런타임 사본이 필요하며, 합성 계정·초대장·사진을 생성하고 제거하므로 명시적인 운영 점검 때만 실행합니다. 운영 공급자 로그인은 이 테스트와 별개로 확인합니다.
 
-- 실시간 이름·문구·사진·장소 편집, 갤러리, 달력, 길찾기, 계좌 복사.
-- Supabase REST/Auth/Storage를 연결하는 Next Route Handlers: 청첩장 저장·삭제·공개/비공개, 카카오·구글 PKCE 로그인, 사진 업로드, 방명록, 참석 의사.
-- 초안·사진 소유권, 참석 응답 소유자 조회, 방명록 비밀번호 해시, 입력·파일·요청 한도, 중복 요청 방지, 서버 중지 스위치.
-- 실제 공개된 청첩장의 서버 공유 메타데이터와 카카오 JS 공유. 네이버 로그인·결제·주소 검색 연동은 준비 상태입니다.
+## Cloudflare 소스와 통합
 
-| 주소 | 화면 |
-| --- | --- |
-| `/templates` | 19종 디자인 선택 |
-| `/create/[id]` | 편집 및 실시간 미리보기 |
-| `/i/sample-[id]` | 실사 AI 샘플 초대장 |
-| `/my` | 내 초대장·참석 응답 |
-| `/login` | 원격 모드 카카오·구글 로그인 |
+- `cloudflare/application.ts`, `service.ts`, `security.ts`, `photos.ts`: 새 화면·API·세션 권한·사진 저장·정리.
+- `cloudflare/migrations/0005_replacement.sql`: 기존 데이터에 영향을 주지 않는 새 `w2_` 테이블.
+- `cloudflare/osam-worker.template.ts`: 기존 오삼오삼 OpenNext 런타임에 새 모듈을 연결하는 진입점. 기존 로그인·앱 API의 소스와 자산은 기존 체크아웃에서 빌드합니다.
+- `scripts/build-cloudflare.mjs`: `dist-cloudflare`와 `cloudflare/build/replacement.mjs` 생성.
+- `site-redirect`: 기존 Sites 링크를 같은 계정·로그인을 사용하는 서비스 주소로 연결합니다.
 
-Sites와 한 파일 미리보기의 경로는 `/#/templates`처럼 표시됩니다. 새로고침과 뒤로가기를 지원합니다.
-
-## 검증 및 기록
-
-[현재 상태](docs/current-state.md), [사진 생성 프롬프트](docs/evidence/photo-generation.json), [화면 검사](docs/evidence/browser-covers.json), [백엔드 테스트](docs/evidence/backend-integration.log), [보안 검사](docs/evidence/security-gate.md).
-
-HTTP fixture 테스트는 실제 Supabase 마이그레이션·RLS·OAuth 계정 검증을 대신하지 않습니다. 배포 상태와 실제 서비스 검증은 현재 상태 문서에서 구분합니다.
+이 저장소의 기존 Supabase/Next API는 초기 구현 기록이며 현재 운영 백엔드로 배포하지 않습니다. 운영 통합과 한도는 [Cloudflare 안내](docs/CLOUDFLARE.md), 결과는 [현재 상태](docs/current-state.md)에서 확인하세요. 비밀값은 기존 Cloudflare/Sites 설정에 유지하며 소스·산출물에 넣지 않습니다.

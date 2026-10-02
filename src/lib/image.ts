@@ -20,7 +20,7 @@ export function resizeImage(file: File, maxSize = 1200, quality = 0.82): Promise
         if (!REMOTE_DATA) return resolve(canvas.toDataURL("image/jpeg", quality));
         try {
           const blob = await new Promise<Blob>((done, fail) => canvas.toBlob((b) => b ? done(b) : fail(new Error('사진을 처리하지 못했어요')), 'image/jpeg', quality));
-          const response = await fetch('/api/uploads', { method: 'POST', body: blob, credentials: 'same-origin', signal: AbortSignal.timeout(20_000), headers: { 'Content-Type': 'image/jpeg', 'Idempotency-Key': crypto.randomUUID() } });
+          const response = await fetch(process.env.NEXT_PUBLIC_BACKEND === 'cloudflare' ? '/api/v2/uploads' : '/api/uploads', { method: 'POST', body: blob, credentials: 'same-origin', signal: AbortSignal.timeout(20_000), headers: { 'Content-Type': 'image/jpeg', 'Idempotency-Key': crypto.randomUUID() } });
           const result = await response.json();
           if (!response.ok) throw new Error(result.error ?? '사진을 저장하지 못했어요');
           resolve(result.url);

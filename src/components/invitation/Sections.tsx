@@ -743,7 +743,7 @@ export function GuestbookSection() {
     await addGuestbook(inv.slug, { name: form.name.trim(), message: form.message.trim(), password: form.password });
     setForm({ name: "", password: "", message: "" });
     setOpen(false);
-    toast("축하 메시지가 등록되었어요");
+    toast(process.env.NEXT_PUBLIC_BACKEND === "cloudflare" ? "축하 메시지를 보냈어요. 작성자 승인 후 공개돼요." : "축하 메시지가 등록되었어요");
     } catch(error) { toast((error as Error).message); } finally {setBusy(false);}
   };
 
@@ -766,7 +766,7 @@ export function GuestbookSection() {
                   <button
                     onClick={async () => {
                       if (confirm("이 메시지를 삭제할까요?")) {
-                        const password=prompt("작성할 때 입력한 비밀번호를 넣어 주세요. 청첩장 주인은 비워 두어도 됩니다.");
+                        const password=prompt("작성할 때 입력한 비밀번호를 넣어 주세요.");
                         if (password===null) return;
                         try { await removeGuestbook(inv.slug, g.id, password); toast("삭제되었어요"); }
                         catch(error) {toast((error as Error).message);}

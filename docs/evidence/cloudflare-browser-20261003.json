@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-03",
+  "observations": [
+    {
+      "lane": "local D1/R2 fixture",
+      "result": "PASS",
+      "cases": [
+        "photo upload using explicitly synthetic sample image",
+        "draft save and explicit publication",
+        "reload keeps server draft",
+        "same-template new editor uses different slug and default names"
+      ]
+    },
+    {
+      "lane": "production",
+      "result": "PASS",
+      "cases": [
+        "Google OAuth -> /my on final Worker version",
+        "legacy dashboard account connected and two device drafts visible; no import or deletion",
+        "AI photo notice and complete 1024x1536 photo on published sample design"
+      ]
+    }
+  ],
+  "screenshots": [
+    "cloudflare-local-mobile.png",
+    "cloudflare-production-mobile.png"
+  ],
+  "scope": "iPhone/Android app replacement and Kakao full OAuth flow not exercised"
+}

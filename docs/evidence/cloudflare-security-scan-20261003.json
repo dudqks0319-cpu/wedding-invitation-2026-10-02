@@ -1,0 +1,8 @@
+{
+  "date": "2026-10-03",
+  "scanned_paths": 1610,
+  "potential_secret_files": [],
+  "root_dependency_audit": "0 vulnerabilities",
+  "legacy_patched_audit": "0 vulnerabilities",
+  "legacy_next": "16.3.7"
+}

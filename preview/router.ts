@@ -7,7 +7,8 @@ import { useSyncExternalStore } from "react";
 
 type Loc = { pathname: string; search: string };
 
-let loc: Loc = { pathname: "/", search: "" };
+const live = process.env.NEXT_PUBLIC_BACKEND === 'cloudflare';
+let loc: Loc = { pathname: typeof window !== 'undefined' && live ? window.location.pathname : '/', search: typeof window !== 'undefined' && live ? window.location.search.slice(1) : '' };
 const listeners = new Set<() => void>();
 
 function parse(href: string): Loc & { hash: string } {
@@ -30,8 +31,8 @@ export function navigate(href: string, { replace = false, scroll = true } = {}) 
   const next = parse(href);
   loc = { pathname: next.pathname, search: next.search };
   try {
-    if (replace) history.replaceState({ href }, "", `#${href}`);
-    else history.pushState({ href }, "", `#${href}`);
+    if (replace) history.replaceState({ href }, "", live ? href : `#${href}`);
+    else history.pushState({ href }, "", live ? href : `#${href}`);
   } catch {
     /* 기록을 못 남겨도 화면 이동은 계속 */
   }
@@ -46,7 +47,7 @@ if (typeof window !== "undefined") {
     loc = { pathname: next.pathname, search: next.search };
   }
   window.addEventListener("popstate", (e) => {
-    const href = (e.state as { href?: string } | null)?.href ?? (window.location.hash.startsWith('#/') ? window.location.hash.slice(1) : "/");
+    const href = (e.state as { href?: string } | null)?.href ?? (window.location.hash.startsWith('#/') ? window.location.hash.slice(1) : live ? window.location.pathname + window.location.search : "/");
     const next = parse(href);
     loc = { pathname: next.pathname, search: next.search };
     listeners.forEach((l) => l());
