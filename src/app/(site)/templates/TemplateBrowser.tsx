@@ -38,6 +38,7 @@ export function TemplateBrowser({ initialType }: { initialType: Filter }) {
       <div className="text-center">
         <p className="font-script text-[32px] text-brand-400">Choose your design</p>
         <h1 className="mt-1 text-[30px] font-bold">{type === "all" ? "마음에 드는 디자인을 골라보세요" : CATEGORY_LABEL[type]}</h1>
+        <p className="mt-3 text-[13px] text-muted">사진은 AI로 만든 예시예요. 내 사진을 넣어 나만의 초대장을 만들 수 있어요.</p>
         <p className="mt-2 text-[15px] text-muted">카드를 누르면 실제 청첩장처럼 미리 볼 수 있어요</p>
       </div>
 

@@ -1,0 +1,11 @@
+
+> invitation-web@0.1.0 lint
+> eslint
+
+
+/Users/jyb-m3max/Desktop/codex/wedding-invitation-2026-10-02/preview/shims/link.tsx
+  13:65  warning  '_target' is defined but never used  @typescript-eslint/no-unused-vars
+  13:84  warning  '_p' is defined but never used       @typescript-eslint/no-unused-vars
+
+✖ 2 problems (0 errors, 2 warnings)
+

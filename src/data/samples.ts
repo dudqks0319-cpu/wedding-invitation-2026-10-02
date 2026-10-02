@@ -91,10 +91,10 @@ function weddingSample(theme: Theme): Invitation {
     coverPhoto: theme.samplePhoto,
     gallery: WEDDING_GALLERY,
     accounts: [
-      { id: "a1", side: "groom", label: "신랑", bank: "국민은행", number: "123456-01-234567", holder: "김민준", kakaoPayUrl: "#" },
+      { id: "a1", side: "groom", label: "신랑", bank: "국민은행", number: "123456-01-234567", holder: "김민준" },
       { id: "a2", side: "groom", label: "신랑 아버지", bank: "신한은행", number: "110-123-456789", holder: "김철수" },
       { id: "a3", side: "groom", label: "신랑 어머니", bank: "우리은행", number: "1002-123-456789", holder: "박영희" },
-      { id: "a4", side: "bride", label: "신부", bank: "카카오뱅크", number: "3333-01-2345678", holder: "이서연", kakaoPayUrl: "#" },
+      { id: "a4", side: "bride", label: "신부", bank: "카카오뱅크", number: "3333-01-2345678", holder: "이서연" },
       { id: "a5", side: "bride", label: "신부 어머니", bank: "하나은행", number: "123-456789-01234", holder: "최미경" },
     ],
     options: { ...DEFAULT_OPTIONS },
@@ -135,7 +135,7 @@ function dolSample(theme: Theme): Invitation {
     gallery: DOL_GALLERY,
     accounts: [
       { id: "d1", side: "host", label: "아빠", bank: "국민은행", number: "123456-02-345678", holder: "박지훈" },
-      { id: "d2", side: "host", label: "엄마", bank: "카카오뱅크", number: "3333-02-3456789", holder: "정유진", kakaoPayUrl: "#" },
+      { id: "d2", side: "host", label: "엄마", bank: "카카오뱅크", number: "3333-02-3456789", holder: "정유진" },
     ],
     options: { ...DEFAULT_OPTIONS, showRsvp: true },
     shareTitle: "박하준 첫 돌잔치에 초대합니다",

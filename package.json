@@ -4,10 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
+    "test:backend": "node tests/backend.integration.mjs",
     "build:preview": "vite build --config preview/vite.config.mts",
+    "build:sites": "npm run build:preview && node scripts/prepare-sites.mjs",
     "photos": "node scripts/generate-photos.mjs"
   },
   "dependencies": {

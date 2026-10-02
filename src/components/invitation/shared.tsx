@@ -69,7 +69,7 @@ export function useInv() {
 /** 사진 (불러오기 전/실패 시 부드러운 색 배경) */
 export function Photo({
   src,
-  alt = "",
+  alt = "초대장 사진",
   className = "",
   style,
 }: {

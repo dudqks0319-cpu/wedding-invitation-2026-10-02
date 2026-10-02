@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { deleteInvitation, useMyInvitations, useRsvpList } from "@/lib/api";
+import { deleteInvitation, publishInvitation, request, useApiState, useMyInvitations, useRsvpList } from "@/lib/api";
+import { REMOTE_DATA } from "@/lib/dataMode";
 import { useHydrated } from "@/lib/useHydrated";
 import { CATEGORY_SHORT, getTemplate } from "@/data/templates";
 import { formatKoreanDate } from "@/lib/date";
@@ -11,6 +13,7 @@ import type { Invitation } from "@/types/invitation";
 
 function RsvpSummary({ inv }: { inv: Invitation }) {
   const list = useRsvpList(inv.slug);
+  const status = useApiState(`/api/invitations/${inv.slug}/rsvp`);
   const [open, setOpen] = useState(false);
   const yes = list.filter((r) => r.attending);
   const people = yes.reduce((s, r) => s + r.count, 0);
@@ -22,6 +25,7 @@ function RsvpSummary({ inv }: { inv: Invitation }) {
         </span>
         <span className="text-muted">{open ? "접기" : "자세히"}</span>
       </button>
+      {status.error && <p role="alert" className="mt-2 text-[13px]">{status.error.message}</p>}
       {open && (
         <ul className="mt-3 space-y-1.5 text-[13px]">
           {list.length === 0 && <li className="text-muted">아직 도착한 응답이 없어요</li>}
@@ -40,8 +44,11 @@ function RsvpSummary({ inv }: { inv: Invitation }) {
 }
 
 export default function MyPage() {
+  const router=useRouter();
   const hydrated = useHydrated();
   const all = useMyInvitations();
+  const status=useApiState("/api/invitations");
+  const [msg,setMsg]=useState<string | null>(null);
   const list = Object.values(all);
 
   return (
@@ -56,10 +63,13 @@ export default function MyPage() {
         </Link>
       </div>
       <p className="mt-3 rounded-xl bg-butter px-4 py-3 text-[13px] text-ink/70">
-        💡 지금은 이 브라우저에만 저장돼요. 로그인·서버가 연결되면 휴대폰과 PC 어디서든 볼 수 있어요.
+        {REMOTE_DATA ? "초안은 나만 볼 수 있어요. 공유를 시작하면 링크로 하객을 초대할 수 있어요." : "이 브라우저에만 저장된 미리보기예요. 다른 기기로 공유하려면 서버 연결이 필요해요."}
       </p>
 
-      {hydrated && list.length === 0 && (
+      {REMOTE_DATA && <button onClick={async()=>{try {await request('/api/auth/logout','POST',{});router.push('/login');router.refresh();} catch(error) {setMsg((error as Error).message);}}} className="mt-4 text-[13px] underline">로그아웃</button>}
+      {status.loading && <p className="mt-5">불러오는 중…</p>}
+      {(status.error || msg) && <p role="alert" className="mt-5">{msg ?? status.error?.message} {status.error?.status===401 && <Link href="/login?next=%2Fmy" className="underline">로그인하기</Link>}</p>}
+      {hydrated && !status.loading && !status.error && list.length === 0 && (
         <div className="mt-10 rounded-[28px] border-2 border-dashed border-brand-200 bg-white py-20 text-center">
           <p className="text-[44px]">💌</p>
           <p className="mt-3 text-[17px] font-semibold">아직 만든 청첩장이 없어요</p>
@@ -86,6 +96,7 @@ export default function MyPage() {
                   <p className="truncate text-[12px] text-muted">/i/{inv.slug}</p>
                 </div>
               </div>
+              {REMOTE_DATA && <div className="mt-3 text-[13px]"><span>{inv.published ? '하객에게 공유 중' : '나만 보는 초안'}</span><button className="ml-3 underline" onClick={async()=>{if (!inv.published && !confirm('이름·연락처·계좌·사진이 링크를 가진 분에게 공개됩니다. 공유를 시작할까요?')) return;try {await publishInvitation(inv.slug,!inv.published);}catch(error){setMsg((error as Error).message);}}}>{inv.published ? '공유 중지' : '공유 시작'}</button></div>}
               <RsvpSummary inv={inv} />
               <div className="mt-4 grid grid-cols-3 gap-2 text-[13px] font-medium">
                 <Link href={`/i/${inv.slug}`} target="_blank" className="rounded-full bg-brand-500 py-2.5 text-center text-white">
@@ -95,8 +106,8 @@ export default function MyPage() {
                   수정
                 </Link>
                 <button
-                  onClick={() => {
-                    if (confirm("이 청첩장을 삭제할까요? 되돌릴 수 없어요.")) deleteInvitation(inv.slug);
+                  onClick={async () => {
+                    if (confirm("이 청첩장을 삭제할까요? 되돌릴 수 없어요.")) {try {await deleteInvitation(inv.slug);}catch(error){setMsg((error as Error).message);}}
                   }}
                   className="rounded-full border border-black/10 py-2.5 text-muted"
                 >

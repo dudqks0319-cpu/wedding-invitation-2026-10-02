@@ -43,6 +43,8 @@ export default defineConfig({
     ],
   },
   define: {
+    "process.env.NEXT_PUBLIC_DATA_MODE": '"local"',
+    "process.env.NEXT_PUBLIC_KAKAO_JS_KEY": '""',
     "process.env.NEXT_PUBLIC_KAKAO_MAP_KEY": '""',
     "process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID": '""',
     "process.env.NEXT_PUBLIC_SITE_URL": '""',

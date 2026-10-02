@@ -1,0 +1,192 @@
+[
+  {
+    "id": "blossom",
+    "overflow": false,
+    "photos": [
+      {
+        "loaded": true,
+        "src": "/photos/wedding-blossom.webp"
+      }
+    ]
+  },
+  {
+    "id": "ivory-classic",
+    "overflow": false,
+    "photos": [
+      {
+        "loaded": true,
+        "src": "/photos/wedding-classic.webp"
+      }
+    ]
+  },
+  {
+    "id": "peach-film",
+    "overflow": false,
+    "photos": [
+      {
+        "loaded": true,
+        "src": "/photos/wedding-film.webp"
+      }
+    ]
+  },
+  {
+    "id": "watercolor-bouquet",
+    "overflow": false,
+    "photos": [
+      {
+        "loaded": true,
+        "src": "/photos/wedding-bouquet.webp"
+      }
+    ]
+  },
+  {
+    "id": "dol-balloon",
+    "overflow": false,
+    "photos": [
+      {
+        "loaded": true,
+        "src": "/photos/dol-balloon.webp"
+      }
+    ]
+  },
+  {
+    "id": "party-peony",
+    "overflow": false,
+    "photos": [
+      {
+        "loaded": true,
+        "src": "/photos/party-mother.webp"
+      }
+    ]
+  },
+  {
+    "id": "garden-green",
+    "overflow": false,
+    "photos": [
+      {
+        "loaded": true,
+        "src": "/photos/wedding-garden.webp"
+      }
+    ]
+  },
+  {
+    "id": "lemon-polaroid",
+    "overflow": false,
+    "photos": [
+      {
+        "loaded": true,
+        "src": "/photos/wedding-polaroid.webp"
+      }
+    ]
+  },
+  {
+    "id": "sky-letter",
+    "overflow": false,
+    "photos": [
+      {
+        "loaded": true,
+        "src": "/photos/wedding-sky.webp"
+      }
+    ]
+  },
+  {
+    "id": "lavender-dream",
+    "overflow": false,
+    "photos": [
+      {
+        "loaded": true,
+        "src": "/photos/wedding-lavender.webp"
+      }
+    ]
+  },
+  {
+    "id": "modern-magazine",
+    "overflow": false,
+    "photos": [
+      {
+        "loaded": true,
+        "src": "/photos/wedding-city.webp"
+      }
+    ]
+  },
+  {
+    "id": "coral-sunset",
+    "overflow": false,
+    "photos": [
+      {
+        "loaded": true,
+        "src": "/photos/wedding-beach.webp"
+      }
+    ]
+  },
+  {
+    "id": "hanok-spring",
+    "overflow": false,
+    "photos": [
+      {
+        "loaded": true,
+        "src": "/photos/wedding-hanbok.webp"
+      }
+    ]
+  },
+  {
+    "id": "minimal-line",
+    "overflow": false,
+    "photos": [
+      {
+        "loaded": true,
+        "src": "/photos/wedding-rings.webp"
+      }
+    ]
+  },
+  {
+    "id": "mint-picnic",
+    "overflow": false,
+    "photos": [
+      {
+        "loaded": true,
+        "src": "/photos/wedding-picnic.webp"
+      }
+    ]
+  },
+  {
+    "id": "dol-bear",
+    "overflow": false,
+    "photos": [
+      {
+        "loaded": true,
+        "src": "/photos/dol-bear.webp"
+      }
+    ]
+  },
+  {
+    "id": "dol-saekdong",
+    "overflow": false,
+    "photos": [
+      {
+        "loaded": true,
+        "src": "/photos/dol-hanbok.webp"
+      }
+    ]
+  },
+  {
+    "id": "dol-starry",
+    "overflow": false,
+    "photos": [
+      {
+        "loaded": true,
+        "src": "/photos/dol-moon.webp"
+      }
+    ]
+  },
+  {
+    "id": "party-sunrise",
+    "overflow": false,
+    "photos": [
+      {
+        "loaded": true,
+        "src": "/photos/party-couple.webp"
+      }
+    ]
+  }
+]

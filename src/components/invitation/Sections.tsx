@@ -4,6 +4,8 @@ import { useState, useSyncExternalStore, type FormEvent, type ReactNode } from "
 import type { Account, Partner } from "@/types/invitation";
 import { diffFromNow, monthMatrix, parseDateTime, WEEKDAYS, formatKoreanDate, formatKoreanTime } from "@/lib/date";
 import { kakaoMapUrl, naverMapUrl, tmapUrl } from "@/lib/maps";
+import { kakaoShare } from "@/lib/kakao";
+import { REMOTE_DATA } from "@/lib/dataMode";
 import { addGuestbook, removeGuestbook, submitRsvp, useGuestbook } from "@/lib/api";
 import { MapEmbed } from "./MapEmbed";
 import { HeartIcon } from "./Ornaments";
@@ -602,6 +604,7 @@ function Choice({ active, onClick, children }: { active: boolean; onClick: () =>
 export function RsvpSection() {
   const { inv, readOnly, toast } = useInv();
   const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({ side: inv.type === "wedding" ? "groom" : "host", name: "", attending: true, count: 1, meal: "yes", memo: "" });
 
   const submit = async (e: FormEvent) => {
@@ -611,6 +614,9 @@ export function RsvpSection() {
       setOpen(false);
       return toast("미리보기에서는 저장되지 않아요");
     }
+    if (busy) return;
+    setBusy(true);
+    try {
     await submitRsvp(inv.slug, {
       side: form.side as "groom" | "bride" | "host",
       name: form.name.trim(),
@@ -622,6 +628,7 @@ export function RsvpSection() {
     setOpen(false);
     setForm((f) => ({ ...f, name: "", memo: "" }));
     toast("참석 의사가 전달되었어요. 감사합니다!");
+    } catch(error) { toast((error as Error).message); } finally {setBusy(false);}
   };
 
   return (
@@ -698,7 +705,7 @@ export function RsvpSection() {
             <span className="mb-2 block font-medium">전달 메모 (선택)</span>
             <input className={inputCls} style={inputStyle} value={form.memo} onChange={(e) => setForm({ ...form, memo: e.target.value })} placeholder="예) 아이 1명 동반해요" maxLength={60} />
           </label>
-          <Button type="submit" variant="solid" className="w-full py-3.5 text-[15px]">
+          <Button disabled={busy} type="submit" variant="solid" className="w-full py-3.5 text-[15px]">
             전달하기
           </Button>
         </form>
@@ -720,6 +727,7 @@ export function GuestbookSection() {
   const list = stored.length || !inv.slug.startsWith("sample-") ? stored : DEMO_GUESTBOOK;
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ name: "", password: "", message: "" });
+  const [busy, setBusy] = useState(false);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -729,10 +737,14 @@ export function GuestbookSection() {
       setOpen(false);
       return toast("미리보기에서는 저장되지 않아요");
     }
+    if (busy) return;
+    setBusy(true);
+    try {
     await addGuestbook(inv.slug, { name: form.name.trim(), message: form.message.trim(), password: form.password });
     setForm({ name: "", password: "", message: "" });
     setOpen(false);
     toast("축하 메시지가 등록되었어요");
+    } catch(error) { toast((error as Error).message); } finally {setBusy(false);}
   };
 
   return (
@@ -754,8 +766,10 @@ export function GuestbookSection() {
                   <button
                     onClick={async () => {
                       if (confirm("이 메시지를 삭제할까요?")) {
-                        await removeGuestbook(inv.slug, g.id);
-                        toast("삭제되었어요");
+                        const password=prompt("작성할 때 입력한 비밀번호를 넣어 주세요. 청첩장 주인은 비워 두어도 됩니다.");
+                        if (password===null) return;
+                        try { await removeGuestbook(inv.slug, g.id, password); toast("삭제되었어요"); }
+                        catch(error) {toast((error as Error).message);}
                       }
                     }}
                     className="text-[11px] underline opacity-60"
@@ -785,7 +799,7 @@ export function GuestbookSection() {
           <p className="text-right text-[11px]" style={{ color: "var(--inv-subtext)" }}>
             {form.message.length}/300
           </p>
-          <Button type="submit" variant="solid" className="w-full py-3.5 text-[15px]">
+          <Button disabled={busy} type="submit" variant="solid" className="w-full py-3.5 text-[15px]">
             등록하기
           </Button>
         </form>
@@ -797,20 +811,22 @@ export function GuestbookSection() {
 /* ─────────────── 8. 마무리 + 공유 ─────────────── */
 
 export function EndingSection() {
-  const { inv, d, toast } = useInv();
+  const { inv, d, toast, readOnly } = useInv();
+  const canShare=REMOTE_DATA && !readOnly && inv.published!==false;
   const share = async () => {
+    if (!canShare) return toast("미리보기는 공유할 수 없어요. 서버 연결 후 공유를 시작해 주세요");
     const url = typeof window !== "undefined" ? window.location.href : "";
-    // TODO(backend/키): 카카오 JavaScript 키가 생기면 Kakao.Share.sendDefault 로 교체
+    if (inv.published===false) return toast("공유를 먼저 시작해 주세요");
+    try {if (await kakaoShare(inv,url))return;} catch {/* 기본 공유와 링크 복사를 사용할 수 있어요 */}
     if (navigator.share) {
       try {
         await navigator.share({ title: inv.shareTitle ?? d.headline, text: inv.shareDescription, url });
         return;
       } catch {
-        /* 사용자가 취소 */
+        return; // 공유 취소 시 링크를 임의로 복사하지 않아요
       }
     }
-    await copyText(url);
-    toast("카카오톡 공유는 키 연동 후 사용할 수 있어요. 링크를 복사했어요!");
+    try {await copyText(url);toast("초대장 링크를 복사했어요");} catch {toast("링크를 복사하지 못했어요. 주소창에서 복사해 주세요");}
   };
   return (
     <section className="relative px-7 pb-16 pt-20 text-center">
@@ -824,22 +840,24 @@ export function EndingSection() {
           : "귀한 걸음으로 함께해 주시는\n모든 분들께 진심으로 감사드립니다."}
       </p>
       <div className="mt-10 flex flex-col gap-2.5">
-        <button onClick={share} className="flex items-center justify-center gap-2 rounded-xl bg-[#FEE500] py-3.5 text-[14px] font-semibold text-[#191919]" style={{ fontFamily: "var(--font-sans)" }}>
+        <button disabled={!canShare} onClick={share} className="flex items-center justify-center gap-2 rounded-xl bg-[#FEE500] py-3.5 text-[14px] font-semibold text-[#191919] disabled:opacity-50" style={{ fontFamily: "var(--font-sans)" }}>
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden>
             <path d="M12 3C6.5 3 2 6.6 2 11c0 2.8 1.9 5.3 4.7 6.7l-1 3.7c-.1.4.3.6.6.4l4.3-2.9c.5.1.9.1 1.4.1 5.5 0 10-3.6 10-8S17.5 3 12 3z" fill="#191919" />
           </svg>
           카카오톡으로 공유하기
         </button>
         <button
+          disabled={!canShare}
           onClick={async () => {
-            await copyText(window.location.href);
-            toast("청첩장 링크가 복사되었어요");
+            if (!canShare) return;
+            toast(await copyText(window.location.href) ? "청첩장 링크가 복사되었어요" : "링크를 복사하지 못했어요");
           }}
           className="rounded-xl border py-3.5 text-[14px]"
           style={{ borderColor: "var(--inv-line)", background: "var(--inv-surface)", fontFamily: "var(--font-sans)" }}
         >
           링크 복사하기
         </button>
+        {!canShare && <p className="text-[13px]" style={{color:"var(--inv-subtext)"}}>미리보기는 다른 기기에 공유되지 않아요.</p>}
       </div>
     </section>
   );

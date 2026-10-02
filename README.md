@@ -1,80 +1,44 @@
-# 봄결 · 모바일 청첩장 플랫폼 (프론트엔드)
+# 봄결 · 사진으로 만드는 초대장
 
-밝고 따뜻한 톤의 **모바일 청첩장 · 돌잔치 · 부모님 잔치 초대장** 제작 서비스의 웹 화면입니다.
-지금은 **디자인/화면(프론트엔드)만** 완성된 상태이고, 데이터는 브라우저(localStorage)에 임시 저장됩니다.
-백엔드 작업 안내는 [`docs/BACKEND_HANDOFF.md`](docs/BACKEND_HANDOFF.md) 를 보세요.
+모바일 청첩장 13종, 돌잔치 4종, 부모님 잔치 2종을 편집하는 Next.js 앱입니다. 표지와 갤러리에 가상 인물의 **실사 AI 예시 사진 26장**을 적용했습니다. 고객의 실제 사진으로 바꿔 사용할 수 있습니다.
 
-## 실행 방법
+## 실행
 
-```bash
-cd invitation-web
-npm install      # 처음 한 번만
-npm run dev      # 개발 서버 실행 → http://localhost:3000
+```sh
+npm ci
+npm run dev
 ```
 
-## 설치 없이 미리보기 (한 파일)
+기본값은 `local` 모드입니다. 내용과 사진은 현재 브라우저에 저장하며, 다른 기기의 하객에게 공유되지 않습니다. 예시 초대장은 읽기 전용입니다.
 
-```bash
-npm run build:preview   # → dist-preview/index.html (더블클릭으로 열기)
+```sh
+npm run build:preview  # dist-preview/index.html: 한 파일 미리보기
+npm run build:sites    # dist/index.html: Sites 배포용 미리보기
+npm run build         # Next 서버 및 API 빌드
+npm run test:backend  # 실행 중인 Next API + 격리된 Supabase HTTP fixture
 ```
 
-## 코덱스(Codex)에게 맡길 작업
+Sites 배포는 **소유자 전용 디자인·편집 미리보기**입니다. Sites 산출물에는 Next API 서버가 포함되지 않습니다. 실제 DB·로그인·하객 공유는 별도 서버 연결 후 활성화해야 합니다. [백엔드 연결 안내](docs/BACKEND_SETUP.md)를 확인하세요.
 
-| 작업 | 주문서 | 실행 |
-| --- | --- | --- |
-| 실사 느낌 예시 사진 26장 | [`docs/codex/01-photos.md`](docs/codex/01-photos.md) · 프롬프트 [`scripts/photo-brief.json`](scripts/photo-brief.json) | `bash scripts/run-codex.sh photos` |
-| 백엔드 (DB · 로그인 · 업로드 · 카톡 공유) | [`docs/codex/02-backend.md`](docs/codex/02-backend.md) | `bash scripts/run-codex.sh backend` |
+## 구현 내용
 
-- 사진은 `public/photos/<이름>.webp` 로 들어오면 화면이 **자동으로** 일러스트 대신 사진을 써요 (`src/data/photos.ts`).
-- 코덱스 없이 OpenAI 키만 있으면 `OPENAI_API_KEY=... npm run photos` 로 사진만 바로 만들 수도 있어요.
-
-## 화면 구성
+- 실시간 이름·문구·사진·장소 편집, 갤러리, 달력, 길찾기, 계좌 복사.
+- Supabase REST/Auth/Storage를 연결하는 Next Route Handlers: 청첩장 저장·삭제·공개/비공개, 카카오·구글 PKCE 로그인, 사진 업로드, 방명록, 참석 의사.
+- 초안·사진 소유권, 참석 응답 소유자 조회, 방명록 비밀번호 해시, 입력·파일·요청 한도, 중복 요청 방지, 서버 중지 스위치.
+- 실제 공개된 청첩장의 서버 공유 메타데이터와 카카오 JS 공유. 네이버 로그인·결제·주소 검색 연동은 준비 상태입니다.
 
 | 주소 | 화면 |
 | --- | --- |
-| `/` | 메인 (소개, 인기 디자인, 기능, FAQ) |
-| `/templates` | 디자인 고르기 (청첩장 / 돌잔치 / 부모님 잔치 필터) |
-| `/templates/[id]` | 디자인 상세 + 휴대폰 미리보기 |
-| `/create/[id]` | 청첩장 만들기 (왼쪽 입력 → 오른쪽 실시간 미리보기) |
-| `/i/[주소]` | 하객이 보는 실제 청첩장 (`/i/sample-blossom` 처럼 예시도 있음) |
-| `/my` | 내 청첩장 목록, 참석 의사 확인, 수정/삭제 |
-| `/login` | 카카오·네이버·구글 로그인 (화면만) |
-| `/pricing` | 요금 안내 (화면만) |
+| `/templates` | 19종 디자인 선택 |
+| `/create/[id]` | 편집 및 실시간 미리보기 |
+| `/i/sample-[id]` | 실사 AI 샘플 초대장 |
+| `/my` | 내 초대장·참석 응답 |
+| `/login` | 원격 모드 카카오·구글 로그인 |
 
-## 디자인 19종
+Sites와 한 파일 미리보기의 경로는 `/#/templates`처럼 표시됩니다. 새로고침과 뒤로가기를 지원합니다.
 
-- **청첩장 13종**: 벚꽃 연서, 아이보리 클래식, 그린 가든, 레몬 폴라로이드, 하늘 편지, 피치 필름, 라벤더 드림, 모던 매거진, 코랄 선셋, 한옥의 봄, 미니멀 라인, 수채화 부케, 민트 피크닉
-- **돌잔치 4종**: 파스텔 풍선, 곰돌이 첫돌, 색동 돌잔치, 별빛 아가
-- **부모님 잔치 2종**: 모란 칠순연, 해돋이 회갑연
+## 검증 및 기록
 
-새 디자인은 `src/data/templates.ts` 에 색·글꼴을 추가하고, 표지 모양은 `src/components/invitation/Covers.tsx` 에 추가하면 됩니다.
+[현재 상태](docs/current-state.md), [사진 생성 프롬프트](docs/evidence/photo-generation.json), [화면 검사](docs/evidence/browser-covers.json), [백엔드 테스트](docs/evidence/backend-integration.log), [보안 검사](docs/evidence/security-gate.md).
 
-## 청첩장에 들어가는 섹션
-
-표지 → 인사말·혼주 소개·연락하기 → 달력·D-day → 사진 갤러리(확대 보기) → 오시는 길(지도·길찾기·교통) →
-마음 전하실 곳(계좌 복사·카카오페이) → 참석 의사(RSVP) → 방명록 → 카카오톡 공유
-
-## 지도 (카카오 / 네이버)
-
-`.env.example` 을 `.env.local` 로 복사하고 키를 넣으면 청첩장 안에 실제 지도가 나옵니다.
-키가 없으면 그림 지도가 나오고, "네이버지도 / 카카오맵 / 티맵" 길찾기 버튼은 키 없이도 동작합니다.
-
-## 폴더 구조
-
-```
-src/
-  app/                 페이지 (주소별 화면)
-  components/
-    invitation/        청첩장 화면 (표지 19종, 섹션, 지도, 효과)
-    editor/            만들기(편집기) 화면
-    site/              헤더, 푸터, 휴대폰 틀, 디자인 카드
-  data/                디자인 목록(templates), 예시 데이터(samples)
-  lib/                 날짜, 지도 링크, 저장소, api(백엔드 연결 창구)
-  types/               데이터 구조 (DB 설계 기준)
-public/samples/        예시 일러스트 (실제 사진 대신)
-```
-
-## 앱으로 만들 때
-
-모든 화면이 휴대폰 기준(모바일 퍼스트)으로 만들어져 있어서, 나중에
-Capacitor(웹 → 앱 포장) 또는 React Native 로 옮기기 쉽게 되어 있습니다.
+HTTP fixture 테스트는 실제 Supabase 마이그레이션·RLS·OAuth 계정 검증을 대신하지 않습니다. 배포 상태와 실제 서비스 검증은 현재 상태 문서에서 구분합니다.

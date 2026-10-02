@@ -30,8 +30,8 @@ export function navigate(href: string, { replace = false, scroll = true } = {}) 
   const next = parse(href);
   loc = { pathname: next.pathname, search: next.search };
   try {
-    if (replace) history.replaceState({ href }, "");
-    else history.pushState({ href }, "");
+    if (replace) history.replaceState({ href }, "", `#${href}`);
+    else history.pushState({ href }, "", `#${href}`);
   } catch {
     /* 기록을 못 남겨도 화면 이동은 계속 */
   }
@@ -41,8 +41,12 @@ export function navigate(href: string, { replace = false, scroll = true } = {}) 
 }
 
 if (typeof window !== "undefined") {
+  if (window.location.hash.startsWith('#/')) {
+    const next = parse(window.location.hash.slice(1));
+    loc = { pathname: next.pathname, search: next.search };
+  }
   window.addEventListener("popstate", (e) => {
-    const href = (e.state as { href?: string } | null)?.href ?? "/";
+    const href = (e.state as { href?: string } | null)?.href ?? (window.location.hash.startsWith('#/') ? window.location.hash.slice(1) : "/");
     const next = parse(href);
     loc = { pathname: next.pathname, search: next.search };
     listeners.forEach((l) => l());

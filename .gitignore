@@ -45,6 +45,18 @@ next-env.d.ts
 
 # 미리보기 빌드 결과물
 /dist-preview
+/dist/
+/.sites-runtime/
+/supabase/.temp/
+/docs/evidence/site.tar.gz
+/docs/evidence/site-workflow.log
 
 # 코덱스 작업 기록
 /.codex-logs
+
+# 로컬에서 읽은 공식 문서 원문 (변경 소스가 아님)
+/docs/evidence/supabase-auth-openapi.yaml
+/docs/evidence/supabase-changelog.md
+/docs/evidence/backend-next.log
+/docs/evidence/typecheck-first.log
+/docs/evidence/build-webpack.log

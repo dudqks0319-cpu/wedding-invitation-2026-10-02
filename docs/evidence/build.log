@@ -1,0 +1,53 @@
+
+> invitation-web@0.1.0 build
+> next build --webpack
+
+▲ Next.js 16.3.7 (webpack)
+✓ Running next.config.ts took 11ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 1351ms
+  Running TypeScript ...
+  Finished TypeScript in 1125ms ...
+  Collecting page data using 13 workers ...
+  Generating static pages using 13 workers (0/67) ...
+  Generating static pages using 13 workers (16/67) 
+  Generating static pages using 13 workers (33/67) 
+  Generating static pages using 13 workers (50/67) 
+✓ Generating static pages using 13 workers (67/67) in 244ms
+  Finalizing page optimization ...
+  Collecting build traces ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api/auth/[action]
+├ ƒ /api/invitations
+├ ƒ /api/invitations/[slug]/[[...action]]
+├ ƒ /api/photos/[id]
+├ ƒ /api/uploads
+├   /create/[id]
+│ ├ ● /create/blossom
+│ ├ ● /create/ivory-classic
+│ ├ ● /create/garden-green
+│ └ ● [+16 more paths]
+├   /i/[slug]
+│ ├ ● /i/sample-blossom
+│ ├ ● /i/sample-ivory-classic
+│ ├ ● /i/sample-garden-green
+│ └ ● [+16 more paths]
+├ ○ /login
+├ ○ /my
+├ ○ /pricing
+├ ƒ /templates
+└   /templates/[id]
+  ├ ● /templates/blossom
+  ├ ● /templates/ivory-classic
+  ├ ● /templates/garden-green
+  └ ● [+16 more paths]
+
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+

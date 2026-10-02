@@ -30,7 +30,7 @@ export function TemplateDetailView({ id }: { id: string }) {
           <PhoneFrame className="max-w-[360px]">
             <InvitationView invitation={sample} theme={theme} mode="frame" readOnly />
           </PhoneFrame>
-          <p className="mt-4 text-center text-[13px] text-muted">↑ 휴대폰 화면 안을 스크롤해 보세요</p>
+          <p className="mt-4 text-center text-[13px] text-muted">AI 예시 사진 · 내 사진으로 바꿀 수 있어요<br />↑ 휴대폰 화면 안을 스크롤해 보세요</p>
         </div>
 
         <div className="md:pt-6">

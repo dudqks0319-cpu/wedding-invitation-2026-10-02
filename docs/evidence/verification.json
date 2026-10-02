@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-02",
+  "checks": [
+    {
+      "name": "backend-integration",
+      "exit_code": 0,
+      "seconds": 3.957,
+      "log": "docs/evidence/backend-integration.log"
+    },
+    {
+      "name": "typegen",
+      "exit_code": 0,
+      "seconds": 0.181,
+      "log": "docs/evidence/typegen.log"
+    },
+    {
+      "name": "build",
+      "exit_code": 0,
+      "seconds": 7.343,
+      "log": "docs/evidence/build.log"
+    },
+    {
+      "name": "typecheck",
+      "exit_code": 0,
+      "seconds": 1.213,
+      "log": "docs/evidence/typecheck.log"
+    },
+    {
+      "name": "lint",
+      "exit_code": 0,
+      "seconds": 2.544,
+      "log": "docs/evidence/lint.log"
+    },
+    {
+      "name": "preview-build",
+      "exit_code": 0,
+      "seconds": 0.714,
+      "log": "docs/evidence/preview-build.log"
+    }
+  ],
+  "backend_lane": "isolated Supabase HTTP fixture; live SQL/RLS/OAuth not tested"
+}

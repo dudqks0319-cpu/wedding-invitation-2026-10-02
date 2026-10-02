@@ -1,0 +1,33 @@
+
+> invitation-web@0.1.0 test:backend
+> node tests/backend.integration.mjs
+
+PASS anonymous save denied
+PASS cross-origin rejected before write
+PASS invalid photo URL rejected
+PASS unknown sample photo rejected
+PASS OAuth callback without verified flow stays logged out
+PASS owner saves private draft
+PASS save replay creates one invitation
+PASS same key with changed payload rejected
+PASS draft invisible to other account
+PASS other owner cannot overwrite slug
+PASS other owner cannot publish
+PASS draft guestbook writes denied
+PASS owner publishes, anonymous can read
+PASS server emits share metadata
+PASS guestbook hash stays server-side
+PASS guestbook replay creates one entry
+PASS wrong deletion password rejected
+PASS correct password deletes message
+PASS RSVP validation rejects out-of-range count
+PASS RSVP accepted; list only available to owner
+PASS forged upload content rejected
+PASS oversized upload rejected
+PASS image upload converts into private storage
+PASS private photo denies guests, permits owner
+PASS photo ownership prevents cross-account attachment
+PASS attached published photo visible, stops on unpublish
+PASS quota outage fails closed
+PASS rate limit rejects repeated writes
+28 integration scenarios passed (Supabase HTTP fixture, not live DB).

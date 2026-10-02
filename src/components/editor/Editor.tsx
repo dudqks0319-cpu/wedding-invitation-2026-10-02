@@ -6,7 +6,9 @@ import { useRef, useState, type ChangeEvent } from "react";
 import type { Account, Invitation, Partner, Theme } from "@/types/invitation";
 import { TEMPLATES, getTemplate } from "@/data/templates";
 import { ALL_PHOTO_KEYS, photo } from "@/data/photos";
-import { newId, saveInvitation } from "@/lib/api";
+import { ClientError, newId, publishInvitation, saveInvitation } from "@/lib/api";
+import { REMOTE_DATA } from "@/lib/dataMode";
+import { writeStored } from "@/lib/localStore";
 import { resizeImage } from "@/lib/image";
 import { InvitationView } from "@/components/invitation/InvitationView";
 import { PhoneFrame } from "@/components/site/PhoneFrame";
@@ -88,7 +90,8 @@ function PhotoPicker({ inv, update, toast }: { inv: Invitation; update: Updater;
     if (!files.length) return;
     setBusy(true);
     try {
-      const urls = await Promise.all(files.map((f) => resizeImage(f, 1000, 0.78)));
+      const urls: string[] = [];
+      for (const f of files) urls.push(await resizeImage(f, 1000, 0.78));
       update((d) => void d.gallery.push(...urls));
     } catch (err) {
       toast((err as Error).message);
@@ -109,18 +112,18 @@ function PhotoPicker({ inv, update, toast }: { inv: Invitation; update: Updater;
         <div className="flex items-center gap-4">
           <img src={inv.coverPhoto} alt="" className="h-24 w-20 rounded-xl object-cover shadow-sm" />
           <div className="flex flex-col gap-2">
-            <button type="button" onClick={() => coverInput.current?.click()} className="rounded-full bg-ink px-4 py-2 text-[13px] font-medium text-white">
+            <button type="button" disabled={busy} onClick={() => coverInput.current?.click()} className="rounded-full bg-ink px-4 py-2 text-[13px] font-medium text-white disabled:opacity-50">
               {busy ? "처리 중…" : "사진 변경"}
             </button>
             <span className="text-[12px] text-muted">세로 사진을 추천해요</span>
           </div>
-          <input ref={coverInput} type="file" accept="image/*" className="hidden" onChange={onCover} />
+          <input ref={coverInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={onCover} />
         </div>
       </Field>
       <Field label="예시 사진으로 바꾸기">
         <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
-          {SAMPLE_PHOTOS.map((s) => (
-            <button key={s} type="button" onClick={() => update((d) => void (d.coverPhoto = s))} className={`shrink-0 overflow-hidden rounded-lg ring-2 ${inv.coverPhoto === s ? "ring-brand-400" : "ring-transparent"}`}>
+          {SAMPLE_PHOTOS.map((s, i) => (
+            <button key={s} type="button" disabled={busy} aria-label={`예시 사진 ${i + 1} 선택`} onClick={() => update((d) => void (d.coverPhoto = s))} className={`shrink-0 overflow-hidden rounded-lg ring-2 ${inv.coverPhoto === s ? "ring-brand-400" : "ring-transparent"}`}>
               <img src={s} alt="" className="h-16 w-12 object-cover" />
             </button>
           ))}
@@ -141,13 +144,13 @@ function PhotoPicker({ inv, update, toast }: { inv: Invitation; update: Updater;
             </div>
           ))}
           {inv.gallery.length < 30 && (
-            <button type="button" onClick={() => galleryInput.current?.click()} className="flex aspect-square flex-col items-center justify-center rounded-lg border-2 border-dashed border-brand-200 text-brand-400 hover:bg-brand-50">
+            <button type="button" disabled={busy} aria-label="갤러리 사진 추가" onClick={() => galleryInput.current?.click()} className="flex aspect-square flex-col items-center justify-center rounded-lg border-2 border-dashed border-brand-200 text-brand-400 hover:bg-brand-50 disabled:opacity-50">
               <span className="text-[22px] leading-none">＋</span>
               <span className="mt-1 text-[11px]">추가</span>
             </button>
           )}
         </div>
-        <input ref={galleryInput} type="file" accept="image/*" multiple className="hidden" onChange={onGallery} />
+        <input ref={galleryInput} type="file" accept="image/jpeg,image/png,image/webp" multiple className="hidden" onChange={onGallery} />
       </Field>
     </>
   );
@@ -199,6 +202,7 @@ export function Editor({ initial }: { initial: Invitation }) {
   const [view, setView] = useState<"edit" | "preview">("edit");
   const [designOpen, setDesignOpen] = useState(false);
   const [saved, setSaved] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const theme = getTemplate(inv.templateId) as Theme;
 
@@ -210,20 +214,30 @@ export function Editor({ initial }: { initial: Invitation }) {
     setInv((prev) => {
       const next = structuredClone(prev);
       fn(next);
+      try { writeStored(`editor-draft:${initial.templateId}`, next); } catch { /* 저장 버튼에서 오류를 알려요 */ }
       return next;
     });
 
   const save = async () => {
+    if (saving) return;
     if (!/^[a-z0-9-]{3,30}$/.test(inv.slug)) {
       toast("청첩장 주소는 영문 소문자·숫자·- 로 3~30자여야 해요");
       return;
     }
     try {
-      await saveInvitation(inv);
+      setSaving(true);
+      const result = await saveInvitation(inv);
+      setInv(result);
+      writeStored(`editor-draft:${initial.templateId}`, null);
       setSaved(inv.slug);
     } catch (e) {
+      if (e instanceof ClientError && e.status === 401) {
+        writeStored(`editor-draft:${initial.templateId}`, inv);
+        router.push(`/login?next=${encodeURIComponent(`/create/${initial.templateId}`)}`);
+        return;
+      }
       toast((e as Error).message);
-    }
+    } finally { setSaving(false); }
   };
 
   const sameCategory = TEMPLATES.filter((t) => t.category === theme.category);
@@ -249,8 +263,8 @@ export function Editor({ initial }: { initial: Invitation }) {
             <Link href={`/i/sample-${theme.id}`} target="_blank" className="hidden rounded-full border border-black/10 px-4 py-2 text-[13px] font-medium md:block">
               예시 보기
             </Link>
-            <button onClick={save} className="rounded-full bg-brand-500 px-5 py-2 text-[14px] font-semibold text-white shadow-[0_6px_16px_-6px_rgba(242,95,125,0.7)] hover:bg-brand-600">
-              저장하기
+            <button disabled={saving} onClick={save} className="rounded-full bg-brand-500 px-5 py-2 text-[14px] font-semibold text-white shadow-[0_6px_16px_-6px_rgba(242,95,125,0.7)] hover:bg-brand-600 disabled:opacity-50">
+              {saving ? '저장 중…' : '저장하기'}
             </button>
           </div>
         </div>
@@ -275,7 +289,7 @@ export function Editor({ initial }: { initial: Invitation }) {
           <Panel title="청첩장 주소" emoji="🔗" defaultOpen>
             <Field label="주소" hint="영문 소문자, 숫자, - 만 사용할 수 있어요. 예) minjun-seoyeon">
               <div className="flex items-center overflow-hidden rounded-xl border border-black/10 bg-white focus-within:border-brand-300 focus-within:ring-4 focus-within:ring-brand-100">
-                <span className="bg-cream px-3 py-2.5 text-[13px] text-muted">bomgyeol.kr/i/</span>
+                <span className="bg-cream px-3 py-2.5 text-[13px] text-muted">/i/</span>
                 <input className="w-full px-2 py-2.5 text-[14px] outline-none" value={inv.slug} onChange={(e) => update((d) => void (d.slug = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "")))} />
               </div>
             </Field>
@@ -442,9 +456,18 @@ export function Editor({ initial }: { initial: Invitation }) {
           <div className="w-full max-w-sm rounded-3xl bg-white p-7 text-center" onClick={(e) => e.stopPropagation()}>
             <p className="text-[44px]">🎉</p>
             <p className="mt-2 text-[20px] font-bold">청첩장이 저장되었어요!</p>
-            <p className="mt-2 text-[14px] text-muted">지금은 이 브라우저에만 저장돼요. (서버 연결 후 어디서나 볼 수 있어요)</p>
+            <p className="mt-2 text-[14px] text-muted">{REMOTE_DATA ? (inv.published ? '하객에게 공유 중인 청첩장이에요.' : '초안으로 저장했어요. 공유를 시작하면 하객이 볼 수 있어요.') : '이 브라우저에 저장된 미리보기예요. 다른 기기에 공유하려면 서버 연결이 필요해요.'}</p>
             <div className="mt-5 rounded-xl bg-cream px-4 py-3 text-[13px] text-ink/70">/i/{saved}</div>
             <div className="mt-5 flex flex-col gap-2">
+              {REMOTE_DATA && <>
+                <p className="text-[12px] text-muted">공유하면 이름·연락처·계좌·사진이 링크를 가진 분에게 공개됩니다.</p>
+                <button disabled={saving} onClick={async () => {
+                  setSaving(true);
+                  try { setInv(await publishInvitation(saved, !inv.published)); }
+                  catch (error) { toast((error as Error).message); }
+                  finally { setSaving(false); }
+                }} className="rounded-full bg-ink py-3 text-[15px] font-semibold text-white disabled:opacity-50">{saving ? '처리 중…' : inv.published ? '공유 중지' : '공유 시작'}</button>
+              </>}
               <Link href={`/i/${saved}`} target="_blank" className="rounded-full bg-brand-500 py-3 text-[15px] font-semibold text-white">
                 내 청첩장 보기
               </Link>

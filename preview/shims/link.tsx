@@ -14,7 +14,7 @@ export default function Link({ href, children, onClick, target: _target, prefetc
   const h = typeof href === "string" ? href : (href.pathname ?? "/");
   return (
     <a
-      href={h}
+      href={h.startsWith('/') ? `#${h}` : h}
       {...rest}
       onClick={(e: MouseEvent<HTMLAnchorElement>) => {
         onClick?.(e);

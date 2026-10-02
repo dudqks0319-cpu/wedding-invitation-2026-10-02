@@ -86,6 +86,8 @@ export interface InvitationOptions {
 }
 
 export interface Invitation {
+  /** 서버 초안은 명시적으로 공유하기 전까지 비공개 */
+  published?: boolean;
   /** 청첩장 고유 주소 (예: /i/minjun-seoyeon) */
   slug: string;
   templateId: string;

@@ -6,6 +6,6 @@ import { LocalInvitation } from "./LocalInvitation";
 /** 예시 청첩장이면 바로 그리고, 아니면 저장된 청첩장을 불러와요 */
 export function InvitationRoute({ slug }: { slug: string }) {
   const sample = getSampleBySlug(slug);
-  if (sample) return <InvitationView invitation={sample} theme={getTemplate(sample.templateId)!} />;
+  if (sample) return <><div className="bg-cream px-4 py-3 text-center text-[12px] text-muted">AI로 만든 예시 사진이에요. 내 사진으로 바꿀 수 있어요.</div><InvitationView invitation={sample} theme={getTemplate(sample.templateId)!} readOnly /></>;
   return <LocalInvitation slug={slug} />;
 }

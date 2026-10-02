@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-02",
+  "surface": "local Sites static build at localhost:3414",
+  "mode": "device-local",
+  "checks": {
+    "catalog": "19 designs with photoreal AI assets",
+    "valid_webmcp": "registered schema and start_invitation_editing opens ivory-classic editor, saved:false",
+    "invalid_webmcp": "unknown template rejected; editor remains intact",
+    "editing": "slug sites-check and groom name changed in visible UI",
+    "reload": "hash editor route and edited name restored",
+    "save": "completion modal explicitly says browser-local; My link shown",
+    "sharing": "guest sharing buttons disabled in local preview"
+  },
+  "live_site_ui": "not claimed; publication verified through Sites deployment status"
+}

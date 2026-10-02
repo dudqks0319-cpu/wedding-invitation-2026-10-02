@@ -1,5 +1,7 @@
 # 백엔드 작업 안내 (Codex 전달용)
 
+> 2026-10-02: 아래는 원래 설계 명세입니다. API·인증·업로드 구현은 추가되었으며, 최신 구현 차이와 연결 절차는 [BACKEND_SETUP.md](BACKEND_SETUP.md), 검증 상태는 [current-state.md](current-state.md)를 참고하세요. 실제 Supabase 연결은 대기 중입니다.
+
 이 문서는 프론트엔드(Next.js 16 App Router, TypeScript, Tailwind v4)에 백엔드를 붙이기 위한 명세입니다.
 **화면 코드는 건드리지 않고** 아래 연결 지점만 바꾸면 되도록 설계했습니다.
 
