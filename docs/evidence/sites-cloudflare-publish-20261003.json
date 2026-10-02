@@ -1,0 +1,18 @@
+{
+  "project_id": "appgprj_6abf84676b4881918d32542f0e76190c",
+  "status": "succeeded",
+  "version_id": "appgprj_6abf84676b4881918d32542f0e76190c~appgver_eb3090d716748191afa44b4ea053caaa",
+  "deployment_id": "appgdep_6ac0402734348191b2af4eb3c33db3d3",
+  "url": "https://wedding-invitation-2026-10-02.jyb1126.chatgpt.site",
+  "version_number": 2,
+  "commit_sha": "8e1fce6e74ce3d43beaf9487122ff3f253bdd283",
+  "archive": {
+    "content_hash": "sha256:fe6ad3a7686baf8cbffc82b5063809ccc651189a0dda91350aea9d2397456d95",
+    "size_bytes": 10240,
+    "file_count": 2
+  },
+  "date": "2026-10-03",
+  "access_mode": "public",
+  "canonical_url": "https://osamosam-app.jyb1126.chatgpt.site",
+  "title": "청첩장 웹서비스 · 이름 미정"
+}

@@ -1,6 +1,6 @@
 {
   "date": "2026-10-03",
-  "scanned_paths": 879,
+  "scanned_paths": 881,
   "potential_secret_files": [],
   "root_dependency_audit": "0 vulnerabilities (unchanged dependencies)",
   "legacy_patched_audit": "0 vulnerabilities (unchanged dependencies)",

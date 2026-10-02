@@ -23,6 +23,7 @@ npm run lint
 
 ```sh
 OSAM_TOOLCHAIN=/path/to/osam-rebuild/node_modules npm run test:cloudflare
+node tests/session-boundary.mjs
 ```
 
 Cloudflare 검사는 기존 오삼오삼 도구에 설치된 Miniflare·sharp를 사용합니다. 실제 로컬 D1/R2, 이미지 디코딩, 두 계정 권한, 게시·취소, 동시 저장, 만료·삭제·용량 회수 40개를 검사합니다. `--serve`를 지정하면 합성 계정만 사용하는 로컬 확인 서버가 4180번에 열립니다.

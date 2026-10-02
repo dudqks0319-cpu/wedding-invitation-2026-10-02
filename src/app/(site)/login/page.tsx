@@ -29,10 +29,6 @@ export default function LoginPage() {
             </svg>
             카카오로 시작하기
           </button>
-          <button onClick={() => setMsg("네이버 로그인은 준비 중이에요. 카카오 또는 Google을 이용해 주세요.")} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#03C75A] py-3.5 text-[15px] font-semibold text-white">
-            <span className="text-[16px] font-black">N</span>
-            네이버로 시작하기
-          </button>
           <button disabled={busy} onClick={() => login("google")} className="flex w-full items-center justify-center gap-2 rounded-xl border border-black/10 bg-white py-3.5 text-[15px] font-semibold">
             <span className="text-[16px] font-black text-[#4285F4]">G</span>
             Google로 시작하기
