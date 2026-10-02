@@ -11,7 +11,7 @@
 - 기존 계정 2개 보존, 이번 실제 Google 로그인으로 공급자 계정 1개 추가되어 현재 3개. 모든 합성 테스트 계정·새 초대장·사진은 0개로 정리 확인.
 - 신규 관리 `/my`, 기존 초대장 `/dashboard`. 실제 브라우저에서 기존 계정 연결과 기기 초안 2개 표시를 확인했다. 가져오기·삭제는 실행하지 않았다.
 - 기존 청첩장 주소 https://wedding-invitation-2026-10-02.jyb1126.chatgpt.site 는 같은 운영 서비스로 연결한다. Sites version 2 게시 성공, Sites 연결 소스 commit `8e1fce6e74ce3d43beaf9487122ff3f253bdd283`. 두 Sites 공개 유지. 사이트 제목도 ‘청첩장 웹서비스 · 이름 미정’으로 바꿨다.
-- 공개 GitHub 소스: https://github.com/dudqks0319-cpu/wedding-invitation-2026-10-02 . 기존 `main`과 이력을 유지한다. [Sites 게시 영수증](evidence/sites-cloudflare-publish-20261003.json)과 [최종 Worker 상태](evidence/cloudflare-deployment-20261003.json)를 기록했다.
+- 공개 GitHub 소스: https://github.com/dudqks0319-cpu/wedding-invitation-2026-10-02 . 기존 `main`과 이력을 유지한다. 구현 commit `db90d199b5e4ee1ba750564cc8215b7e6ae476da`의 원격 main 일치를 확인했다. [GitHub 업로드 영수증](evidence/github-cloudflare-push-20261003.json). [Sites 게시 영수증](evidence/sites-cloudflare-publish-20261003.json)과 [최종 Worker 상태](evidence/cloudflare-deployment-20261003.json)를 기록했다.
 
 ## 완료와 증거
 
