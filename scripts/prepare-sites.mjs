@@ -1,6 +1,9 @@
-import {readFile} from 'node:fs/promises';
+import {readFile,mkdir,copyFile} from 'node:fs/promises';
 import {runInNewContext} from 'node:vm';
 const manifest=JSON.parse(await readFile('.openai/hosting.json','utf8'));
+if(manifest.static.directory!=='dist')throw new Error('Expected supported Sites output directory: dist');
+await mkdir('dist',{recursive:true});
+await copyFile('site-redirect/index.html','dist/index.html');
 const html=await readFile(`${manifest.static.directory}/index.html`,'utf8');
 if(!html.includes('https://osamosam-app.jyb1126.chatgpt.site'))throw new Error('Canonical service link missing');
 for(const hash of ['#/templates/blossom','#//invalid.example']){

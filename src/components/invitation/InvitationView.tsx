@@ -4,7 +4,6 @@ import type { CSSProperties } from "react";
 import type { Invitation, Theme } from "@/types/invitation";
 import { Cover } from "./Covers";
 import { EffectLayer } from "./EffectLayer";
-import { MusicButton } from "./MusicButton";
 import {
   AccountSection,
   DateSection,
@@ -74,7 +73,6 @@ export function InvitationView({ invitation: inv, theme, mode = "page", readOnly
             <div style={{ "--cover-h": "100cqh" } as CSSProperties}>{body}</div>
           </div>
           {o.showEffect && <EffectLayer effect={theme.effect} mode="frame" />}
-          <MusicButton />
         </div>
       </InvitationProvider>
     );
@@ -90,7 +88,6 @@ export function InvitationView({ invitation: inv, theme, mode = "page", readOnly
           {body}
         </main>
         {o.showEffect && <EffectLayer effect={theme.effect} mode="page" />}
-        <MusicButton />
       </div>
     </InvitationProvider>
   );

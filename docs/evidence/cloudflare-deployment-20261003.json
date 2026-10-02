@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-02T23:35:09.829Z",
+  "worker": "osamosam-api",
+  "worker_version": "9cfb6b79-e3c3-4591-a7c3-f1e63e5267e0",
+  "canonical_url": "https://osamosam-app.jyb1126.chatgpt.site",
+  "checks": [
+    {
+      "path": "/api/v2/health",
+      "status": 200,
+      "expected": 200,
+      "result": "PASS"
+    },
+    {
+      "path": "/api/v2/auth/session",
+      "status": 401,
+      "expected": 401,
+      "result": "PASS"
+    }
+  ],
+  "backend_module_sha256": "c7dcae53b4e34acae3020a5980d5b6170573d0e22e035e37f14838447b5be0a8",
+  "backend_validation": "13 real-cloud checks executed on preceding d540 Worker; identical backend module and legacy runtime; latest changes affect frontend assets only"
+}

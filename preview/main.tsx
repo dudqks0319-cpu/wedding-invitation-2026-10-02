@@ -17,6 +17,7 @@ import NotFound from "@/app/not-found";
 import { navigate, useLocation } from "./router";
 import { registerTemplateTool } from "./webmcp";
 import { REMOTE_DATA } from "@/lib/dataMode";
+import {SessionBoundary} from './SessionBoundary';
 
 function BackToSite() {
   return (
@@ -68,6 +69,6 @@ function App() {
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     {!REMOTE_DATA && <div role="note" className="bg-brand-50 px-4 py-2 text-center text-[14px] text-brand-600">미리보기 · 내용은 이 브라우저에만 저장됩니다</div>}
-    <App />
+    {REMOTE_DATA?<SessionBoundary><App /></SessionBoundary>:<App />}
   </StrictMode>,
 );

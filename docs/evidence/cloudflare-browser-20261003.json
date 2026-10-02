@@ -8,7 +8,9 @@
         "photo upload using explicitly synthetic sample image",
         "draft save and explicit publication",
         "reload keeps server draft",
-        "same-template new editor uses different slug and default names"
+        "same-template new editor uses different slug and default names",
+        "SessionBoundary: actual photo chooser preserves unsaved name; reload restores account-scoped draft",
+        "Latest UI removes BGM placeholder and shows address/map-app guidance"
       ]
     },
     {
@@ -17,7 +19,8 @@
       "cases": [
         "Google OAuth -> /my on final Worker version",
         "legacy dashboard account connected and two device drafts visible; no import or deletion",
-        "AI photo notice and complete 1024x1536 photo on published sample design"
+        "AI photo notice and complete 1024x1536 photo on published sample design",
+        "Latest public sample cover fully loaded at 1024x1536; AI notice visible; no music button"
       ]
     }
   ],
@@ -25,5 +28,6 @@
     "cloudflare-local-mobile.png",
     "cloudflare-production-mobile.png"
   ],
-  "scope": "iPhone/Android app replacement and Kakao full OAuth flow not exercised"
+  "scope": "iPhone/Android app replacement and Kakao full OAuth flow not exercised",
+  "session_boundary_regression": "tests/session-boundary.mjs: same account, account switch, logout, stale response, offline, retry after failure, disposed check PASS"
 }
