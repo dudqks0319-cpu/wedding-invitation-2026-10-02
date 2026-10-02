@@ -18,7 +18,7 @@ npm run build         # Next 서버 및 API 빌드
 npm run test:backend  # 실행 중인 Next API + 격리된 Supabase HTTP fixture
 ```
 
-Sites 배포는 **소유자 전용 디자인·편집 미리보기**입니다. Sites 산출물에는 Next API 서버가 포함되지 않습니다. 실제 DB·로그인·하객 공유는 별도 서버 연결 후 활성화해야 합니다. [백엔드 연결 안내](docs/BACKEND_SETUP.md)를 확인하세요.
+Sites 배포는 **전체 공개 디자인·편집 미리보기**입니다. 내용은 해당 브라우저에만 저장되며, Sites 산출물에는 Next API 서버가 포함되지 않습니다. 실제 DB·로그인·하객 공유는 별도 서버 연결 후 활성화해야 합니다. [백엔드 연결 안내](docs/BACKEND_SETUP.md)와 [Claude 코드·화면 검토](docs/CLAUDE_REVIEW.md)를 확인하세요.
 
 ## 구현 내용
 

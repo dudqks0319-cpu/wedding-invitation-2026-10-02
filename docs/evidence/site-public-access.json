@@ -1,0 +1,12 @@
+{
+  "project_id": "appgprj_6abf84676b4881918d32542f0e76190c",
+  "access_mode": "public",
+  "revision": 2,
+  "updated_at": "2026-10-02T21:28:42.844460+00:00",
+  "site_url": "https://wedding-invitation-2026-10-02.jyb1126.chatgpt.site/",
+  "github_private": false,
+  "anonymous_http_evidence": "public-access-http.json",
+  "claude_cli_status": "OAuth session expired; no review performed; using authenticated Claude desktop conversation instead",
+  "github_public_evidence": "github-public-access.json",
+  "claude_review_status": "completed via existing authenticated Claude desktop conversation; source and supplied screenshots reviewed; live site blocked by Claude environment proxy 403"
+}
