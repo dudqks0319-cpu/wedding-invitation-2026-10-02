@@ -1,0 +1,80 @@
+{
+  "checkedAt": "2026-10-02T22:15:26.909996+00:00",
+  "sourceGitSha": "147f0cef3a6462e1e903a3335967fa19f71cf7e5",
+  "engine": "cached PostgreSQL 17-alpine + PostgREST 14.3",
+  "network": "task-only internal Docker network; no DB/API host ports",
+  "actualSqlRls": true,
+  "actualPostgrest": true,
+  "actualSupabaseCloud": false,
+  "authStorage": "minimal fixture schemas; JWT issued only by test harness; no OAuth/Storage provider",
+  "checks": [
+    {
+      "name": "anon can enumerate published invitations",
+      "status": 200,
+      "rows": 1,
+      "passed": true,
+      "meaning": "Current SQL policy allows direct anonymous enumeration; confirms review concern."
+    },
+    {
+      "name": "anon cannot read private invitation",
+      "status": 200,
+      "rows": 0,
+      "passed": true
+    },
+    {
+      "name": "owner can read own published and private invitations",
+      "status": 200,
+      "rows": 2,
+      "passed": true
+    },
+    {
+      "name": "other user cannot read owner RSVP",
+      "status": 200,
+      "rows": 0,
+      "passed": true
+    },
+    {
+      "name": "owner can read own RSVP",
+      "status": 200,
+      "rows": 1,
+      "passed": true
+    },
+    {
+      "name": "anon RSVP access denied",
+      "status": 401,
+      "rows": null,
+      "passed": true
+    },
+    {
+      "name": "anon guestbook password hash access denied",
+      "status": 401,
+      "rows": null,
+      "passed": true
+    },
+    {
+      "name": "anon quota RPC access denied",
+      "status": 401,
+      "rows": null,
+      "passed": true
+    },
+    {
+      "name": "cover filter",
+      "status": 200,
+      "rows": 1,
+      "passed": true
+    },
+    {
+      "name": "gallery filter",
+      "status": 200,
+      "rows": 1,
+      "passed": true
+    },
+    {
+      "name": "unreferenced photo filter",
+      "status": 200,
+      "rows": 0,
+      "passed": true
+    }
+  ],
+  "allExpectedResponsesMatched": true
+}

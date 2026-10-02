@@ -1,0 +1,18 @@
+{
+  "checkedAt": "2026-10-02T22:07:31.910Z",
+  "mode": "browser-local preview",
+  "sourceGitSha": "147f0cef3a6462e1e903a3335967fa19f71cf7e5",
+  "fixtureSlug": "my-889b558c51a8",
+  "savedName": "저장점검",
+  "unsavedEditName": "미저장점검",
+  "newCreationUrl": "http://127.0.0.1:4174/#/create/blossom",
+  "restoredSlug": "my-889b558c51a8",
+  "restoredName": "미저장점검",
+  "savedOverExisting": true,
+  "actualRemoteDatabase": false,
+  "axEvidence": [
+    "\t\t\t17 text 이 브라우저에만 저장된 미리보기예요. 다른 기기로 공유하려면 서버 연결이 필요해요. 청첩장  ·  벚꽃 연서 미저장점검 · 이서연 2027년 4월 17일 토요일 /i/ my-889b558c51a8",
+    "\t\t\t25 link Description: 보기, Value: 127.0.0.1:4174/#/i/my-889b558c51a8",
+    "\t\t\t26 link Description: 수정, Value: 127.0.0.1:4174/#/create/blossom?edit=my-889b558c51a8"
+  ]
+}

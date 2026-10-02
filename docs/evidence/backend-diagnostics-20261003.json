@@ -1,0 +1,40 @@
+{
+  "checkedAt": "2026-10-02T22:05:34.430Z",
+  "sourceGitSha": "147f0cef3a6462e1e903a3335967fa19f71cf7e5",
+  "backend": "running Next dev + isolated Supabase HTTP fixture",
+  "baselineScenarios": 28,
+  "actualSupabase": false,
+  "actualSqlRls": false,
+  "observations": [
+    {
+      "name": "missing invitation guest response",
+      "status": 401,
+      "error": "로그인이 필요해요",
+      "classification": "reproduced usability issue: expected public 404"
+    },
+    {
+      "name": "remote BGM input rejected",
+      "status": 400,
+      "error": "외부 음악 링크는 현재 지원하지 않아요",
+      "classification": "reproduced editor/server mismatch"
+    },
+    {
+      "name": "oversized JSON rejected",
+      "status": 413,
+      "classification": "protection works"
+    },
+    {
+      "name": "unverified-edge guests share photo request bucket",
+      "requests": 21,
+      "successfulRedirects": 20,
+      "lastStatus": 429,
+      "classification": "reproduced shared public-photo limit; forged forwarding headers correctly ignored"
+    },
+    {
+      "name": "public server page during quota outage",
+      "status": 500,
+      "serverFailureDetected": true,
+      "classification": "reproduced unhandled page error; streaming HTTP status may vary"
+    }
+  ]
+}

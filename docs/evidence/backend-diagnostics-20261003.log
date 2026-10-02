@@ -1,0 +1,34 @@
+PASS anonymous save denied
+PASS cross-origin rejected before write
+PASS invalid photo URL rejected
+PASS unknown sample photo rejected
+PASS OAuth callback without verified flow stays logged out
+PASS owner saves private draft
+PASS save replay creates one invitation
+PASS same key with changed payload rejected
+PASS draft invisible to other account
+PASS other owner cannot overwrite slug
+PASS other owner cannot publish
+PASS draft guestbook writes denied
+PASS owner publishes, anonymous can read
+PASS server emits share metadata
+PASS guestbook hash stays server-side
+PASS guestbook replay creates one entry
+PASS wrong deletion password rejected
+PASS correct password deletes message
+PASS RSVP validation rejects out-of-range count
+PASS RSVP accepted; list only available to owner
+PASS forged upload content rejected
+PASS oversized upload rejected
+PASS image upload converts into private storage
+PASS private photo denies guests, permits owner
+PASS photo ownership prevents cross-account attachment
+PASS attached published photo visible, stops on unpublish
+PASS quota outage fails closed
+PASS rate limit rejects repeated writes
+OBSERVED missing invitation guest response {"status":401,"error":"로그인이 필요해요","classification":"reproduced usability issue: expected public 404"}
+OBSERVED remote BGM input rejected {"status":400,"error":"외부 음악 링크는 현재 지원하지 않아요","classification":"reproduced editor/server mismatch"}
+OBSERVED oversized JSON rejected {"status":413,"classification":"protection works"}
+OBSERVED unverified-edge guests share photo request bucket {"requests":21,"successfulRedirects":20,"lastStatus":429,"classification":"reproduced shared public-photo limit; forged forwarding headers correctly ignored"}
+OBSERVED public server page during quota outage {"status":500,"serverFailureDetected":true,"classification":"reproduced unhandled page error; streaming HTTP status may vary"}
+28 integration scenarios passed (Supabase HTTP fixture, not live DB).

@@ -53,6 +53,9 @@ next-env.d.ts
 
 # 코덱스 작업 기록
 /.codex-logs
+/.omx/
+# 개인 Claude 대화/계정이 포함된 앱 캡처는 로컬 보관
+/docs/evidence/claude-*.png
 
 # 로컬에서 읽은 공식 문서 원문 (변경 소스가 아님)
 /docs/evidence/supabase-auth-openapi.yaml

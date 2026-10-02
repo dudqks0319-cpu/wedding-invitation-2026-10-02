@@ -1,0 +1,12 @@
+{
+  "checkedAt": "2026-10-02T22:09:45Z",
+  "sourceGitSha": "147f0cef3a6462e1e903a3335967fa19f71cf7e5",
+  "engine": "cached postgres:17-alpine",
+  "network": "dedicated internal Docker network; DB not published to host",
+  "migration": "applied successfully",
+  "rlsTest": "tests/rls.sql completed and rolled back",
+  "actualPostgreSQL": true,
+  "actualSupabaseCloud": false,
+  "authStorage": "minimal fixture schemas, not running Supabase Auth or Storage",
+  "log": "local-rls-20261003.log"
+}

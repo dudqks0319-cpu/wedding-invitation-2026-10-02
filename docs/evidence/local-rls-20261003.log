@@ -1,0 +1,24 @@
+BEGIN
+INSERT 0 2
+INSERT 0 2
+INSERT 0 1
+INSERT 0 1
+SET
+DO
+RESET
+SET
+              set_config
+--------------------------------------
+ bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb
+(1 row)
+
+DO
+              set_config
+--------------------------------------
+ aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa
+(1 row)
+
+DO
+RESET
+DO
+ROLLBACK
