@@ -14,16 +14,18 @@ import { viteSingleFile } from "vite-plugin-singlefile";
 const root = path.dirname(fileURLToPath(import.meta.url));
 const src = path.resolve(root, "../src");
 
-/** "/samples/xxx.svg" 경로를 그림 데이터로 바꿔 한 파일 안에 담기 */
+const MIME: Record<string, string> = { svg: "image/svg+xml", webp: "image/webp", png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg" };
+
+/** "/samples/xxx.svg", "/photos/xxx.webp" 경로를 그림 데이터로 바꿔 한 파일 안에 담기 */
 function inlineSamples(): Plugin {
   return {
     name: "inline-samples",
     enforce: "pre",
     transform(code, id) {
       if (!id.startsWith(src) || !/\.tsx?$/.test(id.split("?")[0])) return;
-      return code.replace(/(["'])\/samples\/([\w-]+\.svg)\1/g, (_m, _q, file: string) => {
-        const data = readFileSync(path.resolve(root, "../public/samples", file)).toString("base64");
-        return JSON.stringify(`data:image/svg+xml;base64,${data}`);
+      return code.replace(/(["'])\/(samples|photos)\/([\w-]+\.(svg|webp|png|jpe?g))\1/g, (_m, _q, dir: string, file: string, ext: string) => {
+        const data = readFileSync(path.resolve(root, "../public", dir, file)).toString("base64");
+        return JSON.stringify(`data:${MIME[ext]};base64,${data}`);
       });
     },
   };

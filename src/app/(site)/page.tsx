@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { TEMPLATES, getTemplate } from "@/data/templates";
 import { createSample } from "@/data/samples";
+import { photo } from "@/data/photos";
 import { InvitationView } from "@/components/invitation/InvitationView";
 import { PhoneFrame } from "@/components/site/PhoneFrame";
 import { TemplateCard } from "@/components/site/TemplateCard";
@@ -113,9 +114,9 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-5 py-10">
         <div className="grid gap-4 md:grid-cols-3">
           {[
-            { type: "wedding", title: "모바일 청첩장", desc: "두 사람의 새로운 시작", img: "/samples/couple-sunset.svg", bg: "from-brand-100 to-peach", count: counts.wedding },
-            { type: "dol", title: "돌잔치 초대장", desc: "우리 아기 첫 번째 생일", img: "/samples/baby-balloon.svg", bg: "from-butter to-[#FFF1DC]", count: counts.dol },
-            { type: "party", title: "부모님 잔치", desc: "회갑 · 칠순 · 팔순 잔치", img: "/samples/parents.svg", bg: "from-mint to-sky", count: counts.party },
+            { type: "wedding", title: "모바일 청첩장", desc: "두 사람의 새로운 시작", img: photo("wedding-blossom"), bg: "from-brand-100 to-peach", count: counts.wedding },
+            { type: "dol", title: "돌잔치 초대장", desc: "우리 아기 첫 번째 생일", img: photo("dol-balloon"), bg: "from-butter to-[#FFF1DC]", count: counts.dol },
+            { type: "party", title: "부모님 잔치", desc: "회갑 · 칠순 · 팔순 잔치", img: photo("party-mother"), bg: "from-mint to-sky", count: counts.party },
           ].map((c) => (
             <Link key={c.type} href={`/templates?type=${c.type}`} className={`group relative flex h-44 overflow-hidden rounded-3xl bg-gradient-to-br ${c.bg} p-7 transition hover:-translate-y-1`}>
               <div className="relative z-10">

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState, type ChangeEvent } from "react";
 import type { Account, Invitation, Partner, Theme } from "@/types/invitation";
 import { TEMPLATES, getTemplate } from "@/data/templates";
+import { ALL_PHOTO_KEYS, photo } from "@/data/photos";
 import { newId, saveInvitation } from "@/lib/api";
 import { resizeImage } from "@/lib/image";
 import { InvitationView } from "@/components/invitation/InvitationView";
@@ -30,11 +31,7 @@ const GREETING_PRESETS: Record<Invitation["type"], { title: string; text: string
   ],
 };
 
-const SAMPLE_PHOTOS = [
-  "/samples/couple-sunset.svg", "/samples/couple-garden.svg", "/samples/couple-sky.svg", "/samples/bouquet.svg",
-  "/samples/rings.svg", "/samples/lavender.svg", "/samples/beach.svg", "/samples/city.svg", "/samples/hanok.svg",
-  "/samples/baby-balloon.svg", "/samples/baby-bear.svg", "/samples/baby-moon.svg", "/samples/parents.svg",
-];
+const SAMPLE_PHOTOS = Array.from(new Set(ALL_PHOTO_KEYS.map(photo)));
 
 type Updater = (fn: (draft: Invitation) => void) => void;
 

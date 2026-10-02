@@ -1,4 +1,5 @@
 import type { EventType, Invitation, Theme } from "@/types/invitation";
+import { photo } from "./photos";
 import { TEMPLATES, getTemplate } from "./templates";
 
 /**
@@ -7,31 +8,31 @@ import { TEMPLATES, getTemplate } from "./templates";
  */
 
 const WEDDING_GALLERY = [
-  "/samples/couple-sunset.svg",
-  "/samples/couple-garden.svg",
-  "/samples/bouquet.svg",
-  "/samples/couple-sky.svg",
-  "/samples/rings.svg",
-  "/samples/lavender.svg",
-  "/samples/beach.svg",
-  "/samples/city.svg",
-  "/samples/hanok.svg",
+  photo("wedding-garden"),
+  photo("gallery-veil"),
+  photo("wedding-bouquet"),
+  photo("gallery-hands"),
+  photo("wedding-beach"),
+  photo("gallery-walk"),
+  photo("wedding-lavender"),
+  photo("gallery-laugh"),
+  photo("wedding-hanbok"),
 ];
 
 const DOL_GALLERY = [
-  "/samples/baby-balloon.svg",
-  "/samples/baby-bear.svg",
-  "/samples/baby-moon.svg",
-  "/samples/bouquet.svg",
-  "/samples/couple-garden.svg",
-  "/samples/couple-sky.svg",
+  photo("dol-balloon"),
+  photo("dol-family"),
+  photo("dol-cake"),
+  photo("dol-bear"),
+  photo("dol-moon"),
+  photo("dol-hanbok"),
 ];
 
 const PARTY_GALLERY = [
-  "/samples/parents.svg",
-  "/samples/hanok.svg",
-  "/samples/bouquet.svg",
-  "/samples/couple-garden.svg",
+  photo("party-family"),
+  photo("party-couple"),
+  photo("party-mother"),
+  photo("wedding-bouquet"),
 ];
 
 const DEFAULT_OPTIONS = {

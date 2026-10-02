@@ -1,4 +1,5 @@
 import type { EventType, Theme } from "@/types/invitation";
+import { photo } from "./photos";
 
 /** 템플릿에서 쓰는 글꼴 (layout.tsx 에서 Google Fonts 로 불러옵니다) */
 export const FONTS = {
@@ -54,7 +55,7 @@ export const TEMPLATES: Theme[] = [
       line: "#F3D9DE",
     },
     fonts: { title: FONTS.gowunBatang, body: FONTS.gowunBatang, script: FONTS.greatVibes },
-    samplePhoto: "/samples/couple-sunset.svg",
+    samplePhoto: photo("wedding-blossom"),
   },
   {
     id: "ivory-classic",
@@ -77,7 +78,7 @@ export const TEMPLATES: Theme[] = [
       line: "#E6DAC2",
     },
     fonts: { title: FONTS.nanumMyeongjo, body: FONTS.nanumMyeongjo, script: FONTS.cormorant },
-    samplePhoto: "/samples/bouquet.svg",
+    samplePhoto: photo("wedding-classic"),
   },
   {
     id: "garden-green",
@@ -100,7 +101,7 @@ export const TEMPLATES: Theme[] = [
       line: "#D8E4CE",
     },
     fonts: { title: FONTS.gowunBatang, body: FONTS.gowunDodum, script: FONTS.cormorant },
-    samplePhoto: "/samples/couple-garden.svg",
+    samplePhoto: photo("wedding-garden"),
   },
   {
     id: "lemon-polaroid",
@@ -122,7 +123,7 @@ export const TEMPLATES: Theme[] = [
       line: "#F2E4B4",
     },
     fonts: { title: FONTS.gaegu, body: FONTS.gowunDodum, script: FONTS.dancing },
-    samplePhoto: "/samples/couple-sky.svg",
+    samplePhoto: photo("wedding-polaroid"),
   },
   {
     id: "sky-letter",
@@ -145,7 +146,7 @@ export const TEMPLATES: Theme[] = [
       line: "#D3E3F2",
     },
     fonts: { title: FONTS.gowunBatang, body: FONTS.gowunDodum, script: FONTS.greatVibes },
-    samplePhoto: "/samples/couple-sky.svg",
+    samplePhoto: photo("wedding-sky"),
   },
   {
     id: "peach-film",
@@ -168,7 +169,7 @@ export const TEMPLATES: Theme[] = [
       line: "#F5DCCD",
     },
     fonts: { title: FONTS.hahmlet, body: FONTS.gowunDodum, script: FONTS.playfair },
-    samplePhoto: "/samples/couple-sunset.svg",
+    samplePhoto: photo("wedding-film"),
   },
   {
     id: "lavender-dream",
@@ -190,7 +191,7 @@ export const TEMPLATES: Theme[] = [
       line: "#E2D9F1",
     },
     fonts: { title: FONTS.gowunBatang, body: FONTS.gowunDodum, script: FONTS.greatVibes },
-    samplePhoto: "/samples/lavender.svg",
+    samplePhoto: photo("wedding-lavender"),
   },
   {
     id: "modern-magazine",
@@ -213,7 +214,7 @@ export const TEMPLATES: Theme[] = [
       line: "#EAEAEA",
     },
     fonts: { title: FONTS.pretendard, body: FONTS.pretendard, script: FONTS.playfair },
-    samplePhoto: "/samples/city.svg",
+    samplePhoto: photo("wedding-city"),
   },
   {
     id: "coral-sunset",
@@ -235,7 +236,7 @@ export const TEMPLATES: Theme[] = [
       line: "#F4D8CE",
     },
     fonts: { title: FONTS.notoSerif, body: FONTS.gowunDodum, script: FONTS.greatVibes },
-    samplePhoto: "/samples/beach.svg",
+    samplePhoto: photo("wedding-beach"),
   },
   {
     id: "hanok-spring",
@@ -259,7 +260,7 @@ export const TEMPLATES: Theme[] = [
     fonts: { title: FONTS.songMyung, body: FONTS.nanumMyeongjo, script: FONTS.songMyung },
     pattern:
       "radial-gradient(circle at 20% 30%, rgba(200,170,120,0.07) 0 2px, transparent 3px), radial-gradient(circle at 70% 80%, rgba(200,170,120,0.06) 0 1.5px, transparent 2.5px)",
-    samplePhoto: "/samples/hanok.svg",
+    samplePhoto: photo("wedding-hanbok"),
   },
   {
     id: "minimal-line",
@@ -281,7 +282,7 @@ export const TEMPLATES: Theme[] = [
       line: "#E5E5E5",
     },
     fonts: { title: FONTS.pretendard, body: FONTS.pretendard, script: FONTS.cormorant },
-    samplePhoto: "/samples/rings.svg",
+    samplePhoto: photo("wedding-rings"),
   },
   {
     id: "watercolor-bouquet",
@@ -304,7 +305,7 @@ export const TEMPLATES: Theme[] = [
       line: "#D6EBE4",
     },
     fonts: { title: FONTS.gowunBatang, body: FONTS.gowunDodum, script: FONTS.greatVibes },
-    samplePhoto: "/samples/bouquet.svg",
+    samplePhoto: photo("wedding-bouquet"),
   },
   {
     id: "mint-picnic",
@@ -327,7 +328,7 @@ export const TEMPLATES: Theme[] = [
       line: "#CDE9E1",
     },
     fonts: { title: FONTS.nanumPen, body: FONTS.gowunDodum, script: FONTS.dancing },
-    samplePhoto: "/samples/couple-garden.svg",
+    samplePhoto: photo("wedding-picnic"),
   },
 
   /* ------------------------------ 돌잔치 ------------------------------ */
@@ -352,7 +353,7 @@ export const TEMPLATES: Theme[] = [
       line: "#F6E0E6",
     },
     fonts: { title: FONTS.jua, body: FONTS.gowunDodum, script: FONTS.fredoka },
-    samplePhoto: "/samples/baby-balloon.svg",
+    samplePhoto: photo("dol-balloon"),
   },
   {
     id: "dol-bear",
@@ -374,7 +375,7 @@ export const TEMPLATES: Theme[] = [
       line: "#EADCC9",
     },
     fonts: { title: FONTS.jua, body: FONTS.gowunDodum, script: FONTS.fredoka },
-    samplePhoto: "/samples/baby-bear.svg",
+    samplePhoto: photo("dol-bear"),
   },
   {
     id: "dol-saekdong",
@@ -397,7 +398,7 @@ export const TEMPLATES: Theme[] = [
       line: "#EFE1CD",
     },
     fonts: { title: FONTS.songMyung, body: FONTS.gowunDodum, script: FONTS.songMyung },
-    samplePhoto: "/samples/baby-balloon.svg",
+    samplePhoto: photo("dol-hanbok"),
   },
   {
     id: "dol-starry",
@@ -419,7 +420,7 @@ export const TEMPLATES: Theme[] = [
       line: "#D8E1F5",
     },
     fonts: { title: FONTS.jua, body: FONTS.gowunDodum, script: FONTS.fredoka },
-    samplePhoto: "/samples/baby-moon.svg",
+    samplePhoto: photo("dol-moon"),
   },
 
   /* --------------------------- 부모님 잔치 --------------------------- */
@@ -444,7 +445,7 @@ export const TEMPLATES: Theme[] = [
       line: "#F1DAD6",
     },
     fonts: { title: FONTS.songMyung, body: FONTS.nanumMyeongjo, script: FONTS.cormorant },
-    samplePhoto: "/samples/parents.svg",
+    samplePhoto: photo("party-mother"),
   },
   {
     id: "party-sunrise",
@@ -466,7 +467,7 @@ export const TEMPLATES: Theme[] = [
       line: "#F0E3C6",
     },
     fonts: { title: FONTS.hahmlet, body: FONTS.gowunDodum, script: FONTS.cormorant },
-    samplePhoto: "/samples/parents.svg",
+    samplePhoto: photo("party-couple"),
   },
 ];
 

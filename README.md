@@ -18,6 +18,16 @@ npm run dev      # 개발 서버 실행 → http://localhost:3000
 npm run build:preview   # → dist-preview/index.html (더블클릭으로 열기)
 ```
 
+## 코덱스(Codex)에게 맡길 작업
+
+| 작업 | 주문서 | 실행 |
+| --- | --- | --- |
+| 실사 느낌 예시 사진 26장 | [`docs/codex/01-photos.md`](docs/codex/01-photos.md) · 프롬프트 [`scripts/photo-brief.json`](scripts/photo-brief.json) | `bash scripts/run-codex.sh photos` |
+| 백엔드 (DB · 로그인 · 업로드 · 카톡 공유) | [`docs/codex/02-backend.md`](docs/codex/02-backend.md) | `bash scripts/run-codex.sh backend` |
+
+- 사진은 `public/photos/<이름>.webp` 로 들어오면 화면이 **자동으로** 일러스트 대신 사진을 써요 (`src/data/photos.ts`).
+- 코덱스 없이 OpenAI 키만 있으면 `OPENAI_API_KEY=... npm run photos` 로 사진만 바로 만들 수도 있어요.
+
 ## 화면 구성
 
 | 주소 | 화면 |

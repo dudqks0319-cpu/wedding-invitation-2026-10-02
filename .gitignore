@@ -45,3 +45,6 @@ next-env.d.ts
 
 # 미리보기 빌드 결과물
 /dist-preview
+
+# 코덱스 작업 기록
+/.codex-logs
