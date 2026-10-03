@@ -13,6 +13,13 @@ export async function replacementRequest(request:Request,env:Env):Promise<Respon
  if(path.startsWith('/api/v2/'))return api(env,request);
  if(/^\/api\/photos\/[a-f0-9-]{36}$/.test(path))return api(env,new Request(new URL(path.replace('/api/photos/','/api/v2/photos/'),url),request));
  if(!['GET','HEAD'].includes(request.method))return null;
+ if(env.NEXT_PUBLIC_SITE_URL===WEDDING_ORIGIN&&/^\/app-intro(?:\/?|\/index\.html|\/promo-0[1-3]\.(?:html|jpg)|\/screenshots\/(?:template|gallery|editor|native-home)\.png)$/.test(path)){
+  if(!env.ASSETS)return new Response('소개 화면을 준비하고 있어요',{status:503});
+  const assetPath=/^\/app-intro\/?$/.test(path)?'/app-intro/index.html':path;
+  const asset=await env.ASSETS.fetch(new Request(new URL(assetPath,url),{method:'GET'}));
+  const headers=new Headers(asset.headers);headers.set('X-Content-Type-Options','nosniff');headers.set('Referrer-Policy','strict-origin-when-cross-origin');headers.set('X-Frame-Options','SAMEORIGIN');headers.set('Cache-Control','public, max-age=300');
+  return new Response(request.method==='HEAD'?null:asset.body,{status:asset.status,headers});
+ }
  if(!/^\/(?:|templates(?:\/[a-z0-9-]+)?|pricing|my|login|create\/[a-z0-9-]+|i\/[a-z0-9-]{3,30})$/.test(path))return null;
  if(!env.ASSETS)return new Response('화면 연결을 준비하고 있어요',{status:503});
  let title='청첩장 만들기',description='내 사진으로 만드는 모바일 청첩장',image='',status=200;

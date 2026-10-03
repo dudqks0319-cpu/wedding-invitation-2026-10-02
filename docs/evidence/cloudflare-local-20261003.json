@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-03T00:00:17.430Z",
+  "date": "2026-10-03T05:55:52.750Z",
   "lane": "Miniflare D1/R2, real local sharp image decode; actual workerd photo request; Cloudflare Images requires separate production verification",
   "checks": [
     {
@@ -76,6 +76,10 @@
     },
     {
       "name": "published page and stable OG photo are public",
+      "result": "PASS"
+    },
+    {
+      "name": "crop and font persist in D1 draft and public snapshot",
       "result": "PASS"
     },
     {

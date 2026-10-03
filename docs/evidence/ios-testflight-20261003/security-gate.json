@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-03T06:15:49.007990+00:00",
+  "owner": "Codex",
+  "localGate": "PASS",
+  "checks": {
+    "swiftCore": 7,
+    "nativeWebKitRuntime": 4,
+    "nativeAuthD1": 13,
+    "webAuthRegression": 16,
+    "cloudflareRegression": 41
+  },
+  "secrets": "No embedded secret matches; signing profiles, private logs, IPA and Claude raw output ignored",
+  "authorization": "Own host, main-frame bridge, PKCE/state, one-use ticket, CSRF, safe redirect, account deletion hold checked",
+  "inputOutput": "Strict provider/callback fields and screenshot/intro asset allowlist; 10 MB native file bound",
+  "dependencies": "No added production dependencies; existing lockfile; npm audit production total 0",
+  "privacy": "AI fictional people and synthetic local fixture screenshots; no owner contact/account screenshot published; no tracking declared",
+  "abuse": "Existing auth per-client/global quotas, idempotency, single-use redemption and API kill switch tested",
+  "normalVerification": "TypeScript, eslint, Next build, Cloudflare build and signed IPA verified",
+  "residualRisks": [
+    {
+      "condition": "Real provider OAuth in new iOS app and iPhone 16 Pro TestFlight install not yet exercised",
+      "owner": "User and Codex",
+      "due": "When requested iPhone is reachable; before consumer release"
+    }
+  ],
+  "production": "not_yet_verified",
+  "testFlight": "not_yet_verified",
+  "realDevice": "HOLD_unavailable"
+}

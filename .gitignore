@@ -71,3 +71,11 @@ next-env.d.ts
 
 # 이전부터 있던 로컬 화면 원본은 그대로 보존
 /docs/evidence/public-site-home.png
+
+# iOS release artifacts and private Apple/device evidence
+/ios/artifacts/
+/ios/.build/
+/ios/.derived*/
+/ios/WeddingInvitation.xcodeproj/
+/ios/private/
+/ios/scripts/__pycache__/

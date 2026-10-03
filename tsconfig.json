@@ -30,5 +30,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "preview", "dist-preview", "dist-cloudflare", "cloudflare/osam-worker.template.ts", "cloudflare/build"]
+  "exclude": ["node_modules", "preview", "dist-preview", "dist-cloudflare", "cloudflare/osam-worker.template.ts", "cloudflare/build", "ios/artifacts", "ios/.build", ".omx"]
 }

@@ -17,7 +17,7 @@ export function Footer() {
         </div>
         {[
           { title: "만들기", links: [["모바일 청첩장", "/templates?type=wedding"], ["돌잔치 초대장", "/templates?type=dol"], ["부모님 잔치", "/templates?type=party"]] },
-          { title: "서비스", links: [["요금 안내", "/pricing"], ["내 청첩장", "/my"], ["로그인", "/login"]] },
+          { title: "서비스", links: [["앱 소개", "/app-intro/index.html"], ["요금 안내", "/pricing"], ["내 청첩장", "/my"], ["로그인", "/login"]] },
           { title: "이용 안내", links: [["자주 묻는 질문", "/#faq"], ["서비스 안내", "/pricing"]] },
         ].map((col) => (
           <div key={col.title}>
@@ -25,9 +25,7 @@ export function Footer() {
             <ul className="mt-4 space-y-2.5 text-[14px] text-muted">
               {col.links.map(([label, href]) => (
                 <li key={label}>
-                  <Link href={href} className="hover:text-brand-500">
-                    {label}
-                  </Link>
+                  {href.startsWith('/app-intro/') ? <a href={href} className="hover:text-brand-500">{label}</a> : <Link href={href} className="hover:text-brand-500">{label}</Link>}
                 </li>
               ))}
             </ul>

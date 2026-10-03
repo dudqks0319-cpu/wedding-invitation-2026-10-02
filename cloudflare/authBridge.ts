@@ -4,6 +4,7 @@ import {csrf,hex,json,publicQuota,quota,response} from './security';
 
 export const WEDDING_ORIGIN='https://wedding-invitation-2026-10-02.jyb1126.chatgpt.site';
 export const LEGACY_ORIGIN='https://osamosam-app.jyb1126.chatgpt.site';
+export const WEDDING_NATIVE_CALLBACK='com.invitehub.wedding-preview://auth';
 const flowCookie='__Host-w2-login',bridgeCookie='__Host-w2-bridge';
 const digest=async(value:string)=>new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value)));
 const random=(bytes:number)=>hex(crypto.getRandomValues(new Uint8Array(bytes)).buffer);
@@ -31,24 +32,58 @@ export function weddingBridgeRequest(request:Request):Response|null{
  const url=new URL(request.url),match=url.pathname.match(/^\/auth\/wedding\/(google|kakao)$/);
  if(!match)return null;
  const c=url.searchParams.get('challenge'),s=url.searchParams.get('state');
- if(request.method!=='GET'||!c||!/^[A-Za-z0-9_-]{43}$/.test(c)||!s||!/^[a-f0-9]{64}$/.test(s)||[...url.searchParams.keys()].length!==2)return response({error:'로그인을 다시 시작해 주세요'},400);
+ const native=url.searchParams.get('native');
+ if(request.method!=='GET'||!c||!/^[A-Za-z0-9_-]{43}$/.test(c)||!s||!/^[a-f0-9]{64}$/.test(s)||
+  (native!==null&&native!=='1')||[...url.searchParams.keys()].length!==(native==='1'?3:2))return response({error:'로그인을 다시 시작해 주세요'},400);
  const target=new URL(`/auth/${match[1]}`,LEGACY_ORIGIN);
  target.search=new URLSearchParams({native_challenge:c,native_state:s}).toString();
- const result=redirect(target);result.headers.set('Set-Cookie',setCookie(bridgeCookie,s,600));return result;
+ const result=redirect(target);result.headers.set('Set-Cookie',setCookie(bridgeCookie,(native==='1'?'native.':'')+s,600));return result;
 }
 
 export function weddingBridgeReturn(request:Request,result:Response):Response{
  if(!/^\/auth\/(google|kakao)\/callback$/.test(new URL(request.url).pathname))return result;
- const bound=cookie(request,bridgeCookie),location=result.headers.get('Location');
+ const stored=cookie(request,bridgeCookie),native=stored?.startsWith('native.')===true;
+ const bound=native?stored?.slice(7):stored,location=result.headers.get('Location');
  if(!bound||!/^[a-f0-9]{64}$/.test(bound)||!location)return result;
  const target=new URL(location,LEGACY_ORIGIN);
  let next:URL;
  if(target.protocol==='com.invitehub.app:'&&target.host==='auth'&&target.searchParams.get('state')===bound&&/^[a-f0-9]{48}$/.test(target.searchParams.get('code')??'')&&[...target.searchParams.keys()].length===2){
-  next=new URL('/api/v2/auth/complete',WEDDING_ORIGIN);next.search=target.search;
- }else if(target.origin===LEGACY_ORIGIN&&target.pathname==='/login'&&target.searchParams.get('expired')==='1')next=new URL('/login?expired=1',WEDDING_ORIGIN);
+  next=native?new URL(WEDDING_NATIVE_CALLBACK):new URL('/api/v2/auth/complete',WEDDING_ORIGIN);next.search=target.search;
+ }else if(target.origin===LEGACY_ORIGIN&&target.pathname==='/login'&&target.searchParams.get('expired')==='1'){
+  next=native?new URL(WEDDING_NATIVE_CALLBACK):new URL('/login',WEDDING_ORIGIN);next.search='?expired=1';
+ }
  else return result;
  const headers=new Headers(result.headers);headers.set('Location',next.href);headers.set('Cache-Control','no-store');headers.set('Referrer-Policy','no-referrer');
  headers.append('Set-Cookie',setCookie(bridgeCookie,'',0));return new Response(null,{status:303,headers});
+}
+
+/** A native attempt owns its verifier; no app session is placed in a callback URL. */
+export async function startNativeWeddingLogin(env:Env,request:Request){
+ await authQuota(env,request);
+ const url=new URL(request.url),provider=url.searchParams.get('provider'),c=url.searchParams.get('challenge'),state=url.searchParams.get('state');
+ if(request.method!=='GET'||!['google','kakao'].includes(provider??'')||!c||!/^[A-Za-z0-9_-]{43}$/.test(c)||!state||!/^[a-f0-9]{64}$/.test(state)||
+  [...url.searchParams.keys()].length!==3)throw new ApiError(400,'로그인을 다시 시작해 주세요');
+ const target=new URL(`/auth/wedding/${provider}`,LEGACY_ORIGIN);
+ target.search=new URLSearchParams({challenge:c,state,native:'1'}).toString();
+ return redirect(target);
+}
+
+export async function redeemNativeWeddingLogin(env:Env,request:Request){
+ csrf(env,request);await authQuota(env,request);
+ const input=object(await json(request)),code=input.code,verifier=input.verifier,state=input.state;
+ if(request.method!=='POST'||Object.keys(input).some(k=>!['code','verifier','state','next'].includes(k))||
+  typeof code!=='string'||!/^[a-f0-9]{48}$/.test(code)||typeof verifier!=='string'||!/^[a-f0-9]{64}$/.test(verifier)||
+  typeof state!=='string'||!/^[a-f0-9]{64}$/.test(state))throw new ApiError(400,'로그인을 다시 시작해 주세요');
+ const ticket=await env.DB.prepare(`DELETE FROM native_auth_tickets WHERE code_hash=? AND challenge=? AND state=? AND expires_at>?
+  AND NOT EXISTS(SELECT 1 FROM deletion_jobs WHERE owner_id=native_auth_tickets.user_id AND state<>'complete') RETURNING user_id`)
+  .bind(hex((await digest(code)).buffer),await challenge(verifier),state,new Date().toISOString()).first<{user_id:string}>();
+ if(!ticket)throw new ApiError(401,'로그인이 만료됐어요. 다시 시작해 주세요');
+ const token=random(24),now=new Date();
+ await env.DB.prepare('INSERT INTO sessions(token_hash,user_id,created_at,expires_at) VALUES(?,?,?,?)')
+  .bind(hex((await digest(token)).buffer),ticket.user_id,now.toISOString(),new Date(now.getTime()+30*86400000).toISOString()).run();
+ const result=redirect(new URL(safeNext(input.next),WEDDING_ORIGIN));
+ result.headers.set('Set-Cookie',setCookie('__Host-osam-session',token,30*86400));
+ return result;
 }
 
 export async function completeWeddingLogin(env:Env,request:Request){

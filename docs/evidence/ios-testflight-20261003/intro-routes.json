@@ -1,0 +1,14 @@
+{
+  "result": "PASS",
+  "allowedGet": 4,
+  "headEmpty": true,
+  "privatePathsDenied": 3,
+  "legacyHostDenied": true,
+  "assetPaths": [
+    "/app-intro/index.html",
+    "/app-intro/index.html",
+    "/app-intro/index.html",
+    "/app-intro/promo-01.html",
+    "/app-intro/index.html"
+  ]
+}

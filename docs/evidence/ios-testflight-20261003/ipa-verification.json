@@ -1,0 +1,17 @@
+{
+  "bundleId": "com.invitehub.wedding-preview",
+  "version": "0.1.0",
+  "build": "2",
+  "ipaSha256": "d84c73783b5cd8b3ec9f20d05b4b679121d488a21209c861c1a9b1fb2b239251",
+  "deviceFamily": [
+    1
+  ],
+  "orientations": [
+    "UIInterfaceOrientationPortrait"
+  ],
+  "privacyManifest": true,
+  "urlScheme": [
+    "com.invitehub.wedding-preview"
+  ],
+  "signature": "codesign --verify --deep --strict PASS"
+}

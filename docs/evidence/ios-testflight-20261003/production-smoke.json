@@ -1,0 +1,30 @@
+{
+  "observedAt": "2026-10-03T06:22:58.275449+00:00",
+  "workerVersion": "d9be31ff-a58d-45dd-a140-fae1f3b57141",
+  "sitesVersion": 3,
+  "accessMode": "public",
+  "introBrowser": "PASS canonical introduction, new blossom photo and 4 actual screenshots loaded",
+  "responsive": "390 and 1440 width; no horizontal document overflow; keyboard tab changes passed",
+  "introImages": [
+    {
+      "file": "promo-01.jpg",
+      "width": 1242,
+      "height": 2688
+    },
+    {
+      "file": "promo-02.jpg",
+      "width": 1242,
+      "height": 2688
+    },
+    {
+      "file": "promo-03.jpg",
+      "width": 1242,
+      "height": 2688
+    }
+  ],
+  "apiDirectHttp": "403; additional direct API production verification not established",
+  "browserJsonNavigation": "net::ERR_BLOCKED_BY_CLIENT",
+  "realOAuth": "not exercised",
+  "privateUserData": "not accessed",
+  "realDevice": "not verified"
+}

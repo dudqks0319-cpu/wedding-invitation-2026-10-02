@@ -5,7 +5,7 @@ import type {Invitation} from '../src/types/invitation';
 import type {Env} from './types';
 import {actor,csrf,hex,hmac,json,operation,publicQuota,quota,replay,response} from './security';
 import {cleanup,ownedPhotos,photo,removePhoto,upload} from './photos';
-import {WEDDING_ORIGIN,startWeddingLogin} from './authBridge';
+import {WEDDING_ORIGIN,startWeddingLogin,startNativeWeddingLogin,redeemNativeWeddingLogin} from './authBridge';
 type Row={slug:string;owner_id:string;revision:number;data:string;public_data:string|null;expires_at:string;public_expires_at:string|null};
 const output=(row:Row):Invitation=>({...JSON.parse(row.data),revision:row.revision,ownerView:true,published:!!row.public_data&&(row.public_expires_at??'')>new Date().toISOString()});
 function expires(inv:Invitation){
@@ -26,6 +26,8 @@ export async function route(env:Env,request:Request):Promise<Response>{
  if(enabled?.enabled!==1)throw new ApiError(503,'서비스를 점검 중이에요. 잠시 후 다시 시도해 주세요');
  if(first==='health')return response({status:'ok',backend:'cloudflare',storage:'D1/R2',schema:2});
  if(first==='auth'){
+  if(env.NEXT_PUBLIC_SITE_URL===WEDDING_ORIGIN&&url.pathname==='/api/v2/auth/native/start'&&request.method==='GET')return startNativeWeddingLogin(env,request);
+  if(env.NEXT_PUBLIC_SITE_URL===WEDDING_ORIGIN&&url.pathname==='/api/v2/auth/native/redeem'&&request.method==='POST')return redeemNativeWeddingLogin(env,request);
   if(request.method==='POST'&&slugRaw==='start'){
    if(env.NEXT_PUBLIC_SITE_URL===WEDDING_ORIGIN)return startWeddingLogin(env,request);
    csrf(env,request);const input=object(await json(request)),provider=text(input.provider,10,'로그인');

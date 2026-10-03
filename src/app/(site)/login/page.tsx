@@ -15,6 +15,8 @@ function LoginForm() {
   if(REMOTE_DATA&&auth==='signedIn')return <div className="flex min-h-[70vh] items-center justify-center px-5"><div className="text-center"><h1 className="text-[22px] font-bold">로그인되어 있어요</h1><Link href="/my" className="mt-6 inline-block rounded-full bg-brand-500 px-6 py-3 font-semibold text-white">내 청첩장으로 가기</Link></div></div>;
   const login = async (provider: 'kakao' | 'google') => {
     if (!REMOTE_DATA) return setMsg('로컬 미리보기예요. 로그인은 서버 연결 후 사용할 수 있어요.');
+    const native=(window as Window & {webkit?:{messageHandlers?:{weddingAuth?:{postMessage:(provider:string)=>void}}}}).webkit?.messageHandlers?.weddingAuth;
+    if(native){native.postMessage(provider);return;}
     setBusy(true);setMsg(null);
     try {
       const result=await request<{url:string}>('/api/auth/start','POST',{provider,next:new URLSearchParams(window.location.search).get('next') ?? '/my'});
