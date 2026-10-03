@@ -53,6 +53,7 @@ next-env.d.ts
 /.sites-runtime/
 /supabase/.temp/
 /docs/evidence/site.tar.gz
+/docs/evidence/independent-site.tar.gz
 /docs/evidence/site-workflow.log
 
 # 코덱스 작업 기록

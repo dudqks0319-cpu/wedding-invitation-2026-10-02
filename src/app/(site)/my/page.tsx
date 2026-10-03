@@ -10,6 +10,7 @@ import { CATEGORY_SHORT, getTemplate } from "@/data/templates";
 import { formatKoreanDate } from "@/lib/date";
 import { getDisplay } from "@/lib/display";
 import type { Invitation } from "@/types/invitation";
+import {useAuthSession} from '@/lib/authSession';
 
 function GuestbookModeration({slug}:{slug:string}){
   const path=`/api/invitations/${slug}/moderation`,state=useApiState(path);
@@ -60,6 +61,9 @@ export default function MyPage() {
   const status=useApiState("/api/invitations");
   const [msg,setMsg]=useState<string | null>(null);
   const list = Object.values(all);
+  const auth=useAuthSession();
+
+  if(REMOTE_DATA&&auth!=='signedIn')return <div className="mx-auto min-h-[60vh] max-w-5xl px-5 py-16"><h1 className="text-[28px] font-bold">내 청첩장</h1><p className="mt-4">{auth==='signedOut'?'로그인하면 저장한 청첩장을 볼 수 있어요.':auth==='checking'?'로그인 상태를 확인하고 있어요…':'연결을 확인하고 다시 시도해 주세요.'}</p>{auth!=='checking'&&<Link href="/login?next=%2Fmy" className="mt-6 inline-block rounded-full bg-brand-500 px-6 py-3 font-semibold text-white">로그인하기</Link>}</div>;
 
   return (
     <div className="mx-auto max-w-5xl px-5 pt-12">
@@ -76,7 +80,7 @@ export default function MyPage() {
         {REMOTE_DATA ? "초안은 나만 볼 수 있어요. 공유를 시작하면 링크로 하객을 초대할 수 있어요." : "이 브라우저에만 저장된 미리보기예요. 다른 기기로 공유하려면 서버 연결이 필요해요."}
       </p>
 
-      {REMOTE_DATA && <div className="mt-4 flex gap-5 text-[13px]"><button onClick={async()=>{try {await request('/api/auth/logout','POST',{});clearPrivateDrafts();window.location.assign(new URL('/login',window.location.origin).href);} catch(error) {setMsg((error as Error).message);}}} className="underline">로그아웃</button>{process.env.NEXT_PUBLIC_BACKEND==='cloudflare'&&<a href="/dashboard" className="underline">이전에 만든 초대장 관리</a>}</div>}
+      {REMOTE_DATA && <div className="mt-4 flex gap-5 text-[13px]"><span>로그인됨</span><button onClick={async()=>{try {await request('/api/auth/logout','POST',{});clearPrivateDrafts();window.location.assign(new URL('/login',window.location.origin).href);} catch(error) {setMsg((error as Error).message);}}} className="underline">로그아웃</button>{process.env.NEXT_PUBLIC_BACKEND==='cloudflare'&&<a href="https://osamosam-app.jyb1126.chatgpt.site/dashboard" className="underline">오삼오삼에서 만든 이전 초대장</a>}</div>}
       {status.loading && <p className="mt-5">불러오는 중…</p>}
       {(status.error || msg) && <p role="alert" className="mt-5">{msg ?? status.error?.message} {status.error?.status===401 && <Link href="/login?next=%2Fmy" className="underline">로그인하기</Link>}</p>}
       {hydrated && !status.loading && !status.error && list.length === 0 && (

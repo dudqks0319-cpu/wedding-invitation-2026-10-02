@@ -1,0 +1,70 @@
+{
+  "time": "2026-10-03T00:00:15.026Z",
+  "lane": "Miniflare D1; synthetic one-use native tickets; no real provider exchange",
+  "checks": [
+    {
+      "name": "new origin rejects foreign login start",
+      "result": "PASS"
+    },
+    {
+      "name": "provider and next are validated",
+      "result": "PASS"
+    },
+    {
+      "name": "start binds verifier to HttpOnly host cookie, URL carries only challenge",
+      "result": "PASS"
+    },
+    {
+      "name": "old bridge validates duplicate and malformed query",
+      "result": "PASS"
+    },
+    {
+      "name": "bridge retains registered provider callback and native challenge",
+      "result": "PASS"
+    },
+    {
+      "name": "only matching web flow converts native redirect",
+      "result": "PASS"
+    },
+    {
+      "name": "failed provider returns to independent login",
+      "result": "PASS"
+    },
+    {
+      "name": "missing cookie does not consume ticket",
+      "result": "PASS"
+    },
+    {
+      "name": "wrong verifier and wrong state cannot consume ticket",
+      "result": "PASS"
+    },
+    {
+      "name": "duplicate query rejects without consuming",
+      "result": "PASS"
+    },
+    {
+      "name": "valid ticket issues separate host session for authenticated owner",
+      "result": "PASS"
+    },
+    {
+      "name": "ticket replay cannot create another session",
+      "result": "PASS"
+    },
+    {
+      "name": "expired ticket fails",
+      "result": "PASS"
+    },
+    {
+      "name": "pending account deletion rejects bridge login",
+      "result": "PASS"
+    },
+    {
+      "name": "redirect target cannot escape wedding origin",
+      "result": "PASS"
+    },
+    {
+      "name": "new-origin logout revokes only its session",
+      "result": "PASS"
+    }
+  ]
+}

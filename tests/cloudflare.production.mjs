@@ -6,7 +6,9 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const stage=path.resolve(process.env.OSAM_STAGE??path.join(root,'../osam-rebuild/artifacts/wedding-replacement-20261003'));
-const origin='https://osamosam-app.jyb1126.chatgpt.site',privateDir=path.join(root,'docs/evidence/cloudflare-private');
+const origin=process.env.SITE_ORIGIN??'https://osamosam-app.jyb1126.chatgpt.site',privateDir=path.join(root,'docs/evidence/cloudflare-private');
+if(!['https://osamosam-app.jyb1126.chatgpt.site','https://wedding-invitation-2026-10-02.jyb1126.chatgpt.site'].includes(origin))throw new Error('Unknown production Site');
+const independent=origin.includes('wedding-invitation-'),receipt=independent?'independent-production-20261003.json':'cloudflare-production-20261003.json';
 await mkdir(privateDir,{recursive:true});
 const users=[crypto.randomUUID(),crypto.randomUUID()],tokens=[crypto.randomUUID().replaceAll('-','')+'0123456789abcdef',crypto.randomUUID().replaceAll('-','')+'0123456789abcdef'];
 const slug='qa-'+crypto.randomUUID().slice(0,8),checks=[];let uploaded,inv,seeded=false;
@@ -18,9 +20,19 @@ async function check(name,fn){await fn();checks.push({name,result:'PASS'});conso
 try{
  const now=new Date().toISOString();await writeFile(path.join(privateDir,'fixture-ownership.json'),JSON.stringify({users,slug,created_at:now}),{mode:0o600});const expires=new Date(Date.now()+3600000).toISOString();
  let seed='';for(let i=0;i<2;i++)seed+=`INSERT INTO users VALUES(${quote(users[i])},NULL,${quote(now)});INSERT INTO sessions VALUES(${quote(await digest(tokens[i]))},${quote(users[i])},${quote(now)},${quote(expires)});\n`;
- seed+="UPDATE w2_controls SET enabled=1 WHERE name='uploads';";seeded=true;await sql(seed);
+ const control=await sql("SELECT enabled FROM w2_controls WHERE name='uploads';");assert.equal(control[0].results[0].enabled,1,'Existing upload switch must already be enabled');seeded=true;await sql(seed);
  await check('live D1 health via Sites gateway',async()=>assert.equal((await req('/api/v2/health')).data.backend,'cloudflare'));
  await check('anonymous owner list denied',async()=>assert.equal((await req('/api/v2/invitations')).status,401));
+ if(independent){
+  const start=await req('/api/v2/auth/start','POST',{provider:'google',next:'/my'}),bound=start.headers.getSetCookie().find(c=>c.startsWith('__Host-w2-login=')).split(';')[0];
+  const flow=JSON.parse(decodeURIComponent(bound.slice(bound.indexOf('=')+1))),code=crypto.randomUUID().replaceAll('-','')+'0123456789abcdef';
+  const challenge=Buffer.from(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(flow.verifier))).toString('base64url');
+  await check('live bridge start uses registered auth origin and host cookie',async()=>{assert.equal(start.status,200);assert.equal(new URL(start.data.url).pathname,'/auth/wedding/google');assert.equal(new URL(start.data.url).origin,'https://osamosam-app.jyb1126.chatgpt.site');assert.match(start.headers.get('set-cookie'),/HttpOnly; Secure; SameSite=Lax/);});
+  await sql(`INSERT INTO native_auth_tickets VALUES(${quote(await digest(code))},${quote(users[0])},${quote(challenge)},${quote(flow.state)},${quote(new Date(Date.now()+60000).toISOString())});`);
+  const complete=()=>fetch(origin+'/api/v2/auth/complete?'+new URLSearchParams({code,state:flow.state}),{headers:{Cookie:bound},redirect:'manual',signal:AbortSignal.timeout(20000)});
+  await check('live one-use bridge establishes session on independent Site',async()=>{const r=await complete();assert.equal(r.status,303);assert.equal(r.headers.get('Location'),origin+'/my');const issued=r.headers.getSetCookie().find(c=>c.startsWith('__Host-osam-session=')).split(';')[0];const actor=await req('/api/v2/auth/session','GET',undefined,-1,{headers:{Cookie:issued}});assert.equal(actor.data.id,users[0]);});
+  await check('live bridge ticket replay rejected',async()=>assert.equal((await complete()).headers.get('Location'),origin+'/login?expired=1'));
+ }
  const sample={slug,type:'wedding',templateId:'blossom',dateTime:new Date(Date.now()+30*86400000).toISOString().slice(0,16),wedding:{groom:{name:'합성점검신랑',order:'아들'},bride:{name:'합성점검신부',order:'딸'}},venue:{name:'합성점검홀',address:'실제 행사 아님',lat:37.5,lng:127},greetingTitle:'서비스 점검',greeting:'일시적으로 생성한 합성 테스트이며 종료 후 삭제합니다',coverPhoto:'/photos/wedding-blossom.webp',gallery:[],accounts:[],options:{showCalendar:true,showDday:true,showGallery:true,showAccounts:false,showGuestbook:true,showRsvp:true,showEffect:false},shareTitle:'합성 서비스 점검',shareDescription:'실제 행사 아님'};
  const key=crypto.randomUUID();
  await check('live owner draft save and replay',async()=>{let r=await req('/api/v2/invitations/'+slug,'PUT',sample,0,{key});assert.equal(r.status,201,JSON.stringify(r.data));inv=r.data;assert.equal((await req('/api/v2/invitations/'+slug,'PUT',sample,0,{key})).data.revision,1);});
@@ -34,12 +46,13 @@ try{
  const rsvpKey=crypto.randomUUID(),rsvp={name:'합성하객',side:'groom',attending:true,count:2,meal:'yes',memo:''};
  await check('live guest RSVP stored once and owner-only',async()=>{assert.equal((await req('/api/v2/invitations/'+slug+'/rsvp','POST',rsvp,-1,{key:rsvpKey})).status,201);assert.equal((await req('/api/v2/invitations/'+slug+'/rsvp','POST',rsvp,-1,{key:rsvpKey})).status,200);assert.equal((await req('/api/v2/invitations/'+slug+'/rsvp','GET',undefined,0)).data.length,1);assert.equal((await req('/api/v2/invitations/'+slug+'/rsvp')).status,404);});
  await check('live guestbook approval',async()=>{const r=await req('/api/v2/invitations/'+slug+'/guestbook','POST',{name:'합성하객',message:'점검용 메시지',password:'temporary-fixture-password'});assert.equal(r.status,201);assert.equal((await req('/api/v2/invitations/'+slug+'/guestbook')).data.length,0);assert.equal((await req('/api/v2/invitations/'+slug+'/moderation','PATCH',{id:r.data.id,approved:true},0)).status,200);assert.equal((await req('/api/v2/invitations/'+slug+'/guestbook')).data.length,1);assert.equal((await req('/api/v2/invitations/'+slug+'/moderation','DELETE',{id:r.data.id},0)).status,200);});
+ if(independent)await check('live expired publication denies page and image',async()=>{await sql(`UPDATE w2_invitations SET public_expires_at=${quote(new Date(Date.now()-1000).toISOString())} WHERE slug=${quote(slug)} AND owner_id=${quote(users[0])};`);assert.equal((await req('/i/'+slug)).status,404);assert.equal((await req(uploaded)).status,404);});
  await check('live unpublish revokes page and R2 photo',async()=>{assert.equal((await req('/api/v2/invitations/'+slug+'/publish','POST',{published:false,revision:inv.revision},0)).status,200);assert.equal((await req('/i/'+slug)).status,404);assert.equal((await req(uploaded)).status,404);});
  await check('live delete removes invitation and unused R2 photo',async()=>{assert.equal((await req('/api/v2/invitations/'+slug,'DELETE',{},0)).status,200);const photoDelete=await req(uploaded,'DELETE',{},0);assert.ok([200,404].includes(photoDelete.status));const rows=await sql(`SELECT COUNT(*) AS photos,COALESCE(SUM(bytes),0) AS bytes FROM w2_photos WHERE owner_id=${quote(users[0])};`);assert.equal(rows[0].results[0].bytes,0);});
 }catch(error){checks.push({name:'production failure',result:'FAIL',message:error.message});console.error(error.message);await sql("UPDATE w2_controls SET enabled=0 WHERE name='uploads';").catch(()=>{});process.exitCode=1;}
 finally{
  if(seeded){await req('/api/v2/invitations/'+slug,'DELETE',{},0).catch(()=>{});if(uploaded)await req(uploaded,'DELETE',{},0).catch(()=>{});
- const scope=quote('%'+slug+'%');await sql(`DELETE FROM w2_operations WHERE scope LIKE ${scope};DELETE FROM w2_invitations WHERE owner_id IN(${users.map(quote).join(',')});DELETE FROM sessions WHERE user_id IN(${users.map(quote).join(',')});DELETE FROM w2_limits WHERE scope IN(${users.map(quote).join(',')});DELETE FROM users WHERE id IN(${users.map(quote).join(',')});`).catch(()=>{console.error('Fixture cleanup needs follow-up; private IDs preserved');process.exitCode=1;});}
- await writeFile(path.join(root,'docs/evidence/cloudflare-production-20261003.json'),JSON.stringify({date:new Date().toISOString(),lane:'Actual Cloudflare Worker + D1 + R2 + Images via existing public Sites gateway; two synthetic temporary account sessions; provider OAuth separate',checks},null,2)+'\n');
+ const scope=quote('%'+slug+'%');await sql(`DELETE FROM w2_operations WHERE scope LIKE ${scope};DELETE FROM w2_invitations WHERE owner_id IN(${users.map(quote).join(',')});DELETE FROM sessions WHERE user_id IN(${users.map(quote).join(',')});DELETE FROM native_auth_tickets WHERE user_id IN(${users.map(quote).join(',')});DELETE FROM w2_limits WHERE scope IN(${users.map(quote).join(',')});DELETE FROM users WHERE id IN(${users.map(quote).join(',')});`).catch(()=>{console.error('Fixture cleanup needs follow-up; private IDs preserved');process.exitCode=1;});}
+ await writeFile(path.join(root,'docs/evidence',receipt),JSON.stringify({date:new Date().toISOString(),origin,lane:'Actual Cloudflare Worker + D1 + R2 + Images via public Sites gateway; two synthetic temporary accounts; synthetic bridge ticket; real provider OAuth separate',checks},null,2)+'\n');
  console.log(checks.filter(c=>c.result==='PASS').length+' production checks passed');
 }

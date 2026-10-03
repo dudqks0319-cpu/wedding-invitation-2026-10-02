@@ -1,0 +1,24 @@
+RELEASE HARNESS RESULT
+- Repo: /Users/jyb-m3max/Desktop/codex/wedding-invitation-2026-10-02
+- Mode: report-only
+- Ledger: missing
+- Status Doc: missing
+- Phase: unknown
+- Version: unknown
+- Build: unknown
+- Git SHA: unknown
+- Branch: unknown
+- Next Command: none
+
+Detected Commands
+- npm run build
+- npm run lint
+
+Warnings
+- none
+
+Failures
+- release-ledger.yaml is missing
+- RELEASE_STATUS.md is missing
+
+Verdict: ATTENTION

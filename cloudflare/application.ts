@@ -3,9 +3,13 @@ import {api,cleanup} from './service';
 import {actor,publicQuota,quota} from './security';
 import {safeNext,ApiError} from '../src/lib/server/validation';
 import {getSampleBySlug} from '../src/data/samples';
+import {WEDDING_ORIGIN,completeWeddingLogin} from './authBridge';
+export {weddingBridgeRequest,weddingBridgeReturn} from './authBridge';
+export const weddingOrigin=()=>WEDDING_ORIGIN;
 const escape=(value:string)=>value.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
 export async function replacementRequest(request:Request,env:Env):Promise<Response|null>{
  const url=new URL(request.url),path=url.pathname;
+ if(env.NEXT_PUBLIC_SITE_URL===WEDDING_ORIGIN&&path==='/api/v2/auth/complete')return completeWeddingLogin(env,request);
  if(path.startsWith('/api/v2/'))return api(env,request);
  if(/^\/api\/photos\/[a-f0-9-]{36}$/.test(path))return api(env,new Request(new URL(path.replace('/api/photos/','/api/v2/photos/'),url),request));
  if(!['GET','HEAD'].includes(request.method))return null;

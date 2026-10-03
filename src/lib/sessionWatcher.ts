@@ -1,7 +1,7 @@
 type Callbacks = {
   readIdentity: () => Promise<string | null>;
   hide: () => void;
-  show: () => void;
+  show: (identity:string|null) => void;
   reload: () => void;
   fail: () => void;
 };
@@ -25,7 +25,7 @@ export function createSessionWatcher(callbacks: Callbacks) {
           return;
         }
         identity = next;
-        callbacks.show();
+        callbacks.show(next);
       } catch {
         if (current === generation) callbacks.fail();
       }

@@ -1,0 +1,19 @@
+{
+  "time": "2026-10-03T00:04:56.926Z",
+  "scannedTextPaths": 177,
+  "secretPatternFindingPaths": [],
+  "dependencyVulnerabilities": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "fingerprint": {
+    "cloudflare/build/replacement.mjs": "2e5cfdecc7490d6aa34c49daa8aaec87bab55dca71fe32accdaa4b7ded8ba4f7",
+    "dist-cloudflare/index.html": "61c1ac107e787326d59b380bb0eb9f203f75f7adb8b7eac1f7d6fb2868d7a048",
+    "sites/gateway.js": "a14acfa82b238524ff079303fe42dce199a94056ba227309f65f2d5af003d090"
+  },
+  "scope": "Repository publish inputs and isolated Worker dry-run output; regex scan complements auth/input review, not a full secret guarantee"
+}

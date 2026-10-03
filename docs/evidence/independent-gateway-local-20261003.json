@@ -1,0 +1,46 @@
+{
+  "time": "2026-10-03T00:01:32.584Z",
+  "lane": "Actual worker template and application, isolated legacy handler; mocked fetch for Sites gateway",
+  "checks": [
+    {
+      "name": "separate Site signature reaches real v2 health",
+      "result": "PASS"
+    },
+    {
+      "name": "new Site enforces new origin CSRF",
+      "result": "PASS"
+    },
+    {
+      "name": "old Site cannot assert the new origin",
+      "result": "PASS"
+    },
+    {
+      "name": "new Site origin is fixed despite forged forwarded host",
+      "result": "PASS"
+    },
+    {
+      "name": "expired signatures and path tampering fail closed",
+      "result": "PASS"
+    },
+    {
+      "name": "old native routes stay old; new Site exposes only replacement routes",
+      "result": "PASS"
+    },
+    {
+      "name": "gateway without server secret fails closed",
+      "result": "PASS"
+    },
+    {
+      "name": "gateway strips caller identity/proxy headers and preserves host cookie",
+      "result": "PASS"
+    },
+    {
+      "name": "gateway retains provider destination",
+      "result": "PASS"
+    },
+    {
+      "name": "upstream outage is controlled and contains no details",
+      "result": "PASS"
+    }
+  ]
+}

@@ -1,13 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { Suspense,useState } from "react";
 import { request } from "@/lib/api";
 import { REMOTE_DATA } from "@/lib/dataMode";
+import {useAuthSession} from '@/lib/authSession';
+import {useSearchParams} from 'next/navigation';
 
-export default function LoginPage() {
+function LoginForm() {
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const auth=useAuthSession();
+  const expired=useSearchParams().get('expired')==='1';
+  if(REMOTE_DATA&&auth==='signedIn')return <div className="flex min-h-[70vh] items-center justify-center px-5"><div className="text-center"><h1 className="text-[22px] font-bold">로그인되어 있어요</h1><Link href="/my" className="mt-6 inline-block rounded-full bg-brand-500 px-6 py-3 font-semibold text-white">내 청첩장으로 가기</Link></div></div>;
   const login = async (provider: 'kakao' | 'google') => {
     if (!REMOTE_DATA) return setMsg('로컬 미리보기예요. 로그인은 서버 연결 후 사용할 수 있어요.');
     setBusy(true);setMsg(null);
@@ -22,6 +27,7 @@ export default function LoginPage() {
         <p className="font-script text-[34px] text-brand-400">Welcome</p>
         <h1 className="mt-1 text-[22px] font-bold">로그인하고 시작하기</h1>
         <p className="mt-2 text-[14px] text-muted">로그인하면 어디서든 청첩장을 수정할 수 있어요</p>
+        {expired&&<p role="alert" className="mt-4 text-[13px] text-brand-700">로그인을 완료하지 못했어요. 다시 시작해 주세요.</p>}
         <div className="mt-8 space-y-2.5">
           <button disabled={busy} onClick={() => login("kakao")} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#FEE500] py-3.5 text-[15px] font-semibold text-[#191919]">
             <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden>
@@ -42,3 +48,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+export default function LoginPage(){return <Suspense fallback={<p role="status" className="p-10 text-center">로그인 화면을 준비하고 있어요…</p>}><LoginForm /></Suspense>;}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Logo } from "./Logo";
+import {useAuthSession} from '@/lib/authSession';
 
 const NAV = [
   { href: "/templates?type=wedding", label: "모바일 청첩장" },
@@ -16,6 +17,9 @@ const NAV = [
 export function Header() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const auth=useAuthSession();
+  const authLabel=auth==='signedIn'?'내 계정':auth==='checking'?'확인 중…':auth==='unavailable'?'로그인 확인':'로그인';
+  const authHref=auth==='signedIn'?'/my':'/login';
 
   return (
     <header className="sticky top-0 z-50 border-b border-brand-100/70 bg-cream/85 backdrop-blur-md">
@@ -33,8 +37,8 @@ export function Header() {
           ))}
         </nav>
         <div className="hidden items-center gap-2 md:flex">
-          <Link href="/login" className="rounded-full px-4 py-2 text-[14px] text-ink/70 transition hover:bg-brand-50">
-            로그인
+          <Link href={authHref} aria-busy={auth==='checking'} className="rounded-full px-4 py-2 text-[14px] text-ink/70 transition hover:bg-brand-50">
+            {authLabel}
           </Link>
           <Link href="/templates" className="rounded-full bg-brand-500 px-5 py-2.5 text-[14px] font-semibold text-white shadow-[0_6px_16px_-4px_rgba(242,95,125,0.6)] transition hover:bg-brand-600">
             무료로 만들기
@@ -54,8 +58,8 @@ export function Header() {
             </Link>
           ))}
           <div className="mt-4 flex gap-2">
-            <Link href="/login" onClick={() => setOpen(false)} className="flex-1 rounded-full border border-brand-200 py-3 text-center text-[14px]">
-              로그인
+            <Link href={authHref} onClick={() => setOpen(false)} aria-busy={auth==='checking'} className="flex-1 rounded-full border border-brand-200 py-3 text-center text-[14px]">
+              {authLabel}
             </Link>
             <Link href="/templates" onClick={() => setOpen(false)} className="flex-1 rounded-full bg-brand-500 py-3 text-center text-[14px] font-semibold text-white">
               무료로 만들기

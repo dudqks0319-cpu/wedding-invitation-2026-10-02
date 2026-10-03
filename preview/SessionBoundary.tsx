@@ -2,6 +2,7 @@ import {useEffect,useRef,useState,type ReactNode} from 'react';
 import {ClientError,request} from '@/lib/api';
 import {createSessionWatcher} from '@/lib/sessionWatcher';
 import {useLocation} from './router';
+import {AuthContext,type AuthStatus} from '@/lib/authSession';
 
 export function SessionBoundary({children}:{children:ReactNode}){
   const {pathname}=useLocation();
@@ -9,6 +10,7 @@ export function SessionBoundary({children}:{children:ReactNode}){
   const [checking,setChecking]=useState(true);
   const [failed,setFailed]=useState(false);
   const [attempt,setAttempt]=useState(0);
+  const [auth,setAuth]=useState<AuthStatus>('checking');
   const watcherRef=useRef<ReturnType<typeof createSessionWatcher>|null>(null);
   useEffect(()=>{
     const watcher=watcherRef.current??createSessionWatcher({
@@ -16,10 +18,10 @@ export function SessionBoundary({children}:{children:ReactNode}){
         try{const user=await request<{id:string}>('/api/auth/session');if(!user.id)throw new Error('Missing identity');return user.id;}
         catch(error){if(error instanceof ClientError&&error.status===401)return null;throw error;}
       },
-      hide:()=>{setChecking(true);setFailed(false);},
-      show:()=>setChecking(false),
+      hide:()=>{setChecking(true);setFailed(false);setAuth('checking');},
+      show:identity=>{setChecking(false);setAuth(identity?'signedIn':'signedOut');},
       reload:()=>window.location.reload(),
-      fail:()=>{setChecking(true);setFailed(true);},
+      fail:()=>{setChecking(true);setFailed(true);setAuth('unavailable');},
     });
     watcherRef.current=watcher;
     const pause=()=>watcher.pause();
@@ -32,8 +34,8 @@ export function SessionBoundary({children}:{children:ReactNode}){
     check();
     return()=>{watcher.dispose();window.removeEventListener('blur',pause);window.removeEventListener('focus',check);window.removeEventListener('pageshow',check);document.removeEventListener('visibilitychange',visibility);};
   },[attempt]);
-  return <>
+  return <AuthContext.Provider value={auth}>
     <div hidden={privateView&&checking}>{children}</div>
     {privateView&&checking&&<div role="status" className="flex min-h-dvh items-center justify-center bg-cream p-8 text-center"><div><p>{failed?'연결을 확인하고 다시 시도해 주세요.':'로그인 상태를 확인하고 있어요…'}</p>{failed&&<button className="mt-4 min-h-11 rounded-full bg-ink px-6 text-white" onClick={()=>setAttempt(value=>value+1)}>다시 확인</button>}</div></div>}
-  </>;
+  </AuthContext.Provider>;
 }

@@ -1,14 +1,7 @@
-import {readFile,mkdir,copyFile} from 'node:fs/promises';
-import {runInNewContext} from 'node:vm';
+import {mkdir,copyFile,readFile,rm} from 'node:fs/promises';
 const manifest=JSON.parse(await readFile('.openai/hosting.json','utf8'));
-if(manifest.static.directory!=='dist')throw new Error('Expected supported Sites output directory: dist');
-await mkdir('dist',{recursive:true});
-await copyFile('site-redirect/index.html','dist/index.html');
-const html=await readFile(`${manifest.static.directory}/index.html`,'utf8');
-if(!html.includes('https://osamosam-app.jyb1126.chatgpt.site'))throw new Error('Canonical service link missing');
-for(const hash of ['#/templates/blossom','#//invalid.example']){
- let result;runInNewContext(html.match(/<script>([\s\S]*?)<\/script>/)[1],{URL,location:{hash,pathname:'/',search:'',replace:value=>{result=value;}}});
- if(new URL(result).origin!=='https://osamosam-app.jyb1126.chatgpt.site')throw new Error('Unsafe redirect');
- if(hash==='#/templates/blossom'&&!result.endsWith('/templates/blossom'))throw new Error('Old template path lost');
-}
-console.log('Sites entry ready; the existing service provides the Cloudflare backend.');
+if(manifest.static)throw new Error('This Sites project uses a server gateway.');
+await rm('dist',{recursive:true,force:true});
+await mkdir('dist/server',{recursive:true});
+await copyFile('sites/gateway.js','dist/server/index.js');
+console.log('Independent wedding Sites gateway ready. Cloudflare owns authentication and data.');
