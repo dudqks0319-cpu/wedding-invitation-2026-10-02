@@ -399,7 +399,7 @@ export function Editor({ initial, draftKey = `editor-v2:new:${initial.templateId
             <TextInput label="공유 제목" value={inv.shareTitle} onChange={(v) => update((d) => void (d.shareTitle = v))} />
             <TextInput label="공유 설명" value={inv.shareDescription} onChange={(v) => update((d) => void (d.shareDescription = v))} />
             <Field label="카카오톡 미리보기">
-              <div className="w-64 overflow-hidden rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
+              <div className="w-full max-w-64 overflow-hidden rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
                 <img src={inv.coverPhoto} alt="" className="aspect-[4/3] w-full object-cover" />
                 <div className="p-3">
                   <p className="text-[14px] font-semibold">{inv.shareTitle}</p>
