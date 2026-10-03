@@ -36,5 +36,6 @@
     "new chat send",
     "native app replacement"
   ],
-  "localTestData": "A new guest synthetic editing fixture was used. Its local address was selected to a public example and sample gallery was cleared by a settling-scroll tap. No existing server invitation was opened for editing or saved. The favorite and font changes were restored; crop was canceled."
+  "localTestData": "A new guest synthetic editing fixture was used. Its local address was selected to a public example and sample gallery was cleared by a settling-scroll tap. No existing server invitation was opened for editing or saved. The favorite and font changes were restored; crop was canceled.",
+  "finalDeviceObservation": "Device online, foreground changed to unrelated app settings. No settings changed or further device navigation. Google completion not observed."
 }
