@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-03T00:07:41.998Z",
+  "origin": "https://wedding-invitation-2026-10-02.jyb1126.chatgpt.site",
+  "lane": "Actual Cloudflare Worker + D1 + R2 + Images via public Sites gateway; two synthetic temporary accounts; synthetic bridge ticket; real provider OAuth separate",
+  "checks": [
+    {
+      "name": "live D1 health via Sites gateway",
+      "result": "PASS"
+    },
+    {
+      "name": "anonymous owner list denied",
+      "result": "PASS"
+    },
+    {
+      "name": "live bridge start uses registered auth origin and host cookie",
+      "result": "PASS"
+    },
+    {
+      "name": "live one-use bridge establishes session on independent Site",
+      "result": "PASS"
+    },
+    {
+      "name": "live bridge ticket replay rejected",
+      "result": "PASS"
+    },
+    {
+      "name": "live owner draft save and replay",
+      "result": "PASS"
+    },
+    {
+      "name": "live second account and anonymous draft denied",
+      "result": "PASS"
+    },
+    {
+      "name": "live foreign origin denied",
+      "result": "PASS"
+    },
+    {
+      "name": "live AI sample publication denied",
+      "result": "PASS"
+    },
+    {
+      "name": "real Cloudflare Images transform and R2 upload",
+      "result": "PASS"
+    },
+    {
+      "name": "live unused private R2 image denied",
+      "result": "PASS"
+    },
+    {
+      "name": "live publication and OG image",
+      "result": "PASS"
+    },
+    {
+      "name": "live guest RSVP stored once and owner-only",
+      "result": "PASS"
+    },
+    {
+      "name": "live guestbook approval",
+      "result": "PASS"
+    },
+    {
+      "name": "live expired publication denies page and image",
+      "result": "PASS"
+    },
+    {
+      "name": "live unpublish revokes page and R2 photo",
+      "result": "PASS"
+    },
+    {
+      "name": "live delete removes invitation and unused R2 photo",
+      "result": "PASS"
+    }
+  ]
+}

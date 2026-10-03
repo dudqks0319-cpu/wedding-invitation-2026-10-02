@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-03",
+  "surface": "Codex in-app browser; separate from user's Aside profile",
+  "origin": "https://wedding-invitation-2026-10-02.jyb1126.chatgpt.site",
+  "google": {
+    "lane": "Actual existing provider session, not synthetic fixture ticket",
+    "new_origin_button_to_provider_to_my": "PASS",
+    "reload_preserves_signed_in": "PASS",
+    "desktop_header_my_account": "PASS",
+    "my_page_signed_in_and_logout": "PASS",
+    "logout_returns_login": "PASS",
+    "second_google_login_returns_my": "PASS"
+  },
+  "kakao": {
+    "new_origin_button_to_accounts_kakao_login_form": "PASS",
+    "account_input": "Not entered",
+    "final_provider_callback": "NOT_VERIFIED"
+  },
+  "screenshots": ["independent-login-desktop.png", "independent-login-mobile.png"],
+  "privacy": "Provider query values, browser cookies, account identifiers and private user data omitted"
+}

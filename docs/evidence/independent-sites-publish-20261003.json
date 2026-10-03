@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-03T00:15:45.016Z",
+  "source": {
+    "project_id": "appgprj_6abf84676b4881918d32542f0e76190c",
+    "checkout_path": "/Users/jyb-m3max/Desktop/codex/wedding-invitation-2026-10-02",
+    "commit_sha": "cf6a6724ea37b6df0814673154e4028e2aaf3578",
+    "archive": "/Users/jyb-m3max/Desktop/codex/wedding-invitation-2026-10-02/docs/evidence/independent-site.tar.gz"
+  },
+  "version": {
+    "id": "appgprj_6abf84676b4881918d32542f0e76190c~appgver_143676814ddc81918f5ce8ed7bb51786",
+    "project_id": "appgprj_6abf84676b4881918d32542f0e76190c",
+    "version_number": 3,
+    "source": {
+      "commit_sha": "cf6a6724ea37b6df0814673154e4028e2aaf3578"
+    },
+    "archive_storage": {
+      "archive_format": "tar",
+      "sediment_file_id": "file_00000000a02c8207a7dbea24e936c4ff",
+      "content_hash": "sha256:e3a30fa833657d29c2ea85755735465e128ed27c8f7029e5695104bf402dc355",
+      "size_bytes": 10240,
+      "file_count": 2
+    },
+    "screenshot_url": null,
+    "deployment_id": null
+  },
+  "deployment": {
+    "id": "appgdep_6ac046e713c08191941e59a62d9a6951",
+    "project_id": "appgprj_6abf84676b4881918d32542f0e76190c",
+    "title": "청첩장 웹서비스 · 이름 미정",
+    "version_id": "appgprj_6abf84676b4881918d32542f0e76190c~appgver_143676814ddc81918f5ce8ed7bb51786",
+    "type": "publish",
+    "status": "succeeded",
+    "url": "https://wedding-invitation-2026-10-02.jyb1126.chatgpt.site",
+    "has_mcp": false,
+    "screenshot_asset_pointer": null,
+    "provider_deployment_id": "site---6abf84676b4881918d32542f0e76190c",
+    "failure_message": null,
+    "env_set_revision": 1,
+    "updated_at": "2026-10-03T00:06:19.040181+00:00"
+  },
+  "cloudflare": {
+    "worker": "osamosam-api",
+    "version_id": "a9415b2c-370c-4ecb-bf11-f3f021eea017",
+    "database": "osamosam-db",
+    "bucket": "osamosam-media"
+  },
+  "scope": "Independent public Sites gateway; existing Cloudflare account/OAuth/data retained; no redirect to Osamosam homepage"
+}

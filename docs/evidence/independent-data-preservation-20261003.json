@@ -1,0 +1,27 @@
+{
+  "time": "2026-10-03T00:18:31.807467+00:00",
+  "lane": "Read-only production D1 aggregates; test ownership from exact generated fixture IDs",
+  "before": {
+    "users": 3,
+    "users_without_email": 1,
+    "legacy_invitations": 0,
+    "new_invitations": 0,
+    "new_photos": 0,
+    "new_bytes": 0
+  },
+  "after": {
+    "users": 3,
+    "users_without_email": 1,
+    "legacy_invitations": 0,
+    "new_invitations": 0,
+    "new_photos": 0,
+    "new_bytes": 0
+  },
+  "owned_fixture_records_remaining": {
+    "owned_fixture_users": 0,
+    "owned_fixture_sessions": 0,
+    "owned_fixture_tickets": 0,
+    "owned_fixture_invitations": 0
+  },
+  "interpretation": "One existing user has no email. This does not identify a test account; no existing user was removed based on missing email. Temporary fixture identities are not published."
+}

@@ -1,46 +1,38 @@
 # 청첩장 웹서비스 현재 상태
 
-2026-10-03. 상호 미정. 사용자 결정: **웹서비스 먼저 완성, iPhone/Android 앱은 이후 교체**.
+2026-10-03. 상호 미정. 사용자 결정: **웹서비스 먼저 완성, iPhone/Android 앱은 이후 교체**. 화면 이름은 ‘청첩장’이다.
 
-## 진행 중: 독립 청첩장 Sites와 로그인 표시 수정
+## 현재 배포와 수정 결과
 
-사용자 보고: 상단 로그인과 본문 로그아웃이 동시에 표시되고 오삼오삼 주소로 이동함. 코드에서 두 버튼이 인증 여부와 무관하게 표시됨을 확인했다. 현재 청첩장 Sites의 리디렉션을 실제 게이트웨이로 바꾸고, 기존 공급자 인증·D1/R2 자료를 보존하면서 청첩장 주소에 별도 세션을 발급한다. 완료 기준은 새 주소 유지, 실제 Google 로그인 복귀, 익명/인증 UI 구분, 저장·새로고침·계정 분리와 일회용 인증 확인값의 재사용 차단이다. 아래 배포 기록은 수정 전 상태다.
+- 독립 공개 사이트: https://wedding-invitation-2026-10-02.jyb1126.chatgpt.site . 기존 청첩장 Sites 프로젝트를 재사용하여 실제 서버 게이트웨이를 게시했다. 오삼오삼 홈페이지로 보내던 리디렉션을 제거했다.
+- Sites project `appgprj_6abf84676b4881918d32542f0e76190c`, version 3, 게시 성공. 배포 소스 commit `cf6a6724ea37b6df0814673154e4028e2aaf3578`. [게시 영수증](evidence/independent-sites-publish-20261003.json).
+- Cloudflare Worker `osamosam-api`, version `a9415b2c-370c-4ecb-bf11-f3f021eea017`. 기존 D1 `osamosam-db`, 비공개 R2 `osamosam-media`, Images binding을 사용한다. 신규 자료는 `w2_` 테이블과 `w2/` 경로를 사용한다.
+- 기존 오삼오삼 OAuth 등록·계정·앱 인증·이전 API·원본 checkout을 보존했다. Google/카카오 인증은 기존 등록 주소를 경유하고, 일회용 확인값으로 새 사이트에 별도 세션을 발급한다. 쿠키는 각 호스트에 한정된다.
+- 인증 상태와 무관하게 표시되던 상단 로그인·본문 로그아웃을 수정했다. 익명은 로그인 안내, 인증 완료는 ‘내 계정’·‘로그인됨’·로그아웃을 표시한다. 확인 중 또는 연결 실패 시 비공개 화면을 가린다.
+- 새 초대장은 새 주소 `/my`, 이전 초대장은 기존 주소 `/dashboard`에서 관리한다. 이전 자료 자동 가져오기나 삭제는 실행하지 않았다.
+- 공개 GitHub: https://github.com/dudqks0319-cpu/wedding-invitation-2026-10-02 . 기존 main 이력을 유지한다. 배포 소스와 후속 문서·증거를 이 저장소에 기록한다.
 
-## 현재 배포
+## 확인한 증거
 
-- 정식 웹 진입: https://osamosam-app.jyb1126.chatgpt.site — 기존 오삼오삼 홈페이지를 새 실사 청첩장 화면으로 교체했다. 기존 Sites 게이트웨이 유지.
-- Cloudflare Worker: `osamosam-api`, 최종 version `b1a67698-0202-4140-8a0c-001d5fd16a2e`.
-- D1 `osamosam-db`, R2 `osamosam-media`, Images binding 실제 사용. 신규 테이블은 `w2_`, 사진 경로는 `w2/`.
-- 기존 Google/카카오 등록·계정·네이티브 인증·이전 API 유지. 로그인 런타임은 보안 수정된 Next 16.3.7로 격리 빌드했다. 원본 오삼오삼 checkout과 기존 작업은 보존했다.
-- 기존 계정 2개 보존, 이번 실제 Google 로그인으로 공급자 계정 1개 추가되어 현재 3개. 모든 합성 테스트 계정·새 초대장·사진은 0개로 정리 확인.
-- 신규 관리 `/my`, 기존 초대장 `/dashboard`. 실제 브라우저에서 기존 계정 연결과 기기 초안 2개 표시를 확인했다. 가져오기·삭제는 실행하지 않았다.
-- 기존 청첩장 주소 https://wedding-invitation-2026-10-02.jyb1126.chatgpt.site 는 같은 운영 서비스로 연결한다. Sites version 2 게시 성공, Sites 연결 소스 commit `8e1fce6e74ce3d43beaf9487122ff3f253bdd283`. 두 Sites 공개 유지. 사이트 제목도 ‘청첩장 웹서비스 · 이름 미정’으로 바꿨다.
-- 공개 GitHub 소스: https://github.com/dudqks0319-cpu/wedding-invitation-2026-10-02 . 기존 `main`과 이력을 유지한다. 구현 commit `db90d199b5e4ee1ba750564cc8215b7e6ae476da`의 원격 main 일치를 확인했다. [GitHub 업로드 영수증](evidence/github-cloudflare-push-20261003.json). [Sites 게시 영수증](evidence/sites-cloudflare-publish-20261003.json)과 [최종 Worker 상태](evidence/cloudflare-deployment-20261003.json)를 기록했다.
+- **실제 Google OAuth**: Codex 내장 브라우저에서 새 사이트 버튼 → 공급자 인증 → 새 주소 `/my` 복귀 성공. 새로고침 후 인증 유지, 상단 ‘내 계정’, 본문 ‘로그인됨’ 확인. 로그아웃 뒤 `/login` 복귀와 다시 Google 로그인 성공을 확인했다. [데스크톱 화면](evidence/independent-login-desktop.png), [브라우저 기록](evidence/independent-browser-20261003.json). 사용자가 첨부한 Aside 브라우저는 별도 프로필이며 이 기록으로 그 프로필까지 검증했다고 주장하지 않는다.
+- **실제 Cloudflare 17개 PASS**: 새 Sites 경유 Worker/D1/R2/Images, 두 임시 계정 격리, 인증 확인값 발급·재사용 차단, 초안 멱등 저장, 외부 origin 차단, 실사진 변환·업로드, 비공개 사진 차단, 공유·OG·RSVP·승인형 방명록, 만료·공유 중지·삭제·용량 회수. [운영 검사](evidence/independent-production-20261003.json). 공급자 로그인은 합성 인증 테스트와 별도로 검증했다.
+- **기존 자료 보존**: 점검 전후 사용자 3명, 이전 초대장 0개가 동일했다. 이번 두 임시 계정과 세션·인증 확인값·초대장은 정리 후 0개이다. 이메일 없는 기존 사용자 1명을 합성 사용자로 취급하지 않는다. [집계 기록](evidence/independent-data-preservation-20261003.json).
+- **로컬 검사**: 기존 Cloudflare 회귀 40개, 새 인증 브리지 16개, 게이트웨이 10개, 세션 경계 6개 시나리오 PASS. D1/R2·실제 디코더·workerd 검증과 Sites의 mock fetch 검증 범위를 기록에 구분했다. [인증](evidence/independent-auth-local-20261003.json), [게이트웨이](evidence/independent-gateway-local-20261003.json), [회귀 로그](evidence/independent-regression-local.log).
+- **빌드·보안**: TypeScript·lint·Next 빌드·Cloudflare 빌드·Wrangler dry-run 성공. 게시 입력과 Worker 산출물 177개 텍스트 경로 비밀값 패턴 발견 0. 새 저장소 및 보존된 운영 런타임의 의존성 audit 취약점 0. [이번 통합 보안 검사](evidence/independent-security-20261003.md).
+- 실사 AI 예시 26장·디자인 19종 유지. AI 예시를 그대로 실제 게시하는 것은 차단한다. 초안·게시본 분리, 버전 충돌, 승인형 방명록, 작성자 전용 RSVP, 공유 중지 즉시 차단을 유지한다.
 
-## 완료와 증거
+## 남은 범위와 제한
 
-- Cloudflare 화면·Worker 빌드, Next 개발 빌드, TypeScript·lint 통과. 로컬 D1/R2·실제 이미지 디코더·workerd를 사용한 40개 검사 통과. 두 계정 차단, 중복 요청, 동시 저장 충돌, 만료, 사진 삭제·용량 회수, 장애 응답 포함.
-- 실제 Worker/D1/R2/Images를 기존 Sites 경유로 검증한 13개 운영 검사 통과. 두 임시 합성 계정으로 초안·사진·게시·RSVP·방명록 승인·공유 중지·삭제를 실행하고 임시 자료를 정리했다. 최종 화면 수정 전 검사이며 동일 서버 모듈 SHA256과 기존 런타임을 유지했다. 최종 버전의 운영 상태·익명 세션 차단과 실제 화면을 별도 확인했다. 이는 공급자 OAuth 계정 두 개의 검증과 다르다.
-- 실제 Google 로그인 후 `/my` 복귀 확인. 카카오 버튼은 실제 Kakao 계정 인증 화면까지 정상 연결됐다. 본인 계정 입력이 필요하여 최종 콜백은 미검증이다. 기존 등록과 구현은 보존했다. 미구현 네이버 로그인 버튼은 제거했다.
-- 실제 모바일 UI에서 사진 업로드·초안 저장·공유·새로고침 복원 확인. 같은 디자인 새 작성이 이전 이름·주소를 덮어쓰지 않고 새 주소와 기본값으로 시작함을 확인했다.
-- 실사 AI 예시 26장·디자인 19종 유지. AI 예시로 실제 게시하는 것을 차단한다. 유료 상품·BGM·6개월 보관 등 기존 시안 문구를 실제 제공 범위로 수정했다.
-- 초안과 게시본 분리, 버전 충돌·복원 안내, 승인형 방명록과 작성자 삭제, RSVP 소유자 조회, 안정된 사진 OG 주소, 공유 중지 즉시 차단, 계정별 미저장 초안 격리, 로그아웃 초안 정리를 구현했다.
-- 계정 변경·로그아웃 때 이전 화면과 메모리 응답을 비우고 연결 실패 동안 개인정보 화면을 가리도록 구현했다. 같은 계정 복귀는 편집 상태를 유지한다. 지연 응답·연결 실패 후 재확인 포함 회귀 검사 통과. 실제 사진 선택 후 이름 유지와 새로고침 복원 확인.
-- 미구현 음악 버튼과 임시 약도를 제거했다. 지도 키가 없는 경우 실제 주소와 지도 앱 안내를 보여준다.
-- 공개 소스와 최종 운영 산출물 881개 경로 비밀정보 패턴 검사: 발견 0. 새 저장소 전체 의존성 및 패치된 기존 운영 런타임 audit: 취약점 0. 원본 옛 release snapshot의 취약 Next는 운영에서 교체했다.
+카카오는 **새 사이트 버튼에서 실제 카카오 계정 입력 화면까지 확인**했다. 본인 인증 입력 없이 종료했으므로 최종 공급자 콜백은 아직 미검증이다. Google과 카카오의 검증 범위를 혼동하지 않는다.
 
-## 범위와 운영 확인
+현재 무료 시험 운영. 계정별 사진 100MB, 신규 전체 1GB, 하루 사진 변환 100건 등 서버 한도와 중지 스위치를 유지했다. 기존 v1 예산·스위치와 요금제는 바꾸지 않았다. 실제 장기 보관·만료 경과, 대규모 부하, 계정 전체 청구 비용은 장기 관측이 필요하다. 결제·네이버·BGM은 제공하지 않는다.
 
-현재 무료 시험 운영. 계정별 사진 100MB, 신규 전체 1GB, 사진 변환 100/일 등 서버 한도와 중지 스위치를 적용했다. 실제 사진 검증 후 업로드 ON. 기존 v1 사진 스위치·예산은 바꾸지 않았다. 신규 사진 한도는 Cloudflare 계정 전체 요금 보장이 아니며 요금제 변경도 하지 않았다.
+5분 예약 정리 트리거는 기존 배포에 유지된다. 로컬 자동 정리 및 운영 테스트 자료의 만료 차단 검증은 실제 30일 경과 검증과 다르다. iOS/Android 앱 교체·배포·실기기 검증은 후속 범위다.
 
-자동 만료·삭제와 공급자 장애는 로컬에서 검증했으며 5분 예약 트리거가 배포됐다. 실제 30일 보관·만료 경과, 대규모 부하, CPU와 청구 비용의 장기 관측은 이번 점검으로 확인할 수 없다. iOS/Android 앱 배포·실기기 교체는 후속 범위다. 결제·네이버·BGM은 제공하지 않는다.
+공통 release harness는 ATTENTION: `release-ledger.yaml`·`RELEASE_STATUS.md`가 없다. 웹 검증 결과를 App Store 출시 준비 완료로 해석하지 않는다.
 
-통합 release harness: ATTENTION. 공통 `release-ledger.yaml`·`RELEASE_STATUS.md` 없음. 이 문서가 웹의 검증·재개 기준이며 App Store 출시 준비 완료를 의미하지 않는다.
+## 재개 기준
 
-## 근거와 재개
+[Cloudflare 구조](CLOUDFLARE.md), [수정 전 기록](history/20261003-before-independent-site.md), [초기 상태](history/20261003-before-cloudflare.md)를 보존했다. 현재 운영 백엔드는 Cloudflare이다.
 
-[구현 범위](implementation-20261003.md), [Cloudflare 운영 구조](CLOUDFLARE.md), [로컬 검사](evidence/cloudflare-local-20261003.json), [운영 검사](evidence/cloudflare-production-20261003.json), [산출물 지문](evidence/cloudflare-artifact-20261003.json), [보안 검사](evidence/security-cloudflare-20261003.md).
-
-초기 Supabase·Claude 점검 기록은 [이전 상태](history/20261003-before-cloudflare.md)와 기존 보고서에 보존했다. 현재 운영 백엔드는 Supabase가 아니다.
-
-재개: “docs/current-state.md와 docs/CLOUDFLARE.md를 읽고 현재 웹과 기존 오삼오삼 계정을 보존하면서 후속 앱 교체를 진행해줘. 상호는 아직 미정이야.”
+재개: “docs/current-state.md와 docs/CLOUDFLARE.md를 읽고 독립 청첩장 사이트와 기존 오삼오삼 계정을 보존하면서 후속 작업을 진행해줘. 이름은 아직 미정이야. 카카오는 최종 계정 인증을 별도로 검증해줘.”
