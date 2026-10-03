@@ -1,0 +1,42 @@
+{
+  "observedAt": "2026-10-03T04:12:32.617Z",
+  "origin": "https://wedding-invitation-2026-10-02.jyb1126.chatgpt.site",
+  "catalog": {
+    "query": "벚꽃",
+    "resultCount": 1,
+    "favoriteAfterReload": 1,
+    "favoritesOnlyCount": 1,
+    "restoredTestFavorite": true,
+    "widths": [
+      {
+        "width": 390,
+        "scrollWidth": 375
+      },
+      {
+        "scrollWidth": 305,
+        "width": 320
+      },
+      {
+        "scrollWidth": 415,
+        "width": 430
+      }
+    ]
+  },
+  "editor": {
+    "controls": [
+      "도로명주소 검색",
+      "사진 구도 조절",
+      "청첩장 글꼴"
+    ],
+    "officialPostcodeIframeInputVisible": true,
+    "publicQuery": "판교역로 166",
+    "addressResult": "경기 성남시 분당구 판교역로 166",
+    "canceledWithoutSelecting": true,
+    "savedOrPublished": false
+  },
+  "calendar": {
+    "button": "내 캘린더에 일정 저장",
+    "downloadToast": true
+  },
+  "lane": "Public deployed Sites + browser viewport emulation; no actual iPhone/Kakao rendering"
+}

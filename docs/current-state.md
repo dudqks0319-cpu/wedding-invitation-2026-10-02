@@ -6,7 +6,7 @@
 
 - 독립 공개 사이트: https://wedding-invitation-2026-10-02.jyb1126.chatgpt.site . 기존 청첩장 Sites 프로젝트를 재사용하여 실제 서버 게이트웨이를 게시했다. 오삼오삼 홈페이지로 보내던 리디렉션을 제거했다.
 - Sites project `appgprj_6abf84676b4881918d32542f0e76190c`, version 3, 게시 성공. 배포 소스 commit `cf6a6724ea37b6df0814673154e4028e2aaf3578`. [게시 영수증](evidence/independent-sites-publish-20261003.json).
-- Cloudflare Worker `osamosam-api`, version `f7084ac8-6c06-4493-9b39-20334350dc74`. 기존 D1 `osamosam-db`, 비공개 R2 `osamosam-media`, Images binding을 사용한다. 신규 자료는 `w2_` 테이블과 `w2/` 경로를 사용한다. 모바일 카드 폭 수정 소스 `674c3402a8584217b59a847448469bec023be356`을 반영했으며 서버 모듈은 이전 배포와 동일하다.
+- Cloudflare Worker `osamosam-api`, version `8e347f0b-3708-4ae9-b08f-297e526eeba5`, 기능 이식 소스 `bff9ae13cab0e571ca218dc69320cd452c14101e`. 기존 D1 `osamosam-db`, 비공개 R2 `osamosam-media`, Images binding을 사용한다. 신규 자료는 `w2_` 테이블과 `w2/` 경로를 사용한다. [최신 배포 영수증](evidence/osam-import-20261003/deploy.json). Sites version 3 게이트웨이는 그대로 사용하고 Worker/프런트 산출물만 갱신했다.
 - 기존 오삼오삼 OAuth 등록·계정·앱 인증·이전 API·원본 checkout을 보존했다. Google/카카오 인증은 기존 등록 주소를 경유하고, 일회용 확인값으로 새 사이트에 별도 세션을 발급한다. 쿠키는 각 호스트에 한정된다.
 - 인증 상태와 무관하게 표시되던 상단 로그인·본문 로그아웃을 수정했다. 익명은 로그인 안내, 인증 완료는 ‘내 계정’·‘로그인됨’·로그아웃을 표시한다. 확인 중 또는 연결 실패 시 비공개 화면을 가린다.
 - 새 초대장은 새 주소 `/my`, 이전 초대장은 기존 주소 `/dashboard`에서 관리한다. 이전 자료 자동 가져오기나 삭제는 실행하지 않았다.
@@ -37,7 +37,7 @@
 
 ## 재개 기준
 
-2026-10-03 오삼오삼 기능 이식: 주소 선택·사진 위치/확대/맞춤·글꼴·한국 시간 일정 파일·디자인 검색/브라우저 찜을 구현했다. 주소 iframe 포커스 때문에 비공개 화면을 가리던 기존 오류도 수정했다. 기능 9개·Cloudflare 41개·기존 Next 백엔드 28개·인증 16개·세션 시나리오 6개와 포커스 4개, lint/TypeScript/Next/Cloudflare 빌드·Wrangler dry-run 통과. 모바일 브라우저 320/390/430px 저장/재열기·주소 선택·일정 다운로드 확인. 기존 원본 checkout/사용자 자료를 변경하지 않는다. 현재 운영 배포와 최종 검사는 대기 중이며 [상세 증거](evidence/osam-import-20261003/STATUS.md)에 이어 기록한다.
+2026-10-03 오삼오삼 기능 이식 완료: 주소 선택·사진 위치/확대/맞춤·글꼴·한국 시간 일정 파일·디자인 검색/브라우저 찜을 구현·게시했다. 주소 iframe 포커스 때문에 비공개 화면을 가리던 기존 오류도 수정했다. 기능 9개·Cloudflare 41개·기존 Next 백엔드 28개·인증 16개·세션 시나리오 6개와 포커스 4개, lint/TypeScript/Next/Cloudflare 빌드·Wrangler dry-run 통과. 모바일 브라우저 320/390/430px 저장/재열기·주소 선택·일정 다운로드 확인. 실제 새 Sites 경유 Cloudflare 운영 20개 PASS, 점검 전후 기존 사용자 3명·세션 6개 및 이전/신규 초대장·사진 집계 동일, 이번 임시 자료 0. 공개 UI에서 주소 iframe 검색·새 도구 표시·검색/찜 재열기·실제 일정 파일 다운로드를 확인했다. 원본 참고 파일 7개 지문은 배포 후 동일하다. [상세 증거](evidence/osam-import-20261003/STATUS.md).
 
 [Cloudflare 구조](CLOUDFLARE.md), [수정 전 기록](history/20261003-before-independent-site.md), [초기 상태](history/20261003-before-cloudflare.md)를 보존했다. 현재 운영 백엔드는 Cloudflare이다.
 

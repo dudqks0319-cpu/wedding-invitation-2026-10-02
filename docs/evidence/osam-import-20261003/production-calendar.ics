@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Invitation//Calendar//KO
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:sample-blossom@invitation
+DTSTAMP:20261003T041039Z
+DTSTART:20270417T033000Z
+SUMMARY:김민준 · 이서연 결혼식
+LOCATION:라온 웨딩홀 서울특별시 강남구 테헤란로 123 3층 
+ 그랜드볼룸
+DESCRIPTION:2호선 역삼역 3번 출구 도보 5분\n간선 146\, 341\, 3
+ 60 / 지선 3412 · 역삼역 정류장 하차\n건물 지하 주차장 2
+ 시간 무료 (안내데스크에서 주차 등록)\n내비게이션에 '
+ 라온 웨딩홀' 또는 '테헤란로 123' 검색
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,21 @@
+PASS live D1 health via Sites gateway
+PASS anonymous owner list denied
+PASS live bridge start uses registered auth origin and host cookie
+PASS live one-use bridge establishes session on independent Site
+PASS live bridge ticket replay rejected
+PASS live owner draft save and replay
+PASS live second account and anonymous draft denied
+PASS live foreign origin denied
+PASS live AI sample publication denied
+PASS real Cloudflare Images transform and R2 upload
+PASS live unused private R2 image denied
+PASS live publication and OG image
+PASS live crop and font persist in owner and public data
+PASS live invalid crop and font rejected without revision change
+PASS live draft presentation edits do not alter public snapshot
+PASS live guest RSVP stored once and owner-only
+PASS live guestbook approval
+PASS live expired publication denies page and image
+PASS live unpublish revokes page and R2 photo
+PASS live delete removes invitation and unused R2 photo
+20 production checks passed

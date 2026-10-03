@@ -1,0 +1,14 @@
+{
+  "observedAt": "2026-10-03T04:12:12.657814+00:00",
+  "worker": "osamosam-api",
+  "workerVersion": "8e347f0b-3708-4ae9-b08f-297e526eeba5",
+  "sourceCommit": "bff9ae13cab0e571ca218dc69320cd452c14101e",
+  "siteOrigin": "https://wedding-invitation-2026-10-02.jyb1126.chatgpt.site",
+  "sitesProject": "appgprj_6abf84676b4881918d32542f0e76190c",
+  "sitesGatewayVersion": 3,
+  "sitesGatewayChanged": false,
+  "exitCode": 0,
+  "cron": "*/5 * * * *",
+  "stagedReplacementMatchesSource": true,
+  "stagedFrontendMatchesSource": true
+}

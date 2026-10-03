@@ -30,5 +30,6 @@
       "sha256": "debe719ae8b2727219dc70f7f6e3e0d806c16acfa139fe0c84c53187066f209d"
     }
   ],
-  "ownership": "Original source is read-only; deploy artifacts in the existing isolated wedding staging directory only."
+  "ownership": "Original source is read-only; deploy artifacts in the existing isolated wedding staging directory only.",
+  "referenceFilesUnchangedAfterDeployment": true
 }
