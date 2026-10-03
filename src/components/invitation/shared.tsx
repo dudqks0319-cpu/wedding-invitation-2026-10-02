@@ -10,7 +10,8 @@ import {
   type CSSProperties,
   type ReactNode,
 } from "react";
-import type { Invitation, Theme } from "@/types/invitation";
+import type { CoverPresentation, Invitation, Theme } from "@/types/invitation";
+import { photoPresentationStyle } from "@/lib/presentation";
 import { getDisplay, type Display } from "@/lib/display";
 import { OrnamentIcon } from "./Ornaments";
 
@@ -72,11 +73,13 @@ export function Photo({
   alt = "초대장 사진",
   className = "",
   style,
+  presentation,
 }: {
   src: string;
   alt?: string;
   className?: string;
   style?: CSSProperties;
+  presentation?: CoverPresentation;
 }) {
   return (
     <div
@@ -87,7 +90,7 @@ export function Photo({
       }}
     >
       {src ? (
-        <img src={src} alt={alt} className="h-full w-full object-cover" loading="lazy" draggable={false} />
+        <img src={src} alt={alt} className="h-full w-full object-cover" style={presentation ? photoPresentationStyle(presentation) : undefined} loading="lazy" draggable={false} />
       ) : (
         <div className="flex h-full w-full items-center justify-center text-xs opacity-60">사진을 추가해 주세요</div>
       )}

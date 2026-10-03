@@ -5,6 +5,11 @@ import { useMemo, useState } from "react";
 import type { EventType } from "@/types/invitation";
 import { CATEGORY_LABEL, TEMPLATES } from "@/data/templates";
 import { TemplateCard } from "@/components/site/TemplateCard";
+import { useStored, writeStored } from "@/lib/localStore";
+import { favoriteDesigns, searchDesigns } from "@/lib/design-search";
+
+const EMPTY_FAVORITES: string[] = [];
+const FAVORITES_KEY = "favorite-designs-v1";
 
 type Filter = EventType | "all";
 const TABS: { key: Filter; label: string; emoji: string }[] = [
@@ -19,11 +24,21 @@ export function TemplateBrowser({ initialType }: { initialType: Filter }) {
   const [type, setType] = useState<Filter>(initialType);
   const [tag, setTag] = useState<string | null>(null);
   const [sort, setSort] = useState<"best" | "new">("best");
+  const [query, setQuery] = useState("");
+  const [onlyFavorites, setOnlyFavorites] = useState(false);
+  const [storageError, setStorageError] = useState("");
+  const stored = useStored<unknown>(FAVORITES_KEY, EMPTY_FAVORITES);
+  const favorites = favoriteDesigns(stored, TEMPLATES);
+  const toggleFavorite = (id: string) => {
+    try {
+      writeStored(FAVORITES_KEY, favorites.includes(id) ? favorites.filter(value => value !== id) : [...favorites, id]);
+      setStorageError("");
+    } catch { setStorageError("이 브라우저에서 찜을 저장하지 못했어요. 저장 공간과 브라우저 설정을 확인해 주세요."); }
+  };
 
   const byType = TEMPLATES.filter((t) => type === "all" || t.category === type);
   const tags = useMemo(() => Array.from(new Set(byType.flatMap((t) => t.tags))).slice(0, 14), [byType]);
-  const list = byType
-    .filter((t) => !tag || t.tags.includes(tag))
+  const list = searchDesigns(TEMPLATES, { type, tag, query, favorites: onlyFavorites ? favorites : undefined })
     .sort((a, b) => (sort === "best" ? Number(!!b.isBest) - Number(!!a.isBest) : Number(!!b.isNew) - Number(!!a.isNew)));
 
   const changeType = (t: Filter) => {
@@ -60,6 +75,16 @@ export function TemplateBrowser({ initialType }: { initialType: Filter }) {
         ))}
       </div>
 
+      <div className="mx-auto mt-6 max-w-xl">
+        <label className="block text-sm font-medium">디자인 검색<input type="search" value={query} onChange={e => setQuery(e.target.value)} maxLength={100} placeholder="디자인 이름, 분위기, 꽃…" className="mt-2 min-h-11 w-full rounded-xl border border-black/10 bg-white px-4" /></label>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+          <button type="button" aria-pressed={onlyFavorites} onClick={() => setOnlyFavorites(v => !v)} className={`min-h-11 rounded-full border px-4 text-sm ${onlyFavorites ? "border-brand-400 bg-brand-50 text-brand-600" : "border-black/10 bg-white"}`}>찜한 디자인만 보기 ({favorites.length})</button>
+          <span role="status" className="text-sm text-muted">디자인 {list.length}개</span>
+        </div>
+        <p className="mt-2 text-xs text-muted">찜은 이 브라우저에 저장돼요.</p>
+        {storageError && <p role="alert" className="mt-2 text-sm text-red-700">{storageError}</p>}
+      </div>
+
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-b border-brand-100 pb-5">
         <div className="flex flex-wrap gap-1.5">
           <button onClick={() => setTag(null)} className={`rounded-full border px-3 py-1.5 text-[13px] ${!tag ? "border-brand-400 bg-brand-50 text-brand-600" : "border-black/10 bg-white text-ink/60"}`}>
@@ -82,10 +107,15 @@ export function TemplateBrowser({ initialType }: { initialType: Filter }) {
 
       <div className="mt-10 grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
         {list.map((t) => (
-          <TemplateCard key={t.id} theme={t} />
+          <div key={t.id} className="relative">
+            <TemplateCard theme={t} />
+            <button type="button" aria-label={`${t.name} ${favorites.includes(t.id) ? "찜 해제" : "찜하기"}`} aria-pressed={favorites.includes(t.id)} onClick={() => toggleFavorite(t.id)} className="absolute right-2 top-2 flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-brand-600 shadow-md">
+              <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-9-5.4-9-12a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6.6-9 12-9 12Z" stroke="currentColor" strokeWidth="1.5" fill={favorites.includes(t.id) ? "currentColor" : "none"} /></svg>
+            </button>
+          </div>
         ))}
       </div>
-      {!list.length && <p className="py-20 text-center text-muted">조건에 맞는 디자인이 없어요</p>}
+      {!list.length && <div className="py-16 text-center"><p className="text-muted">조건에 맞는 디자인이 없어요</p><button type="button" onClick={() => { setQuery(""); setTag(null); setOnlyFavorites(false); changeType("all"); }} className="mt-4 min-h-11 rounded-full bg-ink px-5 text-sm text-white">검색 조건 지우기</button></div>}
     </div>
   );
 }

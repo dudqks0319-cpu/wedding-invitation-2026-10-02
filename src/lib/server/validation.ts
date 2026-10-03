@@ -1,4 +1,5 @@
 import type { Invitation, RsvpEntry } from "../../types/invitation";
+import { INVITATION_FONTS } from "../presentation";
 
 export class ApiError extends Error {
   status: number;
@@ -58,6 +59,16 @@ export function invitationValue(value: unknown, templates: { id: string; categor
     shareTitle:text(x.shareTitle,100,'공유 제목',false), shareDescription:text(x.shareDescription,300,'공유 설명',false),
   };
   if (options.bgmUrl) throw new ApiError(400,'외부 음악 링크는 현재 지원하지 않아요');
+  if (options.font !== undefined) inv.options.font = choice(options.font, INVITATION_FONTS.map(font => font.id));
+  if (x.coverPresentation !== undefined) {
+    const p = object(x.coverPresentation);
+    const number = (key: string, min: number, max: number) => {
+      const value = p[key];
+      if (typeof value !== 'number' || !Number.isFinite(value) || value < min || value > max) throw new ApiError(400, '사진 구도를 확인해 주세요');
+      return value;
+    };
+    inv.coverPresentation = { x: number('x', 0, 1), y: number('y', 0, 1), zoom: number('zoom', 1, 2), fit: choice(p.fit, ['cover', 'contain'] as const) };
+  }
   if (type === 'wedding') {const w=object(x.wedding); inv.wedding={groom:partner(w.groom),bride:partner(w.bride)};}
   if (type === 'dol') {const d=object(x.dol); const birthDate=text(d.birthDate,10,'생일'); if (!/^\d{4}-\d{2}-\d{2}$/.test(birthDate) || (!Number.isFinite(Date.parse(birthDate)) || new Date(birthDate).toISOString().slice(0,10)!==birthDate)) throw new ApiError(400,'아기 생일을 확인해 주세요'); inv.dol={babyName:text(d.babyName,20,'아기 이름'),babyEnglishName:text(d.babyEnglishName,40,'영문 이름',false),birthDate,father:text(d.father,20,'아버지 이름'),mother:text(d.mother,20,'어머니 이름'),phone:text(d.phone,30,'연락처',false)};}
   if (type === 'party') {const p=object(x.party); inv.party={honoreeName:text(p.honoreeName,30,'주인공 이름'),eventName:text(p.eventName,30,'행사'),hostName:text(p.hostName,50,'초대하는 분'),phone:text(p.phone,30,'연락처',false)};}

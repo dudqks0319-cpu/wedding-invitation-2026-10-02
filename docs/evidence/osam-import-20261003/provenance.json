@@ -1,0 +1,34 @@
+{
+  "referenceRepo": "/Users/jyb-m3max/Desktop/codex/osam-rebuild",
+  "referenceFiles": [
+    {
+      "path": "src/features/location/AddressSearch.tsx",
+      "sha256": "6a69c05fd1aa77449a70a184b2f45548ea73de9fcc60ec852abb5b9d360c91d9"
+    },
+    {
+      "path": "src/features/location/kakao-sdk.ts",
+      "sha256": "63740ab34a14e3cadd5fe04c5e9654009cbea35c5b46f862d201a853cb50f488"
+    },
+    {
+      "path": "src/domain/address.ts",
+      "sha256": "6f827fd7a2f9f7343b80b697b0a2f3b1d5069ef636206b1a1d8d0c08da3c8476"
+    },
+    {
+      "path": "src/domain/photo-presentation.ts",
+      "sha256": "ab9510f0c1efa271ec289f2a97f3b6dc7a98185ccc20236c71e35b65177339fc"
+    },
+    {
+      "path": "src/domain/calendar.ts",
+      "sha256": "41668ecda2dd24f8e619b51f96c55d0507c525b6b13e9a82831c5fe42ee371fc"
+    },
+    {
+      "path": "src/templates/invitation-fonts.ts",
+      "sha256": "8e31cffb75bfa83d9a5816bae91b1be48d82a260b63f85272eefcb1e88fc9d2f"
+    },
+    {
+      "path": "src/features/builder/Photos.tsx",
+      "sha256": "debe719ae8b2727219dc70f7f6e3e0d806c16acfa139fe0c84c53187066f209d"
+    }
+  ],
+  "ownership": "Original source is read-only; deploy artifacts in the existing isolated wedding staging directory only."
+}

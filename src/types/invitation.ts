@@ -73,7 +73,16 @@ export interface Account {
   kakaoPayUrl?: string;
 }
 
+export type InvitationFont = "default" | "gowun-batang" | "gowun-dodum" | "pretendard";
+export interface CoverPresentation {
+  x: number;
+  y: number;
+  zoom: number;
+  fit: "cover" | "contain";
+}
+
 export interface InvitationOptions {
+  font?: InvitationFont;
   showCalendar: boolean;
   showDday: boolean;
   showGallery: boolean;
@@ -103,6 +112,7 @@ export interface Invitation {
   greetingTitle: string;
   greeting: string;
   coverPhoto: string;
+  coverPresentation?: CoverPresentation;
   gallery: string[];
   accounts: Account[];
   options: InvitationOptions;

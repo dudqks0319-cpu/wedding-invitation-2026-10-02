@@ -3,7 +3,8 @@
 import { useState, useSyncExternalStore, type FormEvent, type ReactNode } from "react";
 import type { Account, Partner } from "@/types/invitation";
 import { diffFromNow, monthMatrix, parseDateTime, WEEKDAYS, formatKoreanDate, formatKoreanTime } from "@/lib/date";
-import { kakaoMapUrl, naverMapUrl, tmapUrl } from "@/lib/maps";
+import { hasCoordinates, kakaoMapUrl, naverMapUrl, tmapUrl } from "@/lib/maps";
+import { invitationCalendarFile } from "@/lib/calendar";
 import { kakaoShare } from "@/lib/kakao";
 import { REMOTE_DATA } from "@/lib/dataMode";
 import { addGuestbook, removeGuestbook, submitRsvp, useGuestbook } from "@/lib/api";
@@ -251,7 +252,7 @@ function subscribeClock(cb: () => void) {
 }
 
 export function DateSection() {
-  const { inv, d } = useInv();
+  const { inv, d, toast } = useInv();
   const { year, month, day } = parseDateTime(inv.dateTime);
   const cells = monthMatrix(year, month);
   const nowSec = useSyncExternalStore(subscribeClock, () => Math.floor(Date.now() / 1000), () => 0);
@@ -266,6 +267,19 @@ export function DateSection() {
       <p className="mt-1 text-center text-[15px]" style={{ color: "var(--inv-subtext)" }}>
         {formatKoreanTime(inv.dateTime)}
       </p>
+
+      <div className="mt-5 text-center">
+        <Button onClick={() => {
+          const file = invitationCalendarFile(inv);
+          if (!file) { toast("일정 정보를 확인해 주세요"); return; }
+          const url = URL.createObjectURL(new Blob([file], { type: "text/calendar;charset=utf-8" }));
+          const link = document.createElement("a");
+          link.href = url; link.download = "청첩장-일정.ics";
+          document.body.appendChild(link); link.click(); link.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 60000);
+          toast("일정 파일을 열어 캘린더에 추가해 주세요");
+        }} className="min-h-11">내 캘린더에 일정 저장</Button>
+      </div>
 
       {inv.options.showCalendar && (
         <div className="mx-auto mt-10 max-w-[320px] rounded-3xl px-4 py-6" style={{ background: "var(--inv-surface)" }}>
@@ -491,7 +505,7 @@ export function LocationSection() {
       <div className="mt-3 flex gap-2">
         <MapAppButton href={naverMapUrl(v)} label="네이버지도" color="#03C75A" letter="N" />
         <MapAppButton href={kakaoMapUrl(v)} label="카카오맵" color="#FFCD00" letter="K" />
-        <MapAppButton href={tmapUrl(v)} label="티맵" color="#4A5CFF" letter="T" />
+        {hasCoordinates(v) && <MapAppButton href={tmapUrl(v)} label="티맵" color="#4A5CFF" letter="T" />}
       </div>
 
       <div className="mt-8 rounded-2xl px-5" style={{ background: "var(--inv-surface)" }}>

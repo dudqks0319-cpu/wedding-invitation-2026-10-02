@@ -1,0 +1,17 @@
+PASS new origin rejects foreign login start
+PASS provider and next are validated
+PASS start binds verifier to HttpOnly host cookie, URL carries only challenge
+PASS old bridge validates duplicate and malformed query
+PASS bridge retains registered provider callback and native challenge
+PASS only matching web flow converts native redirect
+PASS failed provider returns to independent login
+PASS missing cookie does not consume ticket
+PASS wrong verifier and wrong state cannot consume ticket
+PASS duplicate query rejects without consuming
+PASS valid ticket issues separate host session for authenticated owner
+PASS ticket replay cannot create another session
+PASS expired ticket fails
+PASS pending account deletion rejects bridge login
+PASS redirect target cannot escape wedding origin
+PASS new-origin logout revokes only its session
+16 auth bridge checks passed

@@ -64,7 +64,7 @@ function ArchCover() {
           className="absolute -inset-2.5 rounded-t-full border"
           style={{ borderColor: "var(--inv-accent)", opacity: 0.45 }}
         />
-        <Photo src={inv.coverPhoto} className="relative aspect-[3/4] w-full rounded-t-full" />
+        <Photo src={inv.coverPhoto} presentation={inv.coverPresentation} className="relative aspect-[3/4] w-full rounded-t-full" />
         <PetalIcon size={34} color="var(--inv-accent)" className="absolute -left-5 top-10 opacity-80" />
         <PetalIcon size={24} color="var(--inv-accent)" className="absolute -right-3 top-28 opacity-60" />
         <PetalIcon size={18} color="var(--inv-accent)" className="absolute -bottom-2 right-8 opacity-70" />
@@ -110,7 +110,7 @@ function LetterCover() {
             </span>
           ))}
         </h1>
-        <Photo src={inv.coverPhoto} className="mt-8 aspect-[4/5] w-[72%] border-4" style={{ borderColor: "var(--inv-surface)" }} />
+        <Photo src={inv.coverPhoto} presentation={inv.coverPresentation} className="mt-8 aspect-[4/5] w-[72%] border-4" style={{ borderColor: "var(--inv-surface)" }} />
         <div className="mt-8 flex items-center gap-3" style={{ color: "var(--inv-accent)" }}>
           <span className="h-px w-8" style={{ background: "currentColor" }} />
           <span className="text-[12px] tracking-[0.3em]" style={{ fontFamily: "var(--inv-script)" }}>
@@ -140,7 +140,7 @@ function BotanicalCover() {
         {dot}
       </p>
       <div className="relative mt-8 w-[84%]">
-        <Photo src={inv.coverPhoto} className="aspect-[4/5] w-full rounded-[28px]" />
+        <Photo src={inv.coverPhoto} presentation={inv.coverPresentation} className="aspect-[4/5] w-full rounded-[28px]" />
         <div className="absolute -left-8 -top-7 -rotate-[35deg]">
           <LeafIcon size={44} color="var(--inv-accent)" />
         </div>
@@ -178,7 +178,7 @@ function PolaroidCover() {
       </p>
       <div className="relative mt-7 w-[80%] -rotate-3 bg-white p-3 pb-14 shadow-[0_12px_30px_rgba(0,0,0,0.12)]">
         <span className="absolute -top-3 left-1/2 h-6 w-24 -translate-x-1/2 rotate-2" style={{ background: "var(--inv-accent)", opacity: 0.55 }} />
-        <Photo src={inv.coverPhoto} className="aspect-square w-full" />
+        <Photo src={inv.coverPhoto} presentation={inv.coverPresentation} className="aspect-square w-full" />
         <p className="inv-title absolute bottom-3 left-0 right-0 text-[26px]" style={{ color: "var(--inv-text)" }}>
           {nameLine} <HeartIcon size={18} color="var(--inv-accent)" className="inline -mt-1" />
         </p>
@@ -210,7 +210,7 @@ function EnvelopeCover() {
       <div className="relative mt-8 w-[84%]">
         {/* 편지지 */}
         <div className="relative z-10 mx-auto w-[86%] bg-white p-2.5 shadow-md" style={{ animation: "rise 5s ease-in-out infinite" }}>
-          <Photo src={inv.coverPhoto} className="aspect-[4/5] w-full" />
+          <Photo src={inv.coverPhoto} presentation={inv.coverPresentation} className="aspect-[4/5] w-full" />
         </div>
         {/* 봉투 */}
         <div className="relative z-20 -mt-24 h-36 w-full overflow-hidden rounded-b-lg" style={{ background: "var(--inv-accent)" }}>
@@ -253,7 +253,7 @@ function FilmCover() {
           </div>
         ))}
         <div className="relative">
-          <Photo src={inv.coverPhoto} className="aspect-[4/5] w-full" />
+          <Photo src={inv.coverPhoto} presentation={inv.coverPresentation} className="aspect-[4/5] w-full" />
           <span
             className="absolute bottom-3 right-3 text-[18px] font-bold tracking-widest"
             style={{ color: "#FF9A3C", fontFamily: "'Courier New', monospace", textShadow: "0 0 6px rgba(255,140,40,.7)" }}
@@ -289,7 +289,7 @@ function CircleCover() {
           className="absolute -inset-4 rounded-full border-2 border-dashed"
           style={{ borderColor: "var(--inv-accent)", opacity: 0.4, animation: "spin-slow 40s linear infinite" }}
         />
-        <Photo src={inv.coverPhoto} className="aspect-square w-full rounded-full shadow-[0_20px_50px_rgba(164,139,209,0.35)]" />
+        <Photo src={inv.coverPhoto} presentation={inv.coverPresentation} className="aspect-square w-full rounded-full shadow-[0_20px_50px_rgba(164,139,209,0.35)]" />
         <SparkleIcon size={26} color="var(--inv-accent)" className="absolute -right-2 top-4" />
         <SparkleIcon size={16} color="var(--inv-accent)" className="absolute -left-3 bottom-10 opacity-70" />
         <SparkleIcon size={12} color="#F5B7CF" className="absolute right-6 -bottom-3" />
@@ -310,7 +310,7 @@ function MagazineCover() {
   const { inv, d, en, koDate, koTime, venue, nameLine } = useCoverText();
   return (
     <Shell className="justify-start">
-      <Photo src={inv.coverPhoto} className="absolute inset-0 h-full w-full" />
+      <Photo src={inv.coverPhoto} presentation={inv.coverPresentation} className="absolute inset-0 h-full w-full" />
       <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 35%, rgba(255,255,255,0) 60%, rgba(255,255,255,.92) 100%)" }} />
       <div className="relative w-full px-6 pr-16 pt-8 text-left">
         <div className="flex items-center justify-between text-[10px] font-semibold tracking-[0.2em]">
@@ -345,7 +345,7 @@ function FullPhotoCover() {
   const { inv, d, dot, koDate, koTime, venue, nameLine } = useCoverText();
   return (
     <Shell className="justify-end">
-      <Photo src={inv.coverPhoto} className="absolute inset-0 h-full w-full" />
+      <Photo src={inv.coverPhoto} presentation={inv.coverPresentation} className="absolute inset-0 h-full w-full" />
       <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(255,247,243,0) 30%, rgba(255,247,243,0.85) 62%, var(--inv-bg) 80%)" }} />
       <div className="relative px-8 pb-16">
         <p className="inv-script text-[40px] leading-none" style={{ color: "var(--inv-accent)" }}>
@@ -373,7 +373,7 @@ function HanjiCover() {
       <div className="relative flex w-full items-start justify-center gap-5">
         <div className="relative w-[70%]">
           <div className="rounded-t-[48%] border-[6px] p-1.5" style={{ borderColor: "#8B6F58" }}>
-            <Photo src={inv.coverPhoto} className="aspect-[3/4] w-full rounded-t-[46%]" />
+            <Photo src={inv.coverPhoto} presentation={inv.coverPresentation} className="aspect-[3/4] w-full rounded-t-[46%]" />
           </div>
           <div className="absolute -bottom-4 left-1/2 -translate-x-1/2">
             <KnotIcon size={26} />
@@ -415,7 +415,7 @@ function SplitCover() {
   const dd = String(en.day).padStart(2, "0");
   return (
     <Shell className="justify-start">
-      <Photo src={inv.coverPhoto} className="h-[46%] min-h-[260px] w-full" />
+      <Photo src={inv.coverPhoto} presentation={inv.coverPresentation} className="h-[46%] min-h-[260px] w-full" />
       <div className="flex w-full flex-1 flex-col items-center justify-center px-8 pb-16 pt-8">
         <div className="flex items-center gap-4 text-[44px] font-extralight leading-none tracking-tight">
           <span>{mm}</span>
@@ -456,7 +456,7 @@ function WatercolorCover() {
       </p>
       <div className="relative mt-7 w-[82%]">
         <Photo
-          src={inv.coverPhoto}
+          src={inv.coverPhoto} presentation={inv.coverPresentation}
           className="aspect-[4/5] w-full"
           style={{
             WebkitMaskImage: "radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%)",
@@ -495,7 +495,7 @@ function GinghamCover() {
           {inv.type === "wedding" ? "소풍 같은 결혼식에 초대해요" : d.headline}
         </p>
         <div className="relative mx-auto mt-5 w-[88%]">
-          <Photo src={inv.coverPhoto} className="aspect-[4/3] w-full rounded-2xl" />
+          <Photo src={inv.coverPhoto} presentation={inv.coverPresentation} className="aspect-[4/3] w-full rounded-2xl" />
           <span className="absolute -right-3 -top-3 flex h-12 w-12 rotate-12 items-center justify-center rounded-full text-white shadow" style={{ background: "var(--inv-accent)" }}>
             <HeartIcon size={20} color="#fff" />
           </span>
@@ -536,7 +536,7 @@ function BalloonCover() {
       </p>
       <div className="relative mt-6 w-[70%]">
         <div className="absolute -inset-3 rounded-full" style={{ background: "repeating-conic-gradient(var(--inv-accent-soft) 0 10deg, #fff 10deg 20deg)" }} />
-        <Photo src={inv.coverPhoto} className="relative aspect-square w-full rounded-full border-[6px] border-white" />
+        <Photo src={inv.coverPhoto} presentation={inv.coverPresentation} className="relative aspect-square w-full rounded-full border-[6px] border-white" />
         <span className="absolute -bottom-2 left-1/2 flex h-14 w-14 -translate-x-1/2 items-center justify-center rounded-full bg-white text-[30px] shadow-md" style={{ fontFamily: "var(--inv-title)", color: "var(--inv-accent)" }}>
           1
         </span>
@@ -571,7 +571,7 @@ function BearCover() {
           <span className="absolute inset-4 rounded-full" style={{ background: "var(--inv-accent-soft)" }} />
         </span>
         <div className="relative rounded-full p-2.5" style={{ background: "var(--inv-accent)" }}>
-          <Photo src={inv.coverPhoto} className="aspect-square w-full rounded-full" />
+          <Photo src={inv.coverPhoto} presentation={inv.coverPresentation} className="aspect-square w-full rounded-full" />
         </div>
         <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-white px-4 py-1 text-[13px] shadow" style={{ color: "var(--inv-accent)", fontFamily: "var(--inv-title)" }}>
           첫 생일 축하해
@@ -618,7 +618,7 @@ function SaekdongCover() {
           첫돌잔치
         </h1>
         <div className="relative mt-7 w-[74%]">
-          <Photo src={inv.coverPhoto} className="aspect-[4/5] w-full rounded-[40px] border-4" style={{ borderColor: "#F4C54E" }} />
+          <Photo src={inv.coverPhoto} presentation={inv.coverPresentation} className="aspect-[4/5] w-full rounded-[40px] border-4" style={{ borderColor: "#F4C54E" }} />
           <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-white px-2 py-1 shadow">
             <KnotIcon size={20} />
           </div>
@@ -654,7 +654,7 @@ function StarryCover() {
       </p>
       <h1 className="inv-title mt-2 text-[28px]">반짝반짝 {d.shortNames[0]}의 첫 생일</h1>
       <div className="relative mt-8 w-[72%]">
-        <Photo src={inv.coverPhoto} className="aspect-square w-full rounded-full border-[8px] border-white shadow-[0_14px_40px_rgba(126,155,224,0.35)]" />
+        <Photo src={inv.coverPhoto} presentation={inv.coverPresentation} className="aspect-square w-full rounded-full border-[8px] border-white shadow-[0_14px_40px_rgba(126,155,224,0.35)]" />
         <svg className="absolute -right-6 -top-4" width="70" height="70" viewBox="0 0 70 70" aria-hidden>
           <path d="M40 6 a28 28 0 1 0 24 42 a22 22 0 1 1 -24 -42z" fill="#FFE08A" />
         </svg>
@@ -703,7 +703,7 @@ function PeonyCover() {
         {eventName}연
       </h1>
       <div className="relative mt-8 w-[70%] border p-2" style={{ borderColor: "var(--inv-accent)" }}>
-        <Photo src={inv.coverPhoto} className="aspect-[4/5] w-full" />
+        <Photo src={inv.coverPhoto} presentation={inv.coverPresentation} className="aspect-[4/5] w-full" />
       </div>
       <p className="inv-title mt-8 text-[24px]">
         {d.names[0]} <span className="text-[15px] opacity-70">님</span>
@@ -736,7 +736,7 @@ function SunriseCover() {
             })}
           </svg>
         </div>
-        <Photo src={inv.coverPhoto} className="relative mx-auto aspect-[3/4] w-[82%] rounded-t-full border-[6px] border-white shadow-lg" />
+        <Photo src={inv.coverPhoto} presentation={inv.coverPresentation} className="relative mx-auto aspect-[3/4] w-[82%] rounded-t-full border-[6px] border-white shadow-lg" />
       </div>
       <h1 className="inv-title mt-9 text-[34px] font-bold" style={{ color: "var(--inv-text)" }}>
         {d.names[0]}님의 {eventName}

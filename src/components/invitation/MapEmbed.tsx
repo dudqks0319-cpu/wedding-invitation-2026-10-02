@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { Venue } from "@/types/invitation";
-import { KAKAO_MAP_KEY, NAVER_MAP_CLIENT_ID } from "@/lib/maps";
+import { hasCoordinates, KAKAO_MAP_KEY, NAVER_MAP_CLIENT_ID } from "@/lib/maps";
 
 /**
  * 지도 화면
@@ -52,7 +52,7 @@ function loadScript(src: string, id: string) {
 
 export function MapEmbed({ venue }: { venue: Venue }) {
   const ref = useRef<HTMLDivElement>(null);
-  const provider = KAKAO_MAP_KEY ? "kakao" : NAVER_MAP_CLIENT_ID ? "naver" : "none";
+  const provider = !hasCoordinates(venue) ? "none" : KAKAO_MAP_KEY ? "kakao" : NAVER_MAP_CLIENT_ID ? "naver" : "none";
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {

@@ -12,7 +12,8 @@
     "build:sites": "node scripts/prepare-sites.mjs",
     "photos": "node scripts/generate-photos.mjs",
     "build:cloudflare": "node scripts/build-cloudflare.mjs",
-    "test:cloudflare": "node tests/cloudflare.integration.mjs"
+    "test:cloudflare": "node tests/cloudflare.integration.mjs",
+    "test:osam-import": "node tests/osam-import.mjs"
   },
   "dependencies": {
     "next": "16.3.7",

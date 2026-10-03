@@ -6,6 +6,11 @@ type Callbacks = {
   fail: () => void;
 };
 
+/** An embedded input owns focus without leaving the authenticated document. */
+export function isEmbeddedFocus(hasFocus: boolean, visibility: string, activeTag?: string) {
+  return hasFocus && visibility === 'visible' && activeTag === 'IFRAME';
+}
+
 /** Keep private screens covered until the current cookie's identity is checked. */
 export function createSessionWatcher(callbacks: Callbacks) {
   let identity: string | null | undefined;

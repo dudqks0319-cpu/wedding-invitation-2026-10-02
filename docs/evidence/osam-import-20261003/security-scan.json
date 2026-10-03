@@ -1,0 +1,23 @@
+{
+  "scannedTextFiles": 109,
+  "secretPatternMatches": [],
+  "artifacts": [
+    {
+      "path": "/Users/jyb-m3max/Desktop/codex/wedding-invitation-2026-10-02/dist-cloudflare/index.html",
+      "sha256": "a7b6d0934f8a9cbf654f2aede625eb3425c91ef9288079f00727dc8087974ace",
+      "bytes": 3177113
+    },
+    {
+      "path": "/Users/jyb-m3max/Desktop/codex/wedding-invitation-2026-10-02/cloudflare/build/replacement.mjs",
+      "sha256": "c6ac8879dc8b78e31d7d0e38e416fd3c52ef0e8dddf10df2460dcec92487d86b",
+      "bytes": 72596
+    },
+    {
+      "path": "/Users/jyb-m3max/Desktop/codex/osam-rebuild/artifacts/wedding-replacement-20261003/artifacts/osam-import-dry/worker.js",
+      "sha256": "383529d33654783e246e5411cd178d09e4c536b64b92646da4186628c8b9953a",
+      "bytes": 12800460
+    }
+  ],
+  "bracesPackageInRuntimeBundle": false,
+  "runtimeDependencyInputs": 145
+}

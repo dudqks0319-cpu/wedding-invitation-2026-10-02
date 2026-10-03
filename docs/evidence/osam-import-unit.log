@@ -1,0 +1,10 @@
+PASS older drafts still validate without new presentation fields
+PASS presentation and known font survive server whitelist
+PASS server rejects unknown CSS and invalid crop values
+PASS calendar uses Korea time regardless of host timezone and a stable UID
+PASS calendar rejects impossible dates
+PASS calendar escapes injection, folds Korean text and excludes private data
+PASS address chooses road then lot and rejects malformed SDK output
+PASS unset coordinates search current address instead of old sample location
+PASS design search combines words, category, tags and favorites
+9 checks passed

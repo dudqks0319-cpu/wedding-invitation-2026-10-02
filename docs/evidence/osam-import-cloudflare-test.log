@@ -1,0 +1,44 @@
+PASS anonymous listing requires login
+PASS owner saves D1 draft
+PASS save retry returns original result
+PASS idempotency key rejects different content
+PASS anonymous and second owner cannot read draft
+PASS other account cannot overwrite draft
+PASS stale revision cannot overwrite draft
+PASS AI examples cannot be published
+PASS CSRF rejects foreign origin
+PASS missing slug returns 404 without login
+PASS upload kill switch blocks before image processing
+PASS real image decode and R2 upload
+PASS upload retry consumes no second transform
+PASS unreferenced private image is inaccessible to guests
+PASS photo reads work in actual workerd runtime
+PASS another owner cannot use an uploaded photo
+PASS owner saves real image
+PASS explicit publication is stored separately
+PASS published page and stable OG photo are public
+PASS crop and font persist in D1 draft and public snapshot
+PASS hidden bank accounts are excluded from the public DTO
+PASS editing draft does not change public snapshot
+PASS guest RSVP is stored once
+PASS RSVP list is owner-only
+PASS guestbook waits for owner approval
+PASS owner approves then hides guestbook
+PASS passwords and raw fingerprints are absent from stored operations
+PASS guestbook wrong password rejected, correct password deletes
+PASS more than 21 normal photo reads stay available
+PASS verified clients have independent quotas
+PASS unpublish revokes page and photo immediately
+PASS concurrent saves accept exactly one revision
+PASS publication expiry is independent of draft edits
+PASS live storage cap rejects upload before transformation
+PASS invalid image bytes are rejected by a real decoder
+PASS storage deletion refunds live byte usage
+PASS invitation deletion queues only unused photos and refunds after cleanup
+PASS provider failure retains a deletion reservation for retry
+w2_backend_failure Error
+PASS quota/database outage returns controlled 503
+PASS OAuth return preserves native callback and cookies
+PASS account deletion revokes v2 public data before cleanup
+41 checks passed
+LOCAL FIXTURE http://127.0.0.1:4180/__fixture/login

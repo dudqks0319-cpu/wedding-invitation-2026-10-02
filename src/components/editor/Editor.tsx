@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState, type ChangeEvent } from "react";
-import type { Account, Invitation, Partner, Theme } from "@/types/invitation";
+import type { Account, Invitation, InvitationFont, Partner, Theme } from "@/types/invitation";
 import { TEMPLATES, getTemplate } from "@/data/templates";
 import { ALL_PHOTO_KEYS, photo } from "@/data/photos";
 import { ClientError, newId, publishInvitation, request, saveInvitation } from "@/lib/api";
@@ -14,6 +14,10 @@ import { InvitationView } from "@/components/invitation/InvitationView";
 import { PhoneFrame } from "@/components/site/PhoneFrame";
 import { Logo } from "@/components/site/Logo";
 import { Checkbox, Field, Panel, Select, TextArea, TextInput, Toggle, inputCls } from "./fields";
+
+import { AddressSearch } from "./AddressSearch";
+import { PhotoAdjustment } from "./PhotoAdjustment";
+import { INVITATION_FONTS } from "@/lib/presentation";
 
 const BANKS = ["국민은행", "신한은행", "우리은행", "하나은행", "농협은행", "기업은행", "카카오뱅크", "토스뱅크", "케이뱅크", "SC제일은행", "대구은행", "부산은행", "새마을금고", "우체국", "수협"];
 
@@ -77,7 +81,7 @@ function PhotoPicker({ inv, update, toast }: { inv: Invitation; update: Updater;
     setBusy(true);
     try {
       const url = await resizeImage(f);
-      update((d) => void (d.coverPhoto = url));
+      update((d) => { d.coverPhoto = url; delete d.coverPresentation; });
     } catch (err) {
       toast((err as Error).message);
     }
@@ -120,10 +124,11 @@ function PhotoPicker({ inv, update, toast }: { inv: Invitation; update: Updater;
           <input ref={coverInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={onCover} />
         </div>
       </Field>
+      <PhotoAdjustment key={inv.coverPhoto} src={inv.coverPhoto} value={inv.coverPresentation} onChange={value => update(d => { d.coverPresentation = value; })} />
       <Field label="예시 사진으로 바꾸기">
         <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
           {SAMPLE_PHOTOS.map((s, i) => (
-            <button key={s} type="button" disabled={busy} aria-label={`예시 사진 ${i + 1} 선택`} onClick={() => update((d) => void (d.coverPhoto = s))} className={`shrink-0 overflow-hidden rounded-lg ring-2 ${inv.coverPhoto === s ? "ring-brand-400" : "ring-transparent"}`}>
+            <button key={s} type="button" disabled={busy} aria-label={`예시 사진 ${i + 1} 선택`} onClick={() => update((d) => { d.coverPhoto = s; delete d.coverPresentation; })} className={`shrink-0 overflow-hidden rounded-lg ring-2 ${inv.coverPhoto === s ? "ring-brand-400" : "ring-transparent"}`}>
               <img src={s} alt="" className="h-16 w-12 object-cover" />
             </button>
           ))}
@@ -341,14 +346,10 @@ export function Editor({ initial, draftKey = `editor-v2:new:${initial.templateId
               <TextInput label="장소 이름" value={inv.venue.name} onChange={(v) => update((d) => void (d.venue.name = v))} />
               <TextInput label="층 · 홀" value={inv.venue.hall} onChange={(v) => update((d) => void (d.venue.hall = v))} />
             </div>
-            <Field label="주소" hint="카카오 주소 검색은 백엔드 연결 후 자동으로 좌표까지 입력돼요.">
-              <div className="flex gap-2">
-                <input className={inputCls} value={inv.venue.address} onChange={(e) => update((d) => void (d.venue.address = e.target.value))} />
-                <button type="button" onClick={() => toast("주소 검색은 카카오 API 연동 후 사용할 수 있어요")} className="shrink-0 rounded-xl bg-ink px-4 text-[13px] font-medium text-white">
-                  검색
-                </button>
-              </div>
+            <Field label="주소" hint="주소를 바꾸면 지도 앱에서 새 주소로 검색해요.">
+              <input aria-label="주소" className={inputCls} value={inv.venue.address} onChange={e => update(d => { d.venue.address = e.target.value; d.venue.lat = 0; d.venue.lng = 0; })} />
             </Field>
+            <AddressSearch onSelect={selected => update(d => { d.venue.address = selected.address; d.venue.lat = 0; d.venue.lng = 0; if (!d.venue.name) d.venue.name = selected.buildingName; })} />
             <div className="grid grid-cols-3 gap-3">
               <TextInput label="전화번호" value={inv.venue.tel} onChange={(v) => update((d) => void (d.venue.tel = v))} />
               <TextInput label="위도" value={String(inv.venue.lat)} onChange={(v) => update((d) => void (d.venue.lat = Number(v) || 0))} />
@@ -383,6 +384,7 @@ export function Editor({ initial, draftKey = `editor-v2:new:${initial.templateId
           </Panel>
 
           <Panel title="표시할 기능" emoji="⚙️">
+            <Select label="청첩장 글꼴" value={inv.options.font ?? "default"} onChange={v => update(d => { d.options.font = v as InvitationFont; })} options={INVITATION_FONTS.map(f => [f.id, f.label])} />
             <div className="divide-y divide-black/5">
               <Toggle label="달력" checked={inv.options.showCalendar} onChange={(v) => update((d) => void (d.options.showCalendar = v))} />
               <Toggle label="D-day 카운트다운" checked={inv.options.showDday} onChange={(v) => update((d) => void (d.options.showDday = v))} />
@@ -437,7 +439,7 @@ export function Editor({ initial, draftKey = `editor-v2:new:${initial.templateId
                   key={t.id}
                   onClick={() => {
                     update((d) => {
-                      if (d.coverPhoto === theme.samplePhoto) d.coverPhoto = t.samplePhoto;
+                      if (d.coverPhoto === theme.samplePhoto) { d.coverPhoto = t.samplePhoto; delete d.coverPresentation; }
                       d.templateId = t.id;
                     });
                     setDesignOpen(false);

@@ -1,0 +1,41 @@
+{
+  "observedAt": "2026-10-03T03:52:18.417Z",
+  "checks": [
+    {
+      "name": "older drafts still validate without new presentation fields",
+      "result": "PASS"
+    },
+    {
+      "name": "presentation and known font survive server whitelist",
+      "result": "PASS"
+    },
+    {
+      "name": "server rejects unknown CSS and invalid crop values",
+      "result": "PASS"
+    },
+    {
+      "name": "calendar uses Korea time regardless of host timezone and a stable UID",
+      "result": "PASS"
+    },
+    {
+      "name": "calendar rejects impossible dates",
+      "result": "PASS"
+    },
+    {
+      "name": "calendar escapes injection, folds Korean text and excludes private data",
+      "result": "PASS"
+    },
+    {
+      "name": "address chooses road then lot and rejects malformed SDK output",
+      "result": "PASS"
+    },
+    {
+      "name": "unset coordinates search current address instead of old sample location",
+      "result": "PASS"
+    },
+    {
+      "name": "design search combines words, category, tags and favorites",
+      "result": "PASS"
+    }
+  ]
+}

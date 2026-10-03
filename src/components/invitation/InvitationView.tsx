@@ -1,7 +1,8 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import type { Invitation, Theme } from "@/types/invitation";
+import type { Invitation, InvitationFont, Theme } from "@/types/invitation";
+import { INVITATION_FONTS } from "@/lib/presentation";
 import { Cover } from "./Covers";
 import { EffectLayer } from "./EffectLayer";
 import {
@@ -18,8 +19,9 @@ import { InvitationProvider, type ViewMode } from "./shared";
 import { SITE } from "@/lib/site";
 
 /** 테마 색/글꼴을 CSS 변수로 변환 */
-export function themeVars(theme: Theme): CSSProperties {
+export function themeVars(theme: Theme, font?: InvitationFont): CSSProperties {
   const p = theme.palette;
+  const family = INVITATION_FONTS.find(f => f.id === font)?.family;
   return {
     "--inv-bg": p.bg,
     "--inv-surface": p.surface,
@@ -29,8 +31,8 @@ export function themeVars(theme: Theme): CSSProperties {
     "--inv-accent-soft": p.accentSoft,
     "--inv-line": p.line,
     "--inv-surface-tint": `color-mix(in srgb, ${p.accentSoft} 45%, ${p.bg})`,
-    "--inv-title": theme.fonts.title,
-    "--inv-body": theme.fonts.body,
+    "--inv-title": family ?? theme.fonts.title,
+    "--inv-body": family ?? theme.fonts.body,
     "--inv-script": theme.fonts.script,
   } as CSSProperties;
 }
@@ -62,7 +64,7 @@ export function InvitationView({ invitation: inv, theme, mode = "page", readOnly
     </>
   );
 
-  const vars = themeVars(theme);
+  const vars = themeVars(theme, inv.options.font);
   const bgPattern = theme.pattern ? { backgroundImage: theme.pattern, backgroundSize: "40px 40px" } : {};
 
   if (mode === "frame") {

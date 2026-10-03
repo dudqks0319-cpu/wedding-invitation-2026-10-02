@@ -1,6 +1,6 @@
 import {useEffect,useRef,useState,type ReactNode} from 'react';
 import {ClientError,request} from '@/lib/api';
-import {createSessionWatcher} from '@/lib/sessionWatcher';
+import {createSessionWatcher,isEmbeddedFocus} from '@/lib/sessionWatcher';
 import {useLocation} from './router';
 import {AuthContext,type AuthStatus} from '@/lib/authSession';
 
@@ -24,15 +24,21 @@ export function SessionBoundary({children}:{children:ReactNode}){
       fail:()=>{setChecking(true);setFailed(true);setAuth('unavailable');},
     });
     watcherRef.current=watcher;
+    let blurTimer:ReturnType<typeof setTimeout>|undefined;
     const pause=()=>watcher.pause();
-    const check=()=>{if(document.visibilityState==='visible')void watcher.check();};
+    const check=()=>{clearTimeout(blurTimer);if(document.visibilityState==='visible')void watcher.check();};
+    // Window blur also fires when a postcode iframe receives input. Wait until
+    // the focus transition settles; a real app/tab departure still covers data.
+    const blur=()=>{clearTimeout(blurTimer);blurTimer=setTimeout(()=>{
+      if(!isEmbeddedFocus(document.hasFocus(),document.visibilityState,document.activeElement?.tagName))pause();
+    },0);};
     const visibility=()=>document.visibilityState==='hidden'?pause():check();
-    window.addEventListener('blur',pause);
+    window.addEventListener('blur',blur);
     window.addEventListener('focus',check);
     window.addEventListener('pageshow',check);
     document.addEventListener('visibilitychange',visibility);
     check();
-    return()=>{watcher.dispose();window.removeEventListener('blur',pause);window.removeEventListener('focus',check);window.removeEventListener('pageshow',check);document.removeEventListener('visibilitychange',visibility);};
+    return()=>{clearTimeout(blurTimer);watcher.dispose();window.removeEventListener('blur',blur);window.removeEventListener('focus',check);window.removeEventListener('pageshow',check);document.removeEventListener('visibilitychange',visibility);};
   },[attempt]);
   return <AuthContext.Provider value={auth}>
     <div hidden={privateView&&checking}>{children}</div>
