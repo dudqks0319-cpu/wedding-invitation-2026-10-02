@@ -76,7 +76,7 @@ export function TemplateBrowser({ initialType }: { initialType: Filter }) {
       </div>
 
       <div className="mx-auto mt-6 max-w-xl">
-        <label className="block text-sm font-medium">디자인 검색<input type="search" value={query} onChange={e => setQuery(e.target.value)} maxLength={100} placeholder="디자인 이름, 분위기, 꽃…" className="mt-2 min-h-11 w-full rounded-xl border border-black/10 bg-white px-4" /></label>
+        <label className="block text-sm font-medium">디자인 검색<input type="search" value={query} onChange={e => setQuery(e.target.value)} maxLength={100} placeholder="디자인 이름, 분위기, 꽃…" className="mt-2 min-h-11 w-full rounded-xl border border-black/10 bg-white px-4 text-base sm:text-sm" /></label>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
           <button type="button" aria-pressed={onlyFavorites} onClick={() => setOnlyFavorites(v => !v)} className={`min-h-11 rounded-full border px-4 text-sm ${onlyFavorites ? "border-brand-400 bg-brand-50 text-brand-600" : "border-black/10 bg-white"}`}>찜한 디자인만 보기 ({favorites.length})</button>
           <span role="status" className="text-sm text-muted">디자인 {list.length}개</span>

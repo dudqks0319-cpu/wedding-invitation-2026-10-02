@@ -302,7 +302,7 @@ export function Editor({ initial, draftKey = `editor-v2:new:${initial.templateId
             <Field label="주소" hint="영문 소문자, 숫자, - 만 사용할 수 있어요. 예) minjun-seoyeon">
               <div className="flex items-center overflow-hidden rounded-xl border border-black/10 bg-white focus-within:border-brand-300 focus-within:ring-4 focus-within:ring-brand-100">
                 <span className="bg-cream px-3 py-2.5 text-[13px] text-muted">/i/</span>
-                <input aria-label="청첩장 주소" readOnly={existing || saved!==null || !!inv.revision} className="w-full px-2 py-2.5 text-[14px] outline-none" value={inv.slug} onChange={(e) => update((d) => void (d.slug = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "")))} />
+                <input aria-label="청첩장 주소" readOnly={existing || saved!==null || !!inv.revision} className="w-full px-2 py-2.5 text-base sm:text-[14px] outline-none" value={inv.slug} onChange={(e) => update((d) => void (d.slug = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "")))} />
               </div>
             </Field>
           </Panel>

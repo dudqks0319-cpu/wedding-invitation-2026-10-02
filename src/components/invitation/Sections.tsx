@@ -78,7 +78,7 @@ export function Modal({ open, onClose, title, children }: { open: boolean; onClo
   );
 }
 
-const inputCls = "w-full rounded-xl border px-4 py-3 text-[14px] outline-none transition focus:ring-2";
+const inputCls = "w-full rounded-xl border px-4 py-3 text-base sm:text-[14px] outline-none transition focus:ring-2";
 const inputStyle = { borderColor: "var(--inv-line)", background: "var(--inv-bg)", color: "var(--inv-text)", "--tw-ring-color": "var(--inv-accent-soft)" } as React.CSSProperties;
 
 function PhoneIcon() {

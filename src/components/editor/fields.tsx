@@ -3,7 +3,7 @@
 import { useId, useState, type ReactNode } from "react";
 
 export const inputCls =
-  "w-full rounded-xl border border-black/10 bg-white px-3.5 py-2.5 text-[14px] text-ink outline-none transition placeholder:text-black/30 focus:border-brand-300 focus:ring-4 focus:ring-brand-100";
+  "w-full rounded-xl border border-black/10 bg-white px-3.5 py-2.5 text-base sm:text-[14px] text-ink outline-none transition placeholder:text-black/30 focus:border-brand-300 focus:ring-4 focus:ring-brand-100";
 
 export function Field({ label, hint, children, className = "" }: { label: string; hint?: string; children: ReactNode; className?: string }) {
   return (
