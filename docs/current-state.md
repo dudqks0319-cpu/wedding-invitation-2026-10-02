@@ -1,18 +1,25 @@
-# 청첩장 웹서비스 현재 상태
+# 청첩장 웹·iOS 현재 상태
 
-2026-10-03. 상호 미정. 사용자 결정: **웹서비스 먼저 완성, iPhone/Android 앱은 이후 교체**. 화면 이름은 ‘청첩장’이다.
+2026-10-03. 상호 미정. 사용자 결정: **웹서비스 먼저 완성**한 뒤 현재 독립 사이트의 iOS TestFlight 업로드와 iPhone 16 Pro 설치를 요청했다. 화면 이름은 임시 ‘청첩장’이다. 기존 오삼오삼 앱은 보존한다.
+
+## 최신 사진·소개·iOS 결과
+
+- 실사 AI 예시 사진 2종을 개선했다. Claude Code Opus의 소개 HTML에 직접 검증한 웹·시뮬레이터 화면 4개를 넣고 소개 이미지 3장(1242×2688)을 만들었다. AI 사진과 화면의 검증 범위를 표시했다. 공개 [소개페이지](https://wedding-invitation-2026-10-02.jyb1126.chatgpt.site/app-intro/)의 이미지 로딩·모바일 가로 넘침·키보드 디자인 탭을 확인했다.
+- 별도 앱 `com.invitehub.wedding-preview`, ASC `6818721229`, **0.1.0 (2)** 업로드 성공. Apple 처리 `VALID`, 본인 그룹 `IN_BETA_TESTING`, 테스터 1명 `INVITED`를 확인했다. 네이티브 기준 소스 `d25d8b19b1442695765bfd780e688e3ea9b1feba`. [Apple 기록](evidence/ios-testflight-20261003/apple-testflight.json), [업로드 영수증](evidence/ios-testflight-20261003/upload-receipt.json).
+- 요청 대상 **iPhone 16 Pro는 unavailable**이다. TestFlight 초대 수락·설치·실행 및 새 네이티브 앱의 실제 Google/카카오 로그인은 HOLD다. 기존 iPhone 12 Pro의 Safari 검증을 새 앱 설치 증거로 사용하지 않는다. [iOS 현재 상태](ios-current-state.md).
+- Swift 7·WebKit 4·네이티브 D1 인증 13·웹 인증 16·Cloudflare 41 검사 PASS. 타입·린트·Next/Cloudflare 빌드·IPA 서명 및 통합 보안 게이트를 통과했다. 최신 공개 사진/소개는 실제 브라우저에서 확인했지만, 이번 일반 HTTP/API 운영 검사 시도는 403/클라이언트 차단으로 미완료다. 아래의 이전 운영 API 증거와 구분한다. [최신 운영 범위](evidence/ios-testflight-20261003/production-smoke.json), [보안 검사](evidence/ios-testflight-20261003/security-gate.json).
 
 ## 현재 배포와 수정 결과
 
 - 독립 공개 사이트: https://wedding-invitation-2026-10-02.jyb1126.chatgpt.site . 기존 청첩장 Sites 프로젝트를 재사용하여 실제 서버 게이트웨이를 게시했다. 오삼오삼 홈페이지로 보내던 리디렉션을 제거했다.
 - Sites project `appgprj_6abf84676b4881918d32542f0e76190c`, version 3, 게시 성공. 배포 소스 commit `cf6a6724ea37b6df0814673154e4028e2aaf3578`. [게시 영수증](evidence/independent-sites-publish-20261003.json).
-- Cloudflare Worker `osamosam-api`, version `fa3f4c15-e5b2-4949-8394-7cfe2906d704`, 최신 모바일 수정 소스 `28bf278c2deef4af34f6f7b6b40dab511f844771`. 기존 D1 `osamosam-db`, 비공개 R2 `osamosam-media`, Images binding을 사용한다. 신규 자료는 `w2_` 테이블과 `w2/` 경로를 사용한다. [최신 배포 영수증](evidence/iphone12pro-20261003/deploy.json). Sites version 3 게이트웨이는 그대로 사용하고 Worker/프런트 산출물만 갱신했다.
+- Cloudflare Worker `osamosam-api`, 최신 version `088ade38-ba39-4535-82ce-ec0dba82258f`. 기존 D1 `osamosam-db`, 비공개 R2 `osamosam-media`, Images binding을 사용한다. 신규 자료는 `w2_` 테이블과 `w2/` 경로를 사용한다. [최신 배포 기록](../release-ledger.yaml), [이전 iPhone 12 Pro 수정 배포 영수증](evidence/iphone12pro-20261003/deploy.json). Sites version 3 게이트웨이는 그대로 사용하고 Worker/프런트 산출물만 갱신했다.
 - 기존 오삼오삼 OAuth 등록·계정·앱 인증·이전 API·원본 checkout을 보존했다. Google/카카오 인증은 기존 등록 주소를 경유하고, 일회용 확인값으로 새 사이트에 별도 세션을 발급한다. 쿠키는 각 호스트에 한정된다.
 - 인증 상태와 무관하게 표시되던 상단 로그인·본문 로그아웃을 수정했다. 익명은 로그인 안내, 인증 완료는 ‘내 계정’·‘로그인됨’·로그아웃을 표시한다. 확인 중 또는 연결 실패 시 비공개 화면을 가린다.
 - 새 초대장은 새 주소 `/my`, 이전 초대장은 기존 주소 `/dashboard`에서 관리한다. 이전 자료 자동 가져오기나 삭제는 실행하지 않았다.
 - 공개 GitHub: https://github.com/dudqks0319-cpu/wedding-invitation-2026-10-02 . 기존 main 이력을 유지한다. 배포 소스와 후속 문서·증거를 이 저장소에 기록한다.
 
-## 확인한 증거
+## 이전 웹서비스 검증 증거
 
 - **실제 Google OAuth**: Codex 내장 브라우저에서 새 사이트 버튼 → 공급자 인증 → 새 주소 `/my` 복귀 성공. 새로고침 후 인증 유지, 상단 ‘내 계정’, 본문 ‘로그인됨’ 확인. 로그아웃 뒤 `/login` 복귀와 다시 Google 로그인 성공을 확인했다. [데스크톱 화면](evidence/independent-login-desktop.png), [브라우저 기록](evidence/independent-browser-20261003.json). 사용자가 첨부한 Aside 브라우저는 별도 프로필이며 이 기록으로 그 프로필까지 검증했다고 주장하지 않는다.
 - **실제 Cloudflare 17개 PASS**: 새 Sites 경유 Worker/D1/R2/Images, 두 임시 계정 격리, 인증 확인값 발급·재사용 차단, 초안 멱등 저장, 외부 origin 차단, 실사진 변환·업로드, 비공개 사진 차단, 공유·OG·RSVP·승인형 방명록, 만료·공유 중지·삭제·용량 회수. [운영 검사](evidence/independent-production-20261003.json). 공급자 로그인은 합성 인증 테스트와 별도로 검증했다.
@@ -31,9 +38,9 @@
 
 현재 무료 시험 운영. 계정별 사진 100MB, 신규 전체 1GB, 하루 사진 변환 100건 등 서버 한도와 중지 스위치를 유지했다. 기존 v1 예산·스위치와 요금제는 바꾸지 않았다. 실제 장기 보관·만료 경과, 대규모 부하, 계정 전체 청구 비용은 장기 관측이 필요하다. 결제·네이버·BGM은 제공하지 않는다.
 
-5분 예약 정리 트리거는 기존 배포에 유지된다. 로컬 자동 정리 및 운영 테스트 자료의 만료 차단 검증은 실제 30일 경과 검증과 다르다. iOS/Android 앱 교체·배포·실기기 검증은 후속 범위다.
+5분 예약 정리 트리거는 기존 배포에 유지된다. 로컬 자동 정리 및 운영 테스트 자료의 만료 차단 검증은 실제 30일 경과 검증과 다르다. 새 iOS 앱은 본인 TestFlight 내부 테스트 단계이며 실기기 설치·기능 검증은 남았다. Android 앱 교체는 후속 범위다.
 
-공통 release harness는 ATTENTION: `release-ledger.yaml`·`RELEASE_STATUS.md`가 없다. 웹 검증 결과를 App Store 출시 준비 완료로 해석하지 않는다.
+공통 release harness는 `release-ledger.yaml`·`RELEASE_STATUS.md`를 확인했고 실패 항목은 없다. 실제 요청 기기 검증 `P0-DEVICE-TESTFLIGHT`가 열려 있어 ATTENTION이다. 내부 테스트 배포를 App Store 공개 출시 또는 실기기 설치 완료로 해석하지 않는다.
 
 ## 재개 기준
 
@@ -43,4 +50,4 @@
 
 [Cloudflare 구조](CLOUDFLARE.md), [수정 전 기록](history/20261003-before-independent-site.md), [초기 상태](history/20261003-before-cloudflare.md)를 보존했다. 현재 운영 백엔드는 Cloudflare이다.
 
-재개: “docs/current-state.md와 docs/CLOUDFLARE.md를 읽고 독립 청첩장 사이트와 기존 오삼오삼 계정을 보존하면서 후속 작업을 진행해줘. 이름은 아직 미정이야. 카카오는 최종 계정 인증을 별도로 검증해줘.”
+재개: “docs/current-state.md, docs/ios-current-state.md와 RELEASE_STATUS.md를 읽고 독립 청첩장 사이트와 기존 오삼오삼 계정을 보존하면서 iPhone 16 Pro의 TestFlight 0.1.0(2) 설치·실행을 확인해줘. 이름은 아직 미정이야. 새 네이티브 앱의 Google/카카오 최종 인증도 실제로 검증해줘.”

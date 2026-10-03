@@ -6,6 +6,8 @@
 
 로컬 검증 81건, 타입·린트·웹/Cloudflare 빌드, 개인정보·인증·비밀값·쿼터 게이트, IPA 서명과 iPhone 화면 방향 검증은 통과했다. Apple 첫 업로드는 방향 누락으로 거부되어 설정을 수정하고 빌드 2를 만들었으며, 빌드 2 업로드는 성공했다.
 
-**HOLD**: Apple 처리/본인 그룹 빌드 접근 확인 중. 요청된 iPhone 16 Pro는 `unavailable`이므로 해당 기기의 TestFlight 설치·실제 OAuth 로그인은 미검증이다. 기존 연결된 iPhone 12 Pro에는 대신 설치하지 않았다. App Store 공개 출시 준비 완료로 보고하지 않는다.
+Apple 처리 `VALID`, 내부 배포 `IN_BETA_TESTING`, 본인 그룹 빌드 2 연결, 테스터 1명 `INVITED`를 API와 실제 UI로 확인했다.
+
+**HOLD**: 요청된 iPhone 16 Pro는 `unavailable`이므로 해당 기기의 TestFlight 설치·실제 OAuth 로그인은 미검증이다. 기존 연결된 iPhone 12 Pro에는 대신 설치하지 않았다. App Store 공개 출시 준비 완료로 보고하지 않는다.
 
 작업 재개: `docs/ios-current-state.md`와 `release-ledger.yaml`을 읽고 새 앱의 처리 및 기기 상태를 확인한다. 기존 오삼오삼 앱/계정/데이터를 변경하지 않는다.

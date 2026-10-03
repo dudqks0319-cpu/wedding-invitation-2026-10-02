@@ -6,10 +6,10 @@ project:
 candidate:
   version: "0.1.0"
   build_number: "2"
-  git_sha: "35f45c5"
+  git_sha: "d25d8b19b1442695765bfd780e688e3ea9b1feba"
   branch: main
-  phase: testflight_processing
-  working_tree_changes: true
+  phase: internal_beta_device_hold
+  source_scope: ios_native_sources
 local_checks:
   swift_core: "PASS 7"
   native_auth_d1: "PASS 13"
@@ -22,17 +22,18 @@ runtime_checks:
   intro_responsive: "PASS mobile and desktop, tabs, image loading"
   real_provider_oauth: NOT_VERIFIED
 external_checks:
-  worker_version: d9be31ff-a58d-45dd-a140-fae1f3b57141
+  worker_version: 088ade38-ba39-4535-82ce-ec0dba82258f
   sites_access: public
   production_intro: PASS_BROWSER
   production_api_direct_http: "HOLD direct request 403; browser JSON navigation blocked by client"
   upload: PASS
   delivery_uuid: 7335eca0-9dc2-45c8-8ee0-192fe978745e
-  processing: PENDING_APPLE
+  processing: VALID
   tester_group: 본인 테스트
   group_id: 54437e4c-2fa9-4d97-8719-779ee9415c89
   owner_testers: 1
-  testflight_build_access: PENDING_PROCESSING
+  testflight_build_access: IN_BETA_TESTING
+  owner_tester_state: INVITED
   iphone_16_pro_install: HOLD_DEVICE_UNAVAILABLE
 security:
   local_gate: PASS
@@ -46,7 +47,7 @@ blockers:
     condition: Requested iPhone 16 Pro is unavailable; real TestFlight install and provider login unverified.
   - id: P0-APPLE-PROCESSING
     severity: P0
-    status: open
-    condition: Upload succeeded; Apple processing and build access await verification.
+    status: resolved
+    condition: Apple processing VALID and owner group IN_BETA_TESTING confirmed by API.
 next_action:
-  command: Confirm Apple processing, attach build 2 to owner-only group, then verify the requested iPhone installation.
+  command: Connect and unlock requested iPhone 16 Pro, accept owner TestFlight invitation, then verify install and real provider login.

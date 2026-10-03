@@ -23,7 +23,8 @@
       "due": "When requested iPhone is reachable; before consumer release"
     }
   ],
-  "production": "not_yet_verified",
-  "testFlight": "not_yet_verified",
-  "realDevice": "HOLD_unavailable"
+  "production": "Public Sites policy and actual intro/photo/screens browser display verified; direct HTTP/API observation blocked separately",
+  "testFlight": "Upload PASS; processing VALID; owner-only internal group IN_BETA_TESTING",
+  "realDevice": "HOLD_unavailable",
+  "nativeMetadata": "iPhone family [1] and portrait orientation verified in signed build 2"
 }

@@ -1,9 +1,9 @@
 {
   "observedAt": "2026-10-03T06:22:58.275449+00:00",
-  "workerVersion": "d9be31ff-a58d-45dd-a140-fae1f3b57141",
+  "workerVersion": "088ade38-ba39-4535-82ce-ec0dba82258f",
   "sitesVersion": 3,
   "accessMode": "public",
-  "introBrowser": "PASS canonical introduction, new blossom photo and 4 actual screenshots loaded",
+  "introBrowser": "PASS: blossom/classic photos and all four screenshot PNGs loaded on deployed site",
   "responsive": "390 and 1440 width; no horizontal document overflow; keyboard tab changes passed",
   "introImages": [
     {

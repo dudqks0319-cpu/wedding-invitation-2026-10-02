@@ -1,0 +1,27 @@
+{
+  "observedAt": "2026-10-03T06:25:21.247932+00:00",
+  "appId": "6818721229",
+  "bundleId": "com.invitehub.wedding-preview",
+  "version": "0.1.0",
+  "buildNumber": "2",
+  "buildId": "7335eca0-9dc2-45c8-8ee0-192fe978745e",
+  "apiStatus": 200,
+  "processingState": "VALID",
+  "betaDetails": [
+    {
+      "autoNotifyEnabled": true,
+      "internalBuildState": "IN_BETA_TESTING",
+      "externalBuildState": "READY_FOR_BETA_SUBMISSION"
+    }
+  ],
+  "groupId": "54437e4c-2fa9-4d97-8719-779ee9415c89",
+  "groupApiStatus": 200,
+  "groupBuildIds": [
+    "7335eca0-9dc2-45c8-8ee0-192fe978745e"
+  ],
+  "ownerTesterCount": 1,
+  "testerStates": [
+    "INVITED"
+  ],
+  "realDeviceInstallation": "not verified"
+}
