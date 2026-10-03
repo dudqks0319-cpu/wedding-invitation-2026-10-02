@@ -1,0 +1,31 @@
+
+ ⛅️ wrangler 4.143.0
+────────────────────
+
+Cloudflare collects anonymous telemetry about your usage of Wrangler. Learn more at https://github.com/cloudflare/workers-sdk/tree/main/packages/wrangler/telemetry.md
+🌀 Building list of assets...
+✨ Read 552 files from the assets directory /Users/jyb-m3max/Desktop/codex/osam-rebuild/artifacts/wedding-replacement-20261003/.open-next/assets
+🌀 Starting asset upload...
+🌀 Found 1 new or modified static asset to upload. Proceeding with upload...
++ /replacement/index.html
+Uploaded 1 of 1 asset
+✨ Success! Uploaded 1 file (499 already uploaded) (2.77 sec)
+
+Total Upload: 12497.53 KiB / gzip: 2843.79 KiB
+Worker Startup Time: 33 ms
+Your Worker has access to the following bindings:
+Binding                                                                    Resource                  
+env.DB (osamosam-db)                                                       D1 Database               
+env.MEDIA (osamosam-media)                                                 R2 Bucket                 
+env.IMAGES                                                                 Images                    
+env.ASSETS                                                                 Assets                    
+env.NEXT_PUBLIC_BACKEND ("cloudflare")                                     Environment Variable      
+env.NEXT_PUBLIC_SITE_URL ("https://osamosam-app.jyb1126.chatgpt....")      Environment Variable      
+env.NEXT_PUBLIC_APP_MODE ("live")                                          Environment Variable      
+env.APP_ENV ("production")                                                 Environment Variable      
+
+Uploaded osamosam-api (10.89 sec)
+Deployed osamosam-api triggers (0.85 sec)
+  https://osamosam-api.dudqks0319.workers.dev
+  schedule: */5 * * * *
+Current Version ID: f7084ac8-6c06-4493-9b39-20334350dc74

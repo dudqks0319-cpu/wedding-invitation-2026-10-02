@@ -1,0 +1,104 @@
+{
+  "observedAt": "2026-10-03T02:00:10.932Z",
+  "before": [
+    {
+      "page": "editor",
+      "width": 320,
+      "brokenImages": 0,
+      "clientWidth": 305,
+      "scrollWidth": 314
+    },
+    {
+      "page": "editor",
+      "width": 390,
+      "brokenImages": 0,
+      "clientWidth": 375,
+      "scrollWidth": 375
+    },
+    {
+      "page": "editor",
+      "width": 430,
+      "brokenImages": 0,
+      "clientWidth": 415,
+      "scrollWidth": 415
+    },
+    {
+      "page": "public-sample",
+      "width": 320,
+      "brokenImages": 0,
+      "clientWidth": 305,
+      "scrollWidth": 305
+    },
+    {
+      "page": "public-sample",
+      "width": 390,
+      "brokenImages": 0,
+      "clientWidth": 375,
+      "scrollWidth": 375
+    },
+    {
+      "page": "public-sample",
+      "width": 430,
+      "brokenImages": 0,
+      "clientWidth": 415,
+      "scrollWidth": 415
+    }
+  ],
+  "localAfter": [
+    {
+      "page": "editor-local-after",
+      "width": 320,
+      "brokenImages": 0,
+      "clientWidth": 305,
+      "scrollWidth": 305
+    },
+    {
+      "page": "editor-local-after",
+      "width": 390,
+      "brokenImages": 0,
+      "clientWidth": 375,
+      "scrollWidth": 375
+    },
+    {
+      "page": "editor-local-after",
+      "width": 430,
+      "brokenImages": 0,
+      "clientWidth": 415,
+      "scrollWidth": 415
+    }
+  ],
+  "productionAfter": [
+    {
+      "page": "editor-production-after",
+      "width": 320,
+      "brokenImages": 0,
+      "cardFits": true,
+      "clientWidth": 305,
+      "scrollWidth": 305
+    },
+    {
+      "page": "editor-production-after",
+      "width": 390,
+      "brokenImages": 0,
+      "cardFits": true,
+      "clientWidth": 375,
+      "scrollWidth": 375
+    },
+    {
+      "page": "editor-production-after",
+      "width": 430,
+      "brokenImages": 0,
+      "cardFits": true,
+      "clientWidth": 415,
+      "scrollWidth": 415
+    }
+  ],
+  "productionUi": {
+    "nameEditUpdatesPreview": true,
+    "nameRestored": true,
+    "serverSaveOrPublish": false,
+    "mySignedIn": true,
+    "menuMyAccount": true
+  },
+  "scope": "IAB viewport checks; Safari simulator interaction screenshots are recorded separately. This is not physical-iPhone or Android proof."
+}

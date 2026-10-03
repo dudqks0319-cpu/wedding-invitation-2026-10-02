@@ -1,0 +1,12 @@
+{
+  "observedAt": "2026-10-03T02:01:37.279Z",
+  "scannedTextPaths": 191,
+  "secretPatternFindingPaths": [],
+  "fingerprints": {
+    "cloudflare/build/replacement.mjs": "2e5cfdecc7490d6aa34c49daa8aaec87bab55dca71fe32accdaa4b7ded8ba4f7",
+    "dist-cloudflare/index.html": "613ab2b1605c8fe3f34c80cf4571a0d001c550f424016359b4894210e3fae287",
+    "sites/gateway.js": "a14acfa82b238524ff079303fe42dce199a94056ba227309f65f2d5af003d090",
+    "package-lock.json": "482768c1af8d1bf0217f4c72dd559b49bdc0c6f77fa17458cc9b6a6cd3e8f3a5"
+  },
+  "scope": "CSS width change, existing authorization/input/budget behavior unchanged; regex scan is not a secret guarantee. Screenshots contain public AI examples, not account credentials."
+}
