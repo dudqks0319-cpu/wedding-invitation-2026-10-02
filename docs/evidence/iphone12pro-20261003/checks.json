@@ -1,0 +1,60 @@
+[
+  {
+    "check": "types",
+    "exitCode": 0,
+    "elapsedSeconds": 1.0,
+    "log": "types.log"
+  },
+  {
+    "check": "lint",
+    "exitCode": 0,
+    "elapsedSeconds": 3.0,
+    "log": "lint.log"
+  },
+  {
+    "check": "cloudflare-build",
+    "exitCode": 0,
+    "elapsedSeconds": 0.9,
+    "log": "cloudflare-build.log"
+  },
+  {
+    "check": "next-build",
+    "exitCode": 0,
+    "elapsedSeconds": 8.0,
+    "log": "next-build.log"
+  },
+  {
+    "check": "wrangler-dry-run",
+    "exitCode": 0,
+    "elapsedSeconds": 1.8,
+    "log": "wrangler-dry-run.log"
+  },
+  {
+    "check": "types-input-fix",
+    "exitCode": 0,
+    "elapsedSeconds": 1.2,
+    "log": "types-input-fix.log"
+  },
+  {
+    "check": "lint-input-fix",
+    "exitCode": 0,
+    "elapsedSeconds": 3.1,
+    "log": "lint-input-fix.log"
+  },
+  {
+    "check": "cloudflare-build-input-fix",
+    "exitCode": 0,
+    "elapsedSeconds": 0.8,
+    "log": "cloudflare-build-input-fix.log"
+  },
+  {
+    "check": "next-build-input-fix",
+    "exitCode": 0,
+    "log": "next-build-input-fix.log"
+  },
+  {
+    "check": "wrangler-dry-run-input-fix",
+    "exitCode": 0,
+    "log": "wrangler-dry-run-input-fix.log"
+  }
+]

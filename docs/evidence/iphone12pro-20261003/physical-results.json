@@ -1,0 +1,40 @@
+{
+  "device": {
+    "type": "real",
+    "model": "iPhone 12 Pro (iPhone13,3)",
+    "iOS": "26.6",
+    "viewportPoints": [
+      390,
+      844
+    ]
+  },
+  "site": "https://wedding-invitation-2026-10-02.jyb1126.chatgpt.site",
+  "deployedSource": "28bf278c2deef4af34f6f7b6b40dab511f844771",
+  "workerVersion": "fa3f4c15-e5b2-4949-8394-7cfe2906d704",
+  "passed": [
+    "Safari synthetic sample realistic photo and AI notice",
+    "contact modal open/close; all phone/SMS and close controls >=44 points; no call/message",
+    "gallery next button selects photo 2; left swipe selects photo 3; modal closes",
+    "native Calendar preview: 2027-04-17 12:30 and synthetic venue; Done without adding event",
+    "search blossom: one result; field remains 350 points before/after focus at 390 point viewport",
+    "favorite add, Safari reload persistence, favorite-only filter, remove to original 0 favorites",
+    "new synthetic editor mobile layout",
+    "photo fit contain selection and zoom slider 1.00 to 1.50; canceled",
+    "font select Pretendard rendered; reset to design default",
+    "postcode iframe search public example address and selection; address populated, coordinates reset to zero",
+    "session boundary covered editor during native photo picker and iframe return; recovered without reload or manual login"
+  ],
+  "hold": [
+    "Kakao iPhone app is signed out; chat link card and in-app view require human sign-in",
+    "physical Google OAuth reached stored passkey Face ID confirmation; final provider callback and phone session persistence require human biometric authentication"
+  ],
+  "notPerformed": [
+    "personal photo upload",
+    "server invitation save or publish from phone",
+    "calendar event save",
+    "phone call or SMS",
+    "new chat send",
+    "native app replacement"
+  ],
+  "localTestData": "A new guest synthetic editing fixture was used. Its local address was selected to a public example and sample gallery was cleared by a settling-scroll tap. No existing server invitation was opened for editing or saved. The favorite and font changes were restored; crop was canceled."
+}

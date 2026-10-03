@@ -1,0 +1,40 @@
+[31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mFailed to write to log file Error: EPERM: operation not permitted, open '/Users/jyb-m3max/Library/Preferences/.wrangler/logs/wrangler-2026-10-03_04-34-25_083.log'[0m
+
+      at async open (node:internal/fs/promises:1281:25)
+      at async writeFile (node:internal/fs/promises:1899:14)
+      at async /Users/jyb-m3max/Desktop/codex/osam-rebuild/artifacts/wedding-replacement-20261003/node_modules/wrangler/wrangler-dist/cli.js:64608:7
+      at async Mutex.runWith (/Users/jyb-m3max/Desktop/codex/osam-rebuild/artifacts/wedding-replacement-20261003/node_modules/miniflare/dist/src/index.js:70189:16)
+      at async appendToDebugLogFile (/Users/jyb-m3max/Desktop/codex/osam-rebuild/artifacts/wedding-replacement-20261003/node_modules/wrangler/wrangler-dist/cli.js:64605:3) {
+    errno: -1,
+    code: 'EPERM',
+    syscall: 'open',
+    path: '/Users/jyb-m3max/Library/Preferences/.wrangler/logs/wrangler-2026-10-03_04-34-25_083.log'
+  }
+
+
+[31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mWould have written: [0m
+
+  --- 2026-10-03T04:34:25.192Z debug
+  🪵  Writing logs to "/Users/jyb-m3max/Library/Preferences/.wrangler/logs/wrangler-2026-10-03_04-34-25_083.log"
+  ---
+  
+
+
+
+ ⛅️ wrangler 4.143.0
+────────────────────
+✨ Read 552 files from the assets directory /Users/jyb-m3max/Desktop/codex/osam-rebuild/artifacts/wedding-replacement-20261003/.open-next/assets
+Total Upload: 12498.80 KiB / gzip: 2840.17 KiB
+Your Worker has access to the following bindings:
+Binding                                                                    Resource                  
+env.DB (osamosam-db)                                                       D1 Database               
+env.MEDIA (osamosam-media)                                                 R2 Bucket                 
+env.IMAGES                                                                 Images                    
+env.ASSETS                                                                 Assets                    
+env.NEXT_PUBLIC_BACKEND ("cloudflare")                                     Environment Variable      
+env.NEXT_PUBLIC_SITE_URL ("https://osamosam-app.jyb1126.chatgpt....")      Environment Variable      
+env.NEXT_PUBLIC_APP_MODE ("live")                                          Environment Variable      
+env.APP_ENV ("production")                                                 Environment Variable      
+
+--dry-run: exiting now.
+🪵  Logs were written to "/Users/jyb-m3max/Library/Preferences/.wrangler/logs/wrangler-2026-10-03_04-34-25_083.log"

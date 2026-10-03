@@ -6,7 +6,7 @@
 
 - 독립 공개 사이트: https://wedding-invitation-2026-10-02.jyb1126.chatgpt.site . 기존 청첩장 Sites 프로젝트를 재사용하여 실제 서버 게이트웨이를 게시했다. 오삼오삼 홈페이지로 보내던 리디렉션을 제거했다.
 - Sites project `appgprj_6abf84676b4881918d32542f0e76190c`, version 3, 게시 성공. 배포 소스 commit `cf6a6724ea37b6df0814673154e4028e2aaf3578`. [게시 영수증](evidence/independent-sites-publish-20261003.json).
-- Cloudflare Worker `osamosam-api`, version `8e347f0b-3708-4ae9-b08f-297e526eeba5`, 기능 이식 소스 `bff9ae13cab0e571ca218dc69320cd452c14101e`. 기존 D1 `osamosam-db`, 비공개 R2 `osamosam-media`, Images binding을 사용한다. 신규 자료는 `w2_` 테이블과 `w2/` 경로를 사용한다. [최신 배포 영수증](evidence/osam-import-20261003/deploy.json). Sites version 3 게이트웨이는 그대로 사용하고 Worker/프런트 산출물만 갱신했다.
+- Cloudflare Worker `osamosam-api`, version `fa3f4c15-e5b2-4949-8394-7cfe2906d704`, 최신 모바일 수정 소스 `28bf278c2deef4af34f6f7b6b40dab511f844771`. 기존 D1 `osamosam-db`, 비공개 R2 `osamosam-media`, Images binding을 사용한다. 신규 자료는 `w2_` 테이블과 `w2/` 경로를 사용한다. [최신 배포 영수증](evidence/iphone12pro-20261003/deploy.json). Sites version 3 게이트웨이는 그대로 사용하고 Worker/프런트 산출물만 갱신했다.
 - 기존 오삼오삼 OAuth 등록·계정·앱 인증·이전 API·원본 checkout을 보존했다. Google/카카오 인증은 기존 등록 주소를 경유하고, 일회용 확인값으로 새 사이트에 별도 세션을 발급한다. 쿠키는 각 호스트에 한정된다.
 - 인증 상태와 무관하게 표시되던 상단 로그인·본문 로그아웃을 수정했다. 익명은 로그인 안내, 인증 완료는 ‘내 계정’·‘로그인됨’·로그아웃을 표시한다. 확인 중 또는 연결 실패 시 비공개 화면을 가린다.
 - 새 초대장은 새 주소 `/my`, 이전 초대장은 기존 주소 `/dashboard`에서 관리한다. 이전 자료 자동 가져오기나 삭제는 실행하지 않았다.
@@ -25,7 +25,7 @@
 
 2026-10-03 모바일 점검: iPhone 17 / iOS 26.5 Safari 시뮬레이터에서 예시 청첩장·갤러리·사진 확대와 이동·연락처 창·Safari 공유 메뉴 확인. IAB 320·390·430px에서 편집기 공유 카드의 가로 넘침을 수정·게시하고 공개 사이트에서 재검증했다. 기존 로그인 세션의 모바일 메뉴·내 청첩장 표시와 이름 수정 미리보기 반영도 확인했다. [모바일 캡처·범위·재개 기준](evidence/mobile-share-20261003/STATUS.md).
 
-실제 iPhone Safari는 Face ID 잠금, Mac 카카오톡은 로그인 대기다. PlayMCP ‘나와의 채팅’으로 AI 예시 링크를 한 번 전송했고 커넥터가 성공을 반환했다. 실제 대화방 링크 카드·카카오 인앱 브라우저·Android 화면은 아직 미검증이다. 공유 제목·대표 사진의 익명 HTTP 200과 편집기 공유 카드 캡처를 실제 카카오 화면 증거로 해석하지 않는다. 하객에게 메시지를 보내지 않았다.
+실제 iPhone 12 Pro Safari 검증을 수행했다. iPhone 카카오톡 앱은 로그아웃 상태이며, Google 최종 인증은 패스키 Face ID 대기다. PlayMCP ‘나와의 채팅’으로 AI 예시 링크를 한 번 전송했고 커넥터가 성공을 반환했다. 실제 대화방 링크 카드·카카오 인앱 브라우저·Android 화면은 아직 미검증이다. 공유 제목·대표 사진의 익명 HTTP 200과 편집기 공유 카드 캡처를 실제 카카오 화면 증거로 해석하지 않는다. 하객에게 메시지를 보내지 않았다.
 
 카카오는 **새 사이트 버튼에서 실제 카카오 계정 입력 화면까지 확인**했다. 본인 인증 입력 없이 종료했으므로 최종 공급자 콜백은 아직 미검증이다. Google과 카카오의 검증 범위를 혼동하지 않는다.
 
@@ -36,6 +36,8 @@
 공통 release harness는 ATTENTION: `release-ledger.yaml`·`RELEASE_STATUS.md`가 없다. 웹 검증 결과를 App Store 출시 준비 완료로 해석하지 않는다.
 
 ## 재개 기준
+
+2026-10-03 실제 iPhone 12 Pro / iOS 26.6 추가 검증: 실사 예시·연락처·갤러리 버튼/스와이프·Calendar 미리보기·검색/찜 유지/필터·사진 맞춤/확대·글꼴·도로명 주소 선택 PASS. 본문 가림, 작은 터치 영역, Safari 입력 자동 확대를 수정·배포하고 실기기 재검증했다. 서버 저장·개인 사진/일정·메시지 전송은 실행하지 않았다. 현재 공개 health 200/Cloudflare와 익명 목록/세션 401 확인. 카카오 대화방/인앱은 앱 로그인, 모바일 OAuth 완료/세션 유지는 본인 Face ID 대기로 HOLD. [실기기 증거·범위·재개 기준](evidence/iphone12pro-20261003/STATUS.md).
 
 2026-10-03 오삼오삼 기능 이식 완료: 주소 선택·사진 위치/확대/맞춤·글꼴·한국 시간 일정 파일·디자인 검색/브라우저 찜을 구현·게시했다. 주소 iframe 포커스 때문에 비공개 화면을 가리던 기존 오류도 수정했다. 기능 9개·Cloudflare 41개·기존 Next 백엔드 28개·인증 16개·세션 시나리오 6개와 포커스 4개, lint/TypeScript/Next/Cloudflare 빌드·Wrangler dry-run 통과. 모바일 브라우저 320/390/430px 저장/재열기·주소 선택·일정 다운로드 확인. 실제 새 Sites 경유 Cloudflare 운영 20개 PASS, 점검 전후 기존 사용자 3명·세션 6개 및 이전/신규 초대장·사진 집계 동일, 이번 임시 자료 0. 공개 UI에서 주소 iframe 검색·새 도구 표시·검색/찜 재열기·실제 일정 파일 다운로드를 확인했다. 원본 참고 파일 7개 지문은 배포 후 동일하다. [상세 증거](evidence/osam-import-20261003/STATUS.md).
 

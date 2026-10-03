@@ -1,0 +1,18 @@
+{
+  "surface": "local Chromium browser viewport, not physical iPhone",
+  "widths": [
+    320,
+    390,
+    430
+  ],
+  "horizontalOverflowPx": [
+    0,
+    0,
+    0
+  ],
+  "navigationPosition": "static",
+  "contactTargetMinimumCssPx": 44,
+  "galleryNextCounter": "2 / 9",
+  "galleryActiveThumbnail": "사진 2 보기",
+  "state": "PASS"
+}

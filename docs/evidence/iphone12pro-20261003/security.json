@@ -1,0 +1,21 @@
+{
+  "serverAndRuntimeUnchanged": {
+    "worker": true,
+    "serverModule": true,
+    "config": true,
+    "packageLock": true
+  },
+  "secretsPatternCounts": {
+    "privateKey": 0,
+    "awsKey": 0,
+    "githubToken": 0,
+    "bearerLiteral": 0,
+    "openaiSecret": 0
+  },
+  "dependencyFilesChanged": [],
+  "dependencyAuditReuse": "docs/evidence/osam-import-20261003/SECURITY.md; production audit 0; development braces warnings 6 high remain documented",
+  "privacy": "Public evidence contains only AI synthetic invitation/photo/calendar and public example address. Account/passkey and unrelated foreground captures remain ignored. No personal photo read/upload, message/call/calendar event saved. Only a new synthetic guest local draft was changed; no server invitation saved.",
+  "authInputOutputAbuse": "No server/auth/session/validation/quota changes; prior local and production tests apply byte-identical module.",
+  "residualRisk": "Google phone passkey requires Face ID. Kakao phone app is logged out. Provider callback/session persistence and Kakao chat/in-app screen remain HOLD.",
+  "scope": "Normal-flow navigation, 44px controls, photo button labels, 16px mobile inputs; presentation-only changes"
+}

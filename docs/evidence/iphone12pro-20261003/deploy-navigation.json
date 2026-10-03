@@ -1,0 +1,14 @@
+{
+  "observedAt": "2026-10-03T04:36:44Z",
+  "exitCode": 0,
+  "sourceCommit": "68e4d0cb5ed664b4eeba64ad070937f0becde357",
+  "worker": "osamosam-api",
+  "workerVersion": "1f80857f-8e2f-4150-b396-4e858b0e9052",
+  "changedAssets": [
+    "/replacement/index.html"
+  ],
+  "sitesGatewayChanged": false,
+  "sitesGatewayVersion": 3,
+  "frontendSHA256": "69f2d1b77558deec989ec286291dfa6a36eaa45fdc3ed1cd61314d9e3d21d7d6",
+  "elapsedSeconds": 19.5
+}

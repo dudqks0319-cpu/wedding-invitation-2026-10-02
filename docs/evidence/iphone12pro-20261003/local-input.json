@@ -1,0 +1,21 @@
+{
+  "surface": "local Chromium IAB; not physical Safari",
+  "search": [
+    {
+      "width": 320,
+      "inputFontSize": "16px",
+      "horizontalOverflow": 0
+    },
+    {
+      "width": 390,
+      "inputFontSize": "16px",
+      "horizontalOverflow": 0
+    },
+    {
+      "width": 430,
+      "inputFontSize": "16px",
+      "horizontalOverflow": 0
+    }
+  ],
+  "editor": "All visible non-checkbox form inputs/selects/textareas computed 16px at 390px"
+}
