@@ -66,7 +66,7 @@ export function Modal({ open, onClose, title, children }: { open: boolean; onClo
       >
         <div className="mb-5 flex items-center justify-between">
           <h3 className="text-[16px] font-semibold">{title}</h3>
-          <button onClick={onClose} aria-label="닫기" className="rounded-full p-1 opacity-60 hover:opacity-100">
+          <button onClick={onClose} aria-label="닫기" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full opacity-60 hover:opacity-100">
             <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden>
               <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" />
             </svg>
@@ -223,10 +223,10 @@ export function GreetingSection() {
                       </span>
                       {it.phone ? (
                         <span className="flex gap-2">
-                          <a href={`tel:${it.phone}`} className="rounded-full p-2" style={{ background: "var(--inv-accent-soft)", color: "var(--inv-accent)" }} aria-label={`${it.label}에게 전화`}>
+                          <a href={`tel:${it.phone}`} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full" style={{ background: "var(--inv-accent-soft)", color: "var(--inv-accent)" }} aria-label={`${it.label}에게 전화`}>
                             <PhoneIcon />
                           </a>
-                          <a href={`sms:${it.phone}`} className="rounded-full p-2" style={{ background: "var(--inv-accent-soft)", color: "var(--inv-accent)" }} aria-label={`${it.label}에게 문자`}>
+                          <a href={`sms:${it.phone}`} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full" style={{ background: "var(--inv-accent-soft)", color: "var(--inv-accent)" }} aria-label={`${it.label}에게 문자`}>
                             <SmsIcon />
                           </a>
                         </span>
@@ -403,7 +403,7 @@ export function GallerySection() {
             <span className="text-[13px] tabular-nums">
               {index + 1} / {photos.length}
             </span>
-            <button onClick={() => setIndex(null)} aria-label="닫기" className="p-1">
+            <button onClick={() => setIndex(null)} aria-label="닫기" className="flex h-11 w-11 shrink-0 items-center justify-center">
               <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden>
                 <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" />
               </svg>
@@ -411,12 +411,12 @@ export function GallerySection() {
           </div>
           <div className="relative flex flex-1 items-center justify-center px-2">
             <img src={photos[index]} alt="" className="max-h-full max-w-full object-contain" />
-            <button onClick={() => go(-1)} className="absolute left-2 rounded-full bg-white/15 p-2 text-white" aria-label="이전 사진">
+            <button onClick={() => go(-1)} className="absolute left-2 flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-white" aria-label="이전 사진">
               <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden>
                 <path d="M15 6l-6 6 6 6" stroke="currentColor" strokeWidth="2" fill="none" />
               </svg>
             </button>
-            <button onClick={() => go(1)} className="absolute right-2 rounded-full bg-white/15 p-2 text-white" aria-label="다음 사진">
+            <button onClick={() => go(1)} className="absolute right-2 flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-white" aria-label="다음 사진">
               <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden>
                 <path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="2" fill="none" />
               </svg>
@@ -424,7 +424,7 @@ export function GallerySection() {
           </div>
           <div className="no-scrollbar flex gap-1.5 overflow-x-auto px-4 py-4">
             {photos.map((src, i) => (
-              <button key={src + i} onClick={() => setIndex(i)} className={`shrink-0 overflow-hidden rounded ${i === index ? "ring-2 ring-white" : "opacity-50"}`}>
+              <button key={src + i} onClick={() => setIndex(i)} aria-label={`사진 ${i + 1} 보기`} aria-pressed={i === index} className={`shrink-0 overflow-hidden rounded ${i === index ? "ring-2 ring-white" : "opacity-50"}`}>
                 <img src={src} alt="" className="h-12 w-12 object-cover" />
               </button>
             ))}

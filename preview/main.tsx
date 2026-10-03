@@ -21,13 +21,15 @@ import {SessionBoundary} from './SessionBoundary';
 
 function BackToSite() {
   return (
+    <nav aria-label="청첩장 탐색" className="bg-cream px-4 py-2">
     <button
       onClick={() => navigate("/templates")}
-      className="fixed bottom-5 left-5 z-[70] rounded-full bg-ink/85 px-4 py-2.5 text-[13px] font-semibold text-white shadow-lg backdrop-blur"
+      className="min-h-11 rounded-full bg-ink/85 px-4 py-2.5 text-[13px] font-semibold text-white"
       style={{ fontFamily: "var(--font-sans)" }}
     >
       ← 디자인 목록
     </button>
+    </nav>
   );
 }
 
@@ -40,8 +42,8 @@ function App() {
   if (first === "i" && second)
     return (
       <>
-        <InvitationRoute key={second} slug={second} />
         <BackToSite />
+        <InvitationRoute key={second} slug={second} />
       </>
     );
 
