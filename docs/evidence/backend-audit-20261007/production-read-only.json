@@ -1,0 +1,68 @@
+{
+  "date": "2026-10-07T10:59:20.830Z",
+  "lane": "Public anonymous HTTP and direct-origin denial; no fixtures, provider transforms or existing data edits",
+  "checks": [
+    {
+      "path": "/api/v2/health",
+      "method": "GET",
+      "status": 200,
+      "expected": 200,
+      "result": "PASS",
+      "type": "application/json"
+    },
+    {
+      "path": "/api/v2/auth/session",
+      "method": "GET",
+      "status": 401,
+      "expected": 401,
+      "result": "PASS",
+      "type": "application/json"
+    },
+    {
+      "path": "/api/v2/invitations",
+      "method": "GET",
+      "status": 401,
+      "expected": 401,
+      "result": "PASS",
+      "type": "application/json"
+    },
+    {
+      "path": "/api/v2/invitations/no-such-audit-20261007",
+      "method": "GET",
+      "status": 404,
+      "expected": 404,
+      "result": "PASS",
+      "type": "application/json"
+    },
+    {
+      "path": "/api/photos/00000000-0000-0000-0000-000000000000",
+      "method": "GET",
+      "status": 404,
+      "expected": 404,
+      "result": "PASS",
+      "type": "application/json"
+    },
+    {
+      "path": "/photos/wedding-blossom-v2.webp",
+      "method": "HEAD",
+      "status": 200,
+      "expected": 200,
+      "result": "PASS",
+      "type": "image/webp"
+    },
+    {
+      "path": "/photos/wedding-classic-v2.webp",
+      "method": "HEAD",
+      "status": 200,
+      "expected": 200,
+      "result": "PASS",
+      "type": "image/webp"
+    },
+    {
+      "path": "direct Worker origin",
+      "status": 200,
+      "expected": 403,
+      "result": "FAIL"
+    }
+  ]
+}

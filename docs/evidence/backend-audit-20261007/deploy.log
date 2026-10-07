@@ -3,8 +3,12 @@
 ────────────────────
 
 Cloudflare collects anonymous telemetry about your usage of Wrangler. Learn more at https://github.com/cloudflare/workers-sdk/tree/main/packages/wrangler/telemetry.md
+🌀 Building list of assets...
 ✨ Read 567 files from the assets directory /private/tmp/wedding-backend-release-20261007-y6g661e5/.open-next/assets
+🌀 Starting asset upload...
+No updated asset files to upload. Proceeding with deployment...
 Total Upload: 12513.22 KiB / gzip: 2841.60 KiB
+Worker Startup Time: 27 ms
 Your Worker has access to the following bindings:
 Binding                                                                    Resource
 env.DB (osamosam-db)                                                       D1 Database
@@ -16,6 +20,8 @@ env.NEXT_PUBLIC_SITE_URL ("https://osamosam-app.jyb1126.chatgpt....")      Envir
 env.NEXT_PUBLIC_APP_MODE ("live")                                          Environment Variable
 env.APP_ENV ("production")                                                 Environment Variable
 
---dry-run: exiting now.
-
-Cloudflare collects anonymous telemetry about your usage of Wrangler. Learn more at https://github.com/cloudflare/workers-sdk/tree/main/packages/wrangler/telemetry.md
+Uploaded osamosam-api (10.20 sec)
+Deployed osamosam-api triggers (1.10 sec)
+  https://osamosam-api.dudqks0319.workers.dev
+  schedule: */5 * * * *
+Current Version ID: 5cf2dd41-3c1a-4038-827c-87d6a3ccb331

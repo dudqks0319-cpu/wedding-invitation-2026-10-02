@@ -26,6 +26,10 @@ async function signed(path,secret=fresh,options={}){
  return new Request(upstream+(options.actualPath??path),{method,headers:{'x-osam-client-ip':ip,'x-osam-proxy-time':timestamp,'x-osam-proxy-signature':sign,'x-forwarded-host':'evil.example',Origin:options.origin??origin,'Content-Type':'application/json','Idempotency-Key':crypto.randomUUID()},...(method==='POST'?{body:JSON.stringify({provider:'google',next:'/my'})}:{})});
 }
 async function check(name,fn){await fn();checks.push({name,result:'PASS'});console.log('PASS',name);}
+await check('unsigned v2 APIs, pages and media cannot bypass the Site',async()=>{
+ for(const path of ['/api/v2/health','/api/v2/invitations','/api/photos/00000000-0000-0000-0000-000000000000','/i/test-draft','/templates/blossom','/photos/wedding-blossom-v2.webp','/'])assert.equal((await worker.fetch(new Request(upstream+path),env,{})).status,403);
+});
+await check('unsigned legacy native endpoints keep their existing contract',async()=>assert.equal(await (await worker.fetch(new Request(upstream+'/auth/native/redeem'),env,{})).text(),'legacy-only'));
 await check('separate Site signature reaches real v2 health',async()=>assert.equal((await worker.fetch(await signed('/api/v2/health'),env,{})).status,200));
 await check('new Site enforces new origin CSRF',async()=>{assert.equal((await worker.fetch(await signed('/api/v2/auth/start',fresh,{method:'POST'}),env,{})).status,200);assert.equal((await worker.fetch(await signed('/api/v2/auth/start',fresh,{method:'POST',origin:env.NEXT_PUBLIC_SITE_URL}),env,{})).status,403);});
 await check('old Site cannot assert the new origin',async()=>assert.equal((await worker.fetch(await signed('/api/v2/auth/start',old,{method:'POST'}),env,{})).status,403));

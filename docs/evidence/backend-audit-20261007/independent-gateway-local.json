@@ -1,7 +1,15 @@
 {
-  "time": "2026-10-07T10:49:44.070Z",
+  "time": "2026-10-07T11:01:12.304Z",
   "lane": "Actual worker template and application, isolated legacy handler; mocked fetch for Sites gateway",
   "checks": [
+    {
+      "name": "unsigned v2 APIs, pages and media cannot bypass the Site",
+      "result": "PASS"
+    },
+    {
+      "name": "unsigned legacy native endpoints keep their existing contract",
+      "result": "PASS"
+    },
     {
       "name": "separate Site signature reaches real v2 health",
       "result": "PASS"

@@ -9,6 +9,11 @@ import {gatewayRequest} from '../src/server/cloudflare/gateway';
 const WEDDING_ORIGIN=weddingOrigin();
 const worker = {
  async fetch(request:Request,env:CloudEnv&{WEDDING_GATEWAY_SECRET?:string},ctx:ExecutionContext){
+  // The v2 web service and its media/pages must enter through a signed Site gateway.
+  // Legacy auth/native/v1 endpoints retain their existing direct-access contract.
+  const path=new URL(request.url).pathname;
+  const replacementPath=/^\/(?:|api\/v2(?:\/.*)?|api\/photos\/[a-f0-9-]{36}|templates(?:\/[a-z0-9-]+)?|pricing|my|login|create\/[a-z0-9-]+|i\/[a-z0-9-]{3,30}|app-intro(?:\/.*)?|(?:photos|samples)\/[a-z0-9-]+\.webp)$/.test(path);
+  if(replacementPath&&!request.headers.has('x-osam-proxy-signature'))return new Response('Forbidden',{status:403,headers:{'Cache-Control':'no-store'}});
   const forwarded=await gatewayRequest(request,env.OSAMOSAM_GATEWAY_SECRET);
   if(!forwarded){
    const wedding=await gatewayRequest(request,env.WEDDING_GATEWAY_SECRET);
