@@ -1,8 +1,8 @@
 {
   "date": "2026-10-07",
   "worker": "osamosam-api",
-  "version": "5cf2dd41-3c1a-4038-827c-87d6a3ccb331",
-  "sourceCommit": "338e3f4",
+  "version": "371e1d5b-0eb5-47fc-a4d2-40c41c109438",
+  "sourceCommit": "f6ee5f4",
   "siteProjectId": "appgprj_6abf84676b4881918d32542f0e76190c",
   "siteVersion": 3,
   "siteAudience": "public",
@@ -10,5 +10,6 @@
   "assetUpload": "No updated asset files to upload",
   "schedule": "*/5 * * * *",
   "providerSettingsChanged": false,
-  "schemaChanges": false
+  "schemaChanges": false,
+  "initialLifecycleFixVersion": "5cf2dd41-3c1a-4038-827c-87d6a3ccb331"
 }

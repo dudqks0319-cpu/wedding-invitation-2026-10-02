@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-07T10:59:20.830Z",
+  "date": "2026-10-07T11:04:34.402Z",
   "lane": "Public anonymous HTTP and direct-origin denial; no fixtures, provider transforms or existing data edits",
   "checks": [
     {
@@ -60,9 +60,9 @@
     },
     {
       "path": "direct Worker origin",
-      "status": 200,
+      "status": 403,
       "expected": 403,
-      "result": "FAIL"
+      "result": "PASS"
     }
   ]
 }

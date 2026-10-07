@@ -1,3 +1,7 @@
+## 2026-10-07 웹 백엔드 재점검
+
+Claude Code Opus 수정4건 및 원본 API 우회 차단을 Cloudflare에 배포했다. 로컬90·공개 읽기8 PASS. 운영 합성 계정/사진 쓰기는 자동 승인 심사에서 거절되어 구체 사용자 승인 대기. 공급자 OAuth 새 왕복/계정 비용 상한/WAF는 미확인이다. [웹 점검 원장](docs/evidence/backend-audit-20261007/STATUS.md). 아래 앱/TestFlight 상태와 별도이며 이번 앱 소스·설치 변경 없음.
+
 # 청첩장 iOS / 이미지 공개 상태
 
 2026-10-03. 별도 앱 **청첩장 0.1.0 (2)**를 본인 App Store Connect에 업로드했다. 업로드 성공과 TestFlight 처리·테스터 접근·실기기 설치는 별개이다.

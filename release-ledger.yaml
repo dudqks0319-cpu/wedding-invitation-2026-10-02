@@ -22,7 +22,7 @@ runtime_checks:
   intro_responsive: "PASS mobile and desktop, tabs, image loading"
   real_provider_oauth: NOT_VERIFIED
 external_checks:
-  worker_version: 088ade38-ba39-4535-82ce-ec0dba82258f
+  worker_version: 371e1d5b-0eb5-47fc-a4d2-40c41c109438
   sites_access: public
   production_intro: PASS_BROWSER
   production_api_direct_http: "HOLD direct request 403; browser JSON navigation blocked by client"
@@ -51,3 +51,14 @@ blockers:
     condition: Apple processing VALID and owner group IN_BETA_TESTING confirmed by API.
 next_action:
   command: Connect and unlock requested iPhone 16 Pro, accept owner TestFlight invitation, then verify install and real provider login.
+
+web_backend_audit_20261007:
+  source_git_sha: f6ee5f4
+  worker_version: 371e1d5b-0eb5-47fc-a4d2-40c41c109438
+  status: DEPLOYED_OPERATIONS_HOLD
+  local_checks: "PASS 90"
+  production_read_only: "PASS 8"
+  production_fixture_writes: HOLD_USER_APPROVAL_AFTER_AUTO_REVIEW_REJECTION
+  real_provider_round_trip: NOT_VERIFIED_THIS_TURN
+  provider_budget_waf: UNVERIFIED
+  audit: docs/evidence/backend-audit-20261007/STATUS.md

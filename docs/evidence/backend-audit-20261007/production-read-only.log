@@ -1,0 +1,8 @@
+PASS /api/v2/health 200
+PASS /api/v2/auth/session 401
+PASS /api/v2/invitations 401
+PASS /api/v2/invitations/no-such-audit-20261007 404
+PASS /api/photos/00000000-0000-0000-0000-000000000000 404
+PASS /photos/wedding-blossom-v2.webp 200
+PASS /photos/wedding-classic-v2.webp 200
+PASS direct Worker origin 403

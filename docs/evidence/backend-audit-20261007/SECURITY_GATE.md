@@ -12,6 +12,8 @@ Owner: Codex / current backend scope.
 
 Official billing reference: https://developers.cloudflare.com/images/optimization/binding/ — info() calls free; unique transform reservations stay before output().
 
-Local receipt counts: {"cloudflare-local.json": 49, "independent-auth-local.json": 16, "native-auth-local.json": 13, "independent-gateway-local.json": 10}
+Local receipt counts: {"cloudflare-local.json": 49, "independent-auth-local.json": 16, "native-auth-local.json": 13, "independent-gateway-local.json": 12}
 
 Release harness: ATTENTION due to existing iPhone/TestFlight P0, no harness failures. This backend fix does not close the app/device release gate.
+
+Operational follow-up: unsigned new-service origin request was found returning200; signed-gateway requirement added to worker template, 2 new local negative-path regressions passed and Production returns403. Public read-only8 PASS. Production fixture writes remain HOLD after auto-review rejection. Secret-pattern scan of changed sources passed.
