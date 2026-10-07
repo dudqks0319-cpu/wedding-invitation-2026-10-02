@@ -2,6 +2,8 @@ import {ApiError} from '../src/lib/server/validation';
 import {actor,bytes,csrf,hmac,quota,response} from './security';
 import type {Env} from './types';
 type Photo={id:string;owner_id:string;key:string;bytes:number;state:string;fingerprint:string};
+// Far beyond the body, decode, transform and output deadlines of a live upload.
+const UPLOAD_STALE_MS=15*60000;
 const stream=(b:Uint8Array)=>new ReadableStream({start(c){c.enqueue(b);c.close();}});
 async function imageDeadline<T>(promise:Promise<T>):Promise<T>{
  let timer:ReturnType<typeof setTimeout>|undefined;
@@ -32,12 +34,13 @@ export async function upload(env:Env,request:Request){
  if(previous){if(previous.fingerprint!==fingerprint)throw new ApiError(409,'요청 번호에 다른 사진이 있어요');if(previous.state==='ready')return response({url:`/api/photos/${previous.id}`});throw new ApiError(409,'사진 처리 중이에요. 잠시 후 다시 시도해 주세요');}
  if(!env.IMAGES)throw new ApiError(503,'사진 저장 연결을 확인하고 있어요');
  const id=crypto.randomUUID(),key=`w2/${user.id}/${id}.webp`,maxBytes=1572864;
+ // A cancelled invocation never reaches the catch below; its stale row keeps the byte reservation but not a processing slot.
  const claimed=await env.DB.prepare(`INSERT INTO w2_photos
  SELECT ?,?,?,?,'uploading',?,?,? WHERE
  (SELECT COALESCE(SUM(bytes),0) FROM w2_photos)+?<=1000000000 AND
  (SELECT COALESCE(SUM(bytes),0) FROM w2_photos WHERE owner_id=?)+?<=100000000 AND
- (SELECT COUNT(*) FROM w2_photos WHERE state='uploading')<4 RETURNING id`)
- .bind(id,user.id,key,maxBytes,mutation,fingerprint,new Date().toISOString(),maxBytes,user.id,maxBytes).first();
+ (SELECT COUNT(*) FROM w2_photos WHERE state='uploading' AND created_at>=?)<4 RETURNING id`)
+ .bind(id,user.id,key,maxBytes,mutation,fingerprint,new Date().toISOString(),maxBytes,user.id,maxBytes,new Date(Date.now()-UPLOAD_STALE_MS).toISOString()).first();
  if(!claimed)throw new ApiError(429,'사진 저장 공간 또는 처리 한도에 도달했어요. 사용하지 않는 사진을 지운 뒤 다시 시도해 주세요');
  try{
   let info;try{info=await imageDeadline(env.IMAGES.info(stream(data)));}catch(error){if(error instanceof ApiError)throw error;throw new ApiError(400,'사진 파일을 확인해 주세요');}
@@ -79,17 +82,20 @@ export async function cleanup(env:Env){
  const now=new Date().toISOString();
  // New tables only. Existing account and v1 retention jobs remain owned by v1.
  await env.DB.batch([
+  // Scopes are `${owner}:${slug}:...` or `guest:${64-hex key}:${slug}:...`; match by position so a slug like "draft" cannot hit other owners.
   env.DB.prepare(`DELETE FROM w2_operations WHERE EXISTS(SELECT 1 FROM deletion_jobs j WHERE j.state<>'complete' AND
-   (w2_operations.scope LIKE j.owner_id||':%' OR EXISTS(SELECT 1 FROM w2_invitations i WHERE i.owner_id=j.owner_id AND instr(w2_operations.scope,':'||i.slug||':')>0)))`),
+   (substr(w2_operations.scope,1,length(j.owner_id)+1)=j.owner_id||':' OR EXISTS(SELECT 1 FROM w2_invitations i WHERE i.owner_id=j.owner_id AND
+    substr(w2_operations.scope,1,6)='guest:' AND substr(w2_operations.scope,72,length(i.slug)+1)=i.slug||':')))`),
   env.DB.prepare("UPDATE w2_invitations SET public_data=NULL,public_expires_at=NULL WHERE slug IN(SELECT slug FROM w2_invitations WHERE public_expires_at<? LIMIT 100)").bind(now),
   env.DB.prepare(`DELETE FROM w2_invitations WHERE slug IN(SELECT slug FROM w2_invitations WHERE expires_at<? OR owner_id IN(SELECT owner_id FROM deletion_jobs WHERE state<>'complete') LIMIT 100)`).bind(now),
   env.DB.prepare('DELETE FROM w2_operations WHERE rowid IN(SELECT rowid FROM w2_operations WHERE expires_at<? LIMIT 500)').bind(Date.now()),
   env.DB.prepare('DELETE FROM w2_limits WHERE rowid IN(SELECT rowid FROM w2_limits WHERE expires_at<? LIMIT 500)').bind(Math.floor(Date.now()/1000)-86400),
  ]);
  const stale=new Date(Date.now()-86400000).toISOString();
- const rows=(await env.DB.prepare(`SELECT * FROM w2_photos p WHERE state='deleting' OR owner_id IN(SELECT owner_id FROM deletion_jobs WHERE state<>'complete') OR (created_at<? AND
+ const rows=(await env.DB.prepare(`SELECT * FROM w2_photos p WHERE state='deleting' OR owner_id IN(SELECT owner_id FROM deletion_jobs WHERE state<>'complete') OR (state='uploading' AND created_at<?) OR (created_at<? AND
  NOT EXISTS(SELECT 1 FROM w2_invitations i WHERE i.owner_id=p.owner_id AND
  (json_extract(i.data,'$.coverPhoto')='/api/photos/'||p.id OR EXISTS(SELECT 1 FROM json_each(i.data,'$.gallery') WHERE value='/api/photos/'||p.id)
- OR json_extract(i.public_data,'$.coverPhoto')='/api/photos/'||p.id OR EXISTS(SELECT 1 FROM json_each(i.public_data,'$.gallery') WHERE value='/api/photos/'||p.id)))) LIMIT 25`).bind(stale).all<Photo>()).results;
- for(const p of rows)await removePhoto(env,p);
+ OR json_extract(i.public_data,'$.coverPhoto')='/api/photos/'||p.id OR EXISTS(SELECT 1 FROM json_each(i.public_data,'$.gallery') WHERE value='/api/photos/'||p.id)))) LIMIT 25`).bind(new Date(Date.now()-UPLOAD_STALE_MS).toISOString(),stale).all<Photo>()).results;
+ // One provider/quota failure keeps that reservation for the next run without skipping the rest or the v1 cleanup after this.
+ for(const p of rows)try{await removePhoto(env,p);}catch(error){console.error('w2_cleanup_photo_failure',error instanceof Error?error.name:'unknown');}
 }

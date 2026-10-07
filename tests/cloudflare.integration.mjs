@@ -84,8 +84,55 @@ try{
  await check('provider failure retains a deletion reservation for retry',async()=>{const id=crypto.randomUUID();await db.prepare("INSERT INTO w2_photos VALUES(?,?,?,?, 'deleting',?,?,?)").bind(id,users[0],'w2/failing.webp',100,crypto.randomUUID(),'fixture',new Date().toISOString()).run();await cleanup({...env,MEDIA:{...bucket,delete:async()=>{throw new Error('simulated R2 outage');}}}).catch(()=>{});assert.equal((await db.prepare('SELECT bytes FROM w2_photos WHERE id=?').bind(id).first()).bytes,100);await cleanup(env);assert.equal(await db.prepare('SELECT id FROM w2_photos WHERE id=?').bind(id).first(),null);});
  await check('quota/database outage returns controlled 503',async()=>{const r=await request('/api/v2/invitations/'+sample.slug,'GET',undefined,-1,{env:{...env,DB:{prepare(){throw new Error('fixture outage');}}}});assert.equal(r.status,503);assert.ok(!JSON.stringify(r.data).includes('fixture outage'));});
  await check('OAuth return preserves native callback and cookies',async()=>{const req=new Request(origin+'/auth/google/callback',{headers:{cookie:'__Host-w2-return=%2Fmy'}}),res=new Response(null,{status:302,headers:{location:'https://osamosam-app.jyb1126.chatgpt.site/dashboard?import=1','Set-Cookie':'__Host-osam-session=fixture; Secure; HttpOnly; Path=/'}});const out=loginReturn(req,res);assert.equal(out.headers.get('location'),'https://osamosam-app.jyb1126.chatgpt.site/my');assert.ok(out.headers.get('set-cookie').includes('__Host-osam-session'));assert.equal(loginReturn(req,new Response(null,{status:302,headers:{location:'com.invitehub.app://auth?code=fixture'}})).headers.get('location'),'com.invitehub.app://auth?code=fixture');});
- await check('account deletion revokes v2 public data before cleanup',async()=>{await db.prepare('INSERT INTO deletion_jobs VALUES(?,?,?)').bind(crypto.randomUUID(),users[0],'pending').run();assert.equal((await request('/api/v2/invitations/'+sample.slug,'GET',undefined,0)).status,404);assert.equal((await request('/api/v2/invitations','GET',undefined,0)).status,401);await cleanup(env);assert.equal(await db.prepare('SELECT slug FROM w2_invitations WHERE owner_id=?').bind(users[0]).first(),null);assert.equal(await db.prepare('SELECT id FROM w2_operations WHERE scope LIKE ?').bind(users[0]+':%').first(),null);await db.prepare('DELETE FROM deletion_jobs WHERE owner_id=?').bind(users[0]).run();});
- await mkdir(path.join(root,'docs/evidence'),{recursive:true});await writeFile(path.join(root,'docs/evidence/cloudflare-local-20261003.json'),JSON.stringify({date:new Date().toISOString(),lane:'Miniflare D1/R2, real local sharp image decode; actual workerd photo request; Cloudflare Images requires separate production verification',checks},null,2)+'\n');
+ await check('reserved slug deletion preserves other owner operations',async()=>{
+  const slug='draft',prefix=users[0]+':'+slug+':',other=users[1]+':other:draft:PUT:',guest='guest:'+('a'.repeat(64))+':'+slug+':rsvp:POST:';
+  assert.equal((await request('/api/v2/invitations/'+slug,'PUT',{...sample,slug},0)).status,201);
+  for(const scope of [other,guest])await db.prepare('INSERT INTO w2_operations VALUES(?,?,?,?,?,?)').bind(scope,crypto.randomUUID(),'fixture','fixture','{}',Date.now()+60000).run();
+  assert.equal((await request('/api/v2/invitations/'+slug,'DELETE',{},0)).status,200);
+  assert.ok(await db.prepare('SELECT id FROM w2_operations WHERE scope=?').bind(other).first());
+  assert.equal(await db.prepare('SELECT id FROM w2_operations WHERE scope=?').bind(guest).first(),null);
+  assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM w2_operations WHERE substr(scope,1,?)=?').bind(prefix.length,prefix).first()).n,1); // This DELETE's replay result remains.
+ });
+ await check('stale uploading rows do not lock all upload slots',async()=>{
+  const ids=Array.from({length:4},()=>crypto.randomUUID());
+  for(const id of ids)await db.prepare("INSERT INTO w2_photos VALUES(?,?,?,?, 'uploading',?,?,?)").bind(id,users[0],'w2/'+id+'.webp',100,crypto.randomUUID(),'fixture',new Date(Date.now()-20*60000).toISOString()).run();
+  const r=await request('/api/v2/uploads','POST',image,0,{headers:{'content-type':'image/jpeg'}});assert.equal(r.status,201);
+  await cleanup(env);for(const id of ids)assert.equal(await db.prepare('SELECT id FROM w2_photos WHERE id=?').bind(id).first(),null);
+  assert.equal((await request(r.data.url,'DELETE',{},0)).status,200);
+ });
+ await check('four active uploads stop a fifth before transform',async()=>{
+  const ids=Array.from({length:4},()=>crypto.randomUUID());
+  for(const id of ids)await db.prepare("INSERT INTO w2_photos VALUES(?,?,?,?, 'uploading',?,?,?)").bind(id,users[0],'w2/'+id+'.webp',100,crypto.randomUUID(),'fixture',new Date().toISOString()).run();
+  const before=(await db.prepare("SELECT hits FROM w2_limits WHERE action='image-transform'").first()).hits;
+  assert.equal((await request('/api/v2/uploads','POST',image,0,{headers:{'content-type':'image/jpeg'}})).status,429);
+  assert.equal((await db.prepare("SELECT hits FROM w2_limits WHERE action='image-transform'").first()).hits,before);
+  for(const id of ids)await db.prepare('DELETE FROM w2_photos WHERE id=?').bind(id).run();
+ });
+ await check('cleanup isolates a failed object and continues to the next',async()=>{
+  const ids=[crypto.randomUUID(),crypto.randomUUID()];
+  for(const [i,id] of ids.entries())await db.prepare("INSERT INTO w2_photos VALUES(?,?,?,?, 'deleting',?,?,?)").bind(id,users[0],'w2/cleanup-'+i+'.webp',100,crypto.randomUUID(),'fixture',new Date().toISOString()).run();
+  await cleanup({...env,MEDIA:{delete:async key=>{if(key==='w2/cleanup-0.webp')throw new Error('simulated R2 outage');await bucket.delete(key);}}});
+  assert.equal((await db.prepare('SELECT bytes FROM w2_photos WHERE id=?').bind(ids[0]).first()).bytes,100);
+  assert.equal(await db.prepare('SELECT id FROM w2_photos WHERE id=?').bind(ids[1]).first(),null);await cleanup(env);
+ });
+ await check('JSON byte cap rejects excess input',async()=>assert.equal((await request('/api/v2/auth/logout','POST',{value:'x'.repeat(65536)})).status,413));
+ await check('aborted request releases body and returns 408',async()=>{
+  let cancelled=false;const controller=new AbortController(),body=new ReadableStream({cancel(){cancelled=true;}});
+  const req=new Request(origin+'/api/v2/auth/logout',{method:'POST',headers:{origin,'content-type':'application/json','idempotency-key':crypto.randomUUID()},body,duplex:'half',signal:controller.signal});
+  const pending=worker.fetch(req,env);setTimeout(()=>controller.abort(),30);const res=await pending;assert.equal(res.status,408);assert.equal(cancelled,true);assert.equal(body.locked,false);
+ });
+ await check('JSON receive deadline is total and cancels a slow stream',async()=>{
+  let cancelled=false,timer;const body=new ReadableStream({start(c){c.enqueue(new TextEncoder().encode('{'));timer=setTimeout(()=>c.enqueue(new TextEncoder().encode('"x":')),8000);},cancel(){cancelled=true;clearTimeout(timer);}});
+  const req=new Request(origin+'/api/v2/auth/logout',{method:'POST',headers:{origin,'content-type':'application/json','idempotency-key':crypto.randomUUID()},body,duplex:'half'}),started=Date.now();
+  const res=await worker.fetch(req,env);assert.equal(res.status,408);assert.ok(Date.now()-started<18000,'Chunks must not restart the 15-second deadline');assert.equal(cancelled,true);assert.equal(body.locked,false);
+ });
+ await check('anonymous or expired logout clears cookie and preserves CSRF',async()=>{
+  for(const who of [-1,0]){if(who===0)await db.prepare('UPDATE sessions SET expires_at=? WHERE user_id=?').bind(new Date(Date.now()-1000).toISOString(),users[0]).run();const r=await request('/api/v2/auth/logout','POST',{},who);assert.equal(r.status,200);assert.match(r.headers.get('set-cookie'),/Max-Age=0/);}
+  assert.equal((await request('/api/v2/auth/logout','POST',{},-1,{headers:{origin:'https://evil.example'}})).status,403);
+  await db.prepare('INSERT INTO sessions VALUES(?,?,?,?)').bind(await digest(tokens[0]),users[0],new Date().toISOString(),new Date(Date.now()+86400000).toISOString()).run();
+ });
+ await check('account deletion revokes v2 public data before cleanup',async()=>{const slug='draft',guest='guest:'+('b'.repeat(64))+':draft:rsvp:POST:',other=users[1]+':other:draft:PUT:';assert.equal((await request('/api/v2/invitations/'+slug,'PUT',{...sample,slug},0)).status,201);await db.prepare('INSERT INTO w2_operations VALUES(?,?,?,?,?,?)').bind(guest,crypto.randomUUID(),'fixture','fixture','{}',Date.now()+60000).run();await db.prepare('INSERT INTO deletion_jobs VALUES(?,?,?)').bind(crypto.randomUUID(),users[0],'pending').run();assert.equal((await request('/api/v2/invitations/'+sample.slug,'GET',undefined,0)).status,404);assert.equal((await request('/api/v2/invitations','GET',undefined,0)).status,401);await cleanup(env);assert.equal(await db.prepare('SELECT slug FROM w2_invitations WHERE owner_id=?').bind(users[0]).first(),null);assert.equal(await db.prepare('SELECT id FROM w2_operations WHERE scope LIKE ?').bind(users[0]+':%').first(),null);assert.equal(await db.prepare('SELECT id FROM w2_operations WHERE scope=?').bind(guest).first(),null);assert.ok(await db.prepare('SELECT id FROM w2_operations WHERE scope=?').bind(other).first());await db.prepare('DELETE FROM deletion_jobs WHERE owner_id=?').bind(users[0]).run();});
+ await mkdir(path.join(root,'docs/evidence'),{recursive:true});await writeFile(process.env.WEDDING_EVIDENCE_DIR?path.join(root,process.env.WEDDING_EVIDENCE_DIR,'cloudflare-local.json'):path.join(root,'docs/evidence/cloudflare-local-20261003.json'),JSON.stringify({date:new Date().toISOString(),lane:'Miniflare D1/R2, real local sharp image decode; actual workerd photo request; Cloudflare Images requires separate production verification',checks},null,2)+'\n');
  console.log(`${checks.length} checks passed`);
  if(process.argv.includes('--serve')){
   const {createServer}=await import('node:http');const server=createServer(async(req,res)=>{

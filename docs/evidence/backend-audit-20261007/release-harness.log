@@ -1,0 +1,23 @@
+RELEASE HARNESS RESULT
+- Repo: /Users/jyb-m3max/Desktop/codex/wedding-invitation-2026-10-02
+- Mode: report-only
+- Ledger: present
+- Status Doc: present
+- Phase: internal_beta_device_hold
+- Version: 0.1.0
+- Build: 2
+- Git SHA: d25d8b19b1442695765bfd780e688e3ea9b1feba
+- Branch: main
+- Next Command: [present in ledger; review locally]
+
+Detected Commands
+- npm run build
+- npm run lint
+
+Warnings
+- open P0 blockers: P0-DEVICE-TESTFLIGHT [open]
+
+Failures
+- none
+
+Verdict: ATTENTION

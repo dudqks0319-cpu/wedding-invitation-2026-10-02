@@ -36,14 +36,15 @@ export async function route(env:Env,request:Request):Promise<Response>{
    // Existing provider registrations and identity subjects are retained.
    const res=response({url:result.href});res.headers.set('Set-Cookie',`__Host-w2-return=${encodeURIComponent(next)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=600`);return res;
   }
-  const user=(await actor(env,request))!;
-  if(request.method==='GET'&&slugRaw==='session')return response(user);
+  // Logout must clear the HttpOnly cookie even when its session already expired or was revoked.
   if(request.method==='POST'&&slugRaw==='logout'){
    csrf(env,request);await json(request);
    const token=request.headers.get('cookie')?.match(/(?:^|;\s*)__Host-osam-session=([a-f0-9]{48})(?:;|$)/)?.[1];
    if(token){const digest=hex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(token)));await env.DB.prepare('DELETE FROM sessions WHERE token_hash=?').bind(digest).run();}
    const res=response({signedOut:true});res.headers.set('Set-Cookie','__Host-osam-session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');return res;
   }
+  const user=(await actor(env,request))!;
+  if(request.method==='GET'&&slugRaw==='session')return response(user);
   throw new ApiError(404,'요청을 찾을 수 없어요');
  }
  if(first==='uploads'&&request.method==='POST')return upload(env,request);
@@ -107,7 +108,8 @@ export async function route(env:Env,request:Request):Promise<Response>{
   const current=await owned(env,slug,user!.id),data=JSON.parse(current.data),pub=current.public_data?JSON.parse(current.public_data):null;
   const ids=[...new Set([data.coverPhoto,...data.gallery,...(pub?[pub.coverPhoto,...pub.gallery]:[])].filter((p:string)=>p.startsWith('/api/photos/')).map((p:string)=>p.split('/').pop()))];
   const result=await operation(env,request,scope,raw,{deleted:true},(guard,claim,mutation)=>[
-   env.DB.prepare(`DELETE FROM w2_operations WHERE instr(scope,':'||?||':')>0 AND NOT(scope=? AND id=?) AND ${guard}`).bind(slug,scope,mutation,scope,mutation,claim),
+   // Owner scopes start with `${owner}:${slug}:`; guest scopes carry the slug after `guest:` and a 64-hex key.
+   env.DB.prepare(`DELETE FROM w2_operations WHERE (substr(scope,1,length(?))=? OR (substr(scope,1,6)='guest:' AND substr(scope,72,length(?))=?)) AND NOT(scope=? AND id=?) AND ${guard}`).bind(`${user!.id}:${slug}:`,`${user!.id}:${slug}:`,`${slug}:`,`${slug}:`,scope,mutation,scope,mutation,claim),
    env.DB.prepare(`UPDATE w2_photos SET state='deleting' WHERE owner_id=? AND id IN(SELECT value FROM json_each(?)) AND ${guard}
     AND NOT EXISTS(SELECT 1 FROM w2_invitations i WHERE i.slug<>? AND i.owner_id=w2_photos.owner_id AND
      (instr(i.data,'/api/photos/'||w2_photos.id)>0 OR instr(COALESCE(i.public_data,''),'/api/photos/'||w2_photos.id)>0))`).bind(user!.id,JSON.stringify(ids),scope,mutation,claim,slug),

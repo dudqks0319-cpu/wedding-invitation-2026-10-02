@@ -35,7 +35,24 @@ export async function publicQuota(env:Env,request:Request,write=false){
 export async function bytes(request:Request,max:number){
  const reader=request.body?.getReader();if(!reader)throw new ApiError(400,'입력을 확인해 주세요');
  const parts:Uint8Array[]=[];let size=0;
- for(;;){const v=await reader.read();if(v.done)break;size+=v.value.length;if(size>max){await reader.cancel();throw new ApiError(413,'파일 또는 입력이 너무 커요');}parts.push(v.value);}
+ // Uploads have a longer total deadline than small JSON writes; chunks never reset it.
+ const deadline=Date.now()+(max>65536?60000:15000);let complete=false;
+ try{
+  for(;;){
+   const remaining=deadline-Date.now();
+   if(remaining<=0||request.signal.aborted)throw new ApiError(408,'전송 시간이 초과되었어요. 다시 시도해 주세요');
+   let timer:ReturnType<typeof setTimeout>|undefined,abort:(()=>void)|undefined;
+   try{
+    const stopped=new Promise<never>((_,reject)=>{
+     abort=()=>reject(new ApiError(408,'전송이 중단되었어요. 다시 시도해 주세요'));
+     request.signal.addEventListener('abort',abort,{once:true});
+     timer=setTimeout(()=>reject(new ApiError(408,'전송 시간이 초과되었어요. 다시 시도해 주세요')),remaining);
+    });
+    const v=await Promise.race([reader.read(),stopped]);if(v.done){complete=true;break;}
+    size+=v.value.byteLength;if(size>max)throw new ApiError(413,'파일 또는 입력이 너무 커요');parts.push(v.value);
+   }finally{clearTimeout(timer);if(abort)request.signal.removeEventListener('abort',abort);}
+  }
+ }finally{if(!complete)void reader.cancel().catch(()=>{});reader.releaseLock();}
  const output=new Uint8Array(size);let offset=0;for(const p of parts){output.set(p,offset);offset+=p.length;}return output;
 }
 export async function json(request:Request){

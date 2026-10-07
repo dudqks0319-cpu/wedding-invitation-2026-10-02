@@ -1,0 +1,14 @@
+PASS native start retains registered provider and sends no verifier
+PASS native start rejects provider, challenge, state and extra query
+PASS legacy bridge isolates native mode and rejects duplicate mode
+PASS native callback uses app-specific scheme while ordinary native callback stays unchanged
+PASS foreign origin cannot redeem ticket
+PASS wrong verifier and state preserve ticket
+PASS malformed payload rejects before consumption
+PASS valid native ticket establishes same-origin HttpOnly session and owner identity
+PASS expired and deleting-account tickets do not create sessions
+PASS native post-login destination stays on wedding origin
+PASS legacy host cannot use new native endpoint
+PASS native auth burst enforces per-IP request limit
+PASS API kill switch also disables native login
+13 native auth checks passed

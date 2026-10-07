@@ -36,5 +36,5 @@ try{
  await check('legacy host cannot use new native endpoint',async()=>{const r=await worker.fetch(get(legacy+'/api/v2/auth/native/start?'+new URLSearchParams(q)),{...env,NEXT_PUBLIC_SITE_URL:legacy});assert.equal(r.status,401);});
  await check('native auth burst enforces per-IP request limit',async()=>{for(let n=0;n<12;n++)assert.equal((await start(q)).status,303);assert.equal((await start(q)).status,429);});
  await check('API kill switch also disables native login',async()=>{await db.prepare("UPDATE w2_controls SET enabled=0 WHERE name='api'").run();assert.equal((await start(q)).status,503);assert.equal((await redeem(await ticket())).status,503);});
- await writeFile('ios/artifacts/native-auth-local.json',JSON.stringify({time:new Date().toISOString(),lane:'local Miniflare/D1 synthetic tickets; no real provider OAuth',checks},null,2)+'\n');console.log(checks.length+' native auth checks passed');
+ await writeFile(process.env.WEDDING_EVIDENCE_DIR?path.join(process.env.WEDDING_EVIDENCE_DIR,'native-auth-local.json'):'ios/artifacts/native-auth-local.json',JSON.stringify({time:new Date().toISOString(),lane:'local Miniflare/D1 synthetic tickets; no real provider OAuth',checks},null,2)+'\n');console.log(checks.length+' native auth checks passed');
 }finally{await mf.dispose();}

@@ -1,0 +1,202 @@
+{
+  "date": "2026-10-07T10:52:27.526Z",
+  "lane": "Miniflare D1/R2, real local sharp image decode; actual workerd photo request; Cloudflare Images requires separate production verification",
+  "checks": [
+    {
+      "name": "anonymous listing requires login",
+      "result": "PASS"
+    },
+    {
+      "name": "owner saves D1 draft",
+      "result": "PASS"
+    },
+    {
+      "name": "save retry returns original result",
+      "result": "PASS"
+    },
+    {
+      "name": "idempotency key rejects different content",
+      "result": "PASS"
+    },
+    {
+      "name": "anonymous and second owner cannot read draft",
+      "result": "PASS"
+    },
+    {
+      "name": "other account cannot overwrite draft",
+      "result": "PASS"
+    },
+    {
+      "name": "stale revision cannot overwrite draft",
+      "result": "PASS"
+    },
+    {
+      "name": "AI examples cannot be published",
+      "result": "PASS"
+    },
+    {
+      "name": "CSRF rejects foreign origin",
+      "result": "PASS"
+    },
+    {
+      "name": "missing slug returns 404 without login",
+      "result": "PASS"
+    },
+    {
+      "name": "upload kill switch blocks before image processing",
+      "result": "PASS"
+    },
+    {
+      "name": "real image decode and R2 upload",
+      "result": "PASS"
+    },
+    {
+      "name": "upload retry consumes no second transform",
+      "result": "PASS"
+    },
+    {
+      "name": "unreferenced private image is inaccessible to guests",
+      "result": "PASS"
+    },
+    {
+      "name": "photo reads work in actual workerd runtime",
+      "result": "PASS"
+    },
+    {
+      "name": "another owner cannot use an uploaded photo",
+      "result": "PASS"
+    },
+    {
+      "name": "owner saves real image",
+      "result": "PASS"
+    },
+    {
+      "name": "explicit publication is stored separately",
+      "result": "PASS"
+    },
+    {
+      "name": "published page and stable OG photo are public",
+      "result": "PASS"
+    },
+    {
+      "name": "crop and font persist in D1 draft and public snapshot",
+      "result": "PASS"
+    },
+    {
+      "name": "hidden bank accounts are excluded from the public DTO",
+      "result": "PASS"
+    },
+    {
+      "name": "editing draft does not change public snapshot",
+      "result": "PASS"
+    },
+    {
+      "name": "guest RSVP is stored once",
+      "result": "PASS"
+    },
+    {
+      "name": "RSVP list is owner-only",
+      "result": "PASS"
+    },
+    {
+      "name": "guestbook waits for owner approval",
+      "result": "PASS"
+    },
+    {
+      "name": "owner approves then hides guestbook",
+      "result": "PASS"
+    },
+    {
+      "name": "passwords and raw fingerprints are absent from stored operations",
+      "result": "PASS"
+    },
+    {
+      "name": "guestbook wrong password rejected, correct password deletes",
+      "result": "PASS"
+    },
+    {
+      "name": "more than 21 normal photo reads stay available",
+      "result": "PASS"
+    },
+    {
+      "name": "verified clients have independent quotas",
+      "result": "PASS"
+    },
+    {
+      "name": "unpublish revokes page and photo immediately",
+      "result": "PASS"
+    },
+    {
+      "name": "concurrent saves accept exactly one revision",
+      "result": "PASS"
+    },
+    {
+      "name": "publication expiry is independent of draft edits",
+      "result": "PASS"
+    },
+    {
+      "name": "live storage cap rejects upload before transformation",
+      "result": "PASS"
+    },
+    {
+      "name": "invalid image bytes are rejected by a real decoder",
+      "result": "PASS"
+    },
+    {
+      "name": "storage deletion refunds live byte usage",
+      "result": "PASS"
+    },
+    {
+      "name": "invitation deletion queues only unused photos and refunds after cleanup",
+      "result": "PASS"
+    },
+    {
+      "name": "provider failure retains a deletion reservation for retry",
+      "result": "PASS"
+    },
+    {
+      "name": "quota/database outage returns controlled 503",
+      "result": "PASS"
+    },
+    {
+      "name": "OAuth return preserves native callback and cookies",
+      "result": "PASS"
+    },
+    {
+      "name": "reserved slug deletion preserves other owner operations",
+      "result": "PASS"
+    },
+    {
+      "name": "stale uploading rows do not lock all upload slots",
+      "result": "PASS"
+    },
+    {
+      "name": "four active uploads stop a fifth before transform",
+      "result": "PASS"
+    },
+    {
+      "name": "cleanup isolates a failed object and continues to the next",
+      "result": "PASS"
+    },
+    {
+      "name": "JSON byte cap rejects excess input",
+      "result": "PASS"
+    },
+    {
+      "name": "aborted request releases body and returns 408",
+      "result": "PASS"
+    },
+    {
+      "name": "JSON receive deadline is total and cancels a slow stream",
+      "result": "PASS"
+    },
+    {
+      "name": "anonymous or expired logout clears cookie and preserves CSRF",
+      "result": "PASS"
+    },
+    {
+      "name": "account deletion revokes v2 public data before cleanup",
+      "result": "PASS"
+    }
+  ]
+}

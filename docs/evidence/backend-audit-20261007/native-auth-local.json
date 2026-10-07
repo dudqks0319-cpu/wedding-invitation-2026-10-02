@@ -1,0 +1,58 @@
+{
+  "time": "2026-10-07T10:49:43.882Z",
+  "lane": "local Miniflare/D1 synthetic tickets; no real provider OAuth",
+  "checks": [
+    {
+      "name": "native start retains registered provider and sends no verifier",
+      "result": "PASS"
+    },
+    {
+      "name": "native start rejects provider, challenge, state and extra query",
+      "result": "PASS"
+    },
+    {
+      "name": "legacy bridge isolates native mode and rejects duplicate mode",
+      "result": "PASS"
+    },
+    {
+      "name": "native callback uses app-specific scheme while ordinary native callback stays unchanged",
+      "result": "PASS"
+    },
+    {
+      "name": "foreign origin cannot redeem ticket",
+      "result": "PASS"
+    },
+    {
+      "name": "wrong verifier and state preserve ticket",
+      "result": "PASS"
+    },
+    {
+      "name": "malformed payload rejects before consumption",
+      "result": "PASS"
+    },
+    {
+      "name": "valid native ticket establishes same-origin HttpOnly session and owner identity",
+      "result": "PASS"
+    },
+    {
+      "name": "expired and deleting-account tickets do not create sessions",
+      "result": "PASS"
+    },
+    {
+      "name": "native post-login destination stays on wedding origin",
+      "result": "PASS"
+    },
+    {
+      "name": "legacy host cannot use new native endpoint",
+      "result": "PASS"
+    },
+    {
+      "name": "native auth burst enforces per-IP request limit",
+      "result": "PASS"
+    },
+    {
+      "name": "API kill switch also disables native login",
+      "result": "PASS"
+    }
+  ]
+}

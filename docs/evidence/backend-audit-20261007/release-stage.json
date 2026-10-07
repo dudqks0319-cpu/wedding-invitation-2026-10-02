@@ -1,0 +1,7 @@
+{
+  "stage": "/private/tmp/wedding-backend-release-20261007-y6g661e5",
+  "previousWorkerVersion": "088ade38-ba39-4535-82ce-ec0dba82258f",
+  "publishedFrontendSha256": "a39438ae3974da8b6206a283e431bd2375f705d3552f2884870bac65ad487723",
+  "workerModuleSha256": "7b2402e90e357f20516224645305e8d02215c262350d66132169339da83429df",
+  "preservation": "Legacy runtime copied; published frontend recreated from exact Git HEAD and matches recorded Production asset hash. Other pending frontend/iOS edits excluded. No migrations, keys or provider settings changed."
+}
