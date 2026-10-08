@@ -1,0 +1,48 @@
+{
+  "observedAt": "2026-10-08T09:10:05.410543+00:00",
+  "environment": "Actual production Site in desktop Chrome; existing deployed service, not the new free release candidate",
+  "checks": [
+    {
+      "name": "Google actual provider account chooser",
+      "result": "PASS"
+    },
+    {
+      "name": "Google cancel returns to enabled login controls",
+      "result": "PASS"
+    },
+    {
+      "name": "Kakao actual provider credential screen",
+      "result": "PASS"
+    },
+    {
+      "name": "Kakao cancel returns to enabled login controls",
+      "result": "PASS"
+    },
+    {
+      "name": "Google actual provider callback to independent Site my page",
+      "result": "PASS"
+    },
+    {
+      "name": "Google logged-in state survives reload",
+      "result": "PASS"
+    },
+    {
+      "name": "Google service logout returns to login page",
+      "result": "PASS"
+    },
+    {
+      "name": "Google relogin completes on independent Site",
+      "result": "PASS"
+    }
+  ],
+  "notProven": [
+    "Apple login",
+    "Kakao final authentication and callback",
+    "Actual alternate account switch and private-cache isolation",
+    "Same candidate physical phone full flow"
+  ],
+  "secretsRecorded": false,
+  "rawProviderURLOrAccountIdentifiersRecorded": false,
+  "screenshots": "Private local screenshots excluded from GitHub",
+  "observationNote": "Google relogin DOM locator wait hit a transient CDP navigation timeout. Same live tab was re-read; my page with logged-in state and logout control proved completion. No new flow was started due solely to observation timeout."
+}

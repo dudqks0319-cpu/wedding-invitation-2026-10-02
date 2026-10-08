@@ -4,7 +4,11 @@ import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {spawnSync} from 'node:child_process';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {GENERATED_PHOTOS} from '../src/data/photos.generated.ts';
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+const fixturePhotoUrl=GENERATED_PHOTOS['wedding-blossom'];
+assert.match(fixturePhotoUrl,/^\/photos\/[a-z0-9-]+\.webp$/,'Canonical sample photo missing');
+const fixturePhoto=await readFile(path.join(root,'public',fixturePhotoUrl.slice(1)));
 const stage=path.resolve(process.env.OSAM_STAGE??path.join(root,'../osam-rebuild/artifacts/wedding-replacement-20261003'));
 const origin=process.env.SITE_ORIGIN??'https://osamosam-app.jyb1126.chatgpt.site',privateDir=path.join(root,'docs/evidence/cloudflare-private');
 if(!['https://osamosam-app.jyb1126.chatgpt.site','https://wedding-invitation-2026-10-02.jyb1126.chatgpt.site'].includes(origin))throw new Error('Unknown production Site');
@@ -39,13 +43,13 @@ try{
   await check('live one-use bridge establishes session on independent Site',async()=>{const r=await complete();assert.equal(r.status,303);assert.equal(r.headers.get('Location'),origin+'/my');const issued=r.headers.getSetCookie().find(c=>c.startsWith('__Host-osam-session=')).split(';')[0];const actor=await req('/api/v2/auth/session','GET',undefined,-1,{headers:{Cookie:issued}});assert.equal(actor.data.id,users[0]);});
   await check('live bridge ticket replay rejected',async()=>assert.equal((await complete()).headers.get('Location'),origin+'/login?expired=1'));
  }
- const sample={slug,type:'wedding',templateId:'blossom',dateTime:new Date(Date.now()+30*86400000).toISOString().slice(0,16),wedding:{groom:{name:'합성점검신랑',order:'아들'},bride:{name:'합성점검신부',order:'딸'}},venue:{name:'합성점검홀',address:'실제 행사 아님',lat:37.5,lng:127},greetingTitle:'서비스 점검',greeting:'일시적으로 생성한 합성 테스트이며 종료 후 삭제합니다',coverPhoto:'/photos/wedding-blossom.webp',gallery:[],accounts:[],options:{showCalendar:true,showDday:true,showGallery:true,showAccounts:false,showGuestbook:true,showRsvp:true,showEffect:false},shareTitle:'합성 서비스 점검',shareDescription:'실제 행사 아님'};
+ const sample={slug,type:'wedding',templateId:'blossom',dateTime:new Date(Date.now()+30*86400000).toISOString().slice(0,16),wedding:{groom:{name:'합성점검신랑',order:'아들'},bride:{name:'합성점검신부',order:'딸'}},venue:{name:'합성점검홀',address:'실제 행사 아님',lat:37.5,lng:127},greetingTitle:'서비스 점검',greeting:'일시적으로 생성한 합성 테스트이며 종료 후 삭제합니다',coverPhoto:fixturePhotoUrl,gallery:[],accounts:[],options:{showCalendar:true,showDday:true,showGallery:true,showAccounts:false,showGuestbook:true,showRsvp:true,showEffect:false},shareTitle:'합성 서비스 점검',shareDescription:'실제 행사 아님'};
  const key=crypto.randomUUID();
  await check('live owner draft save and replay',async()=>{let r=await req('/api/v2/invitations/'+slug,'PUT',sample,0,{key});assert.equal(r.status,201,JSON.stringify(r.data));inv=r.data;assert.equal((await req('/api/v2/invitations/'+slug,'PUT',sample,0,{key})).data.revision,1);});
  await check('live second account and anonymous draft denied',async()=>{assert.equal((await req('/api/v2/invitations/'+slug,'GET',undefined,1)).status,404);assert.equal((await req('/api/v2/invitations/'+slug)).status,404);});
  await check('live foreign origin denied',async()=>assert.equal((await req('/api/v2/invitations/'+slug,'PUT',inv,0,{headers:{origin:'https://invalid.example'}})).status,403));
  await check('live AI sample publication denied',async()=>assert.equal((await req('/api/v2/invitations/'+slug+'/publish','POST',{published:true,revision:1},0)).status,400));
- const photo=await readFile(path.join(root,'public/photos/wedding-blossom.webp')),uploadKey=crypto.randomUUID();
+ const photo=fixturePhoto,uploadKey=crypto.randomUUID();
  await check('real Cloudflare Images transform and R2 upload',async()=>{const r=await req('/api/v2/uploads','POST',photo,0,{key:uploadKey,headers:{'content-type':'image/webp'}});assert.equal(r.status,201,JSON.stringify(r.data));uploaded=r.data.url;assert.equal((await req('/api/v2/uploads','POST',photo,0,{key:uploadKey,headers:{'content-type':'image/webp'}})).data.url,uploaded);const p=await req(uploaded,'GET',undefined,0);assert.equal(p.status,200);assert.equal(p.headers.get('content-type'),'image/webp');assert.ok(p.data.length>0);});
  await check('live unused private R2 image denied',async()=>assert.equal((await req(uploaded)).status,404));
  await check('live publication and OG image',async()=>{inv=(await req('/api/v2/invitations/'+slug,'PUT',{...inv,coverPhoto:uploaded,coverPresentation:{x:.3,y:.7,zoom:1.4,fit:'cover'},options:{...inv.options,font:'gowun-dodum'}},0)).data;assert.equal((await req('/api/v2/invitations/'+slug+'/publish','POST',{published:true,revision:inv.revision},0)).status,200);assert.equal((await req(uploaded)).status,200);const page=await req('/i/'+slug);assert.equal(page.status,200);assert.ok(page.data.includes(origin+uploaded));});

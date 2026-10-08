@@ -1,5 +1,6 @@
 import {ApiError} from '../src/lib/server/validation';
-import {actor,bytes,csrf,hmac,quota,response} from './security';
+import {actor,bytes,csrf,hmac,quota,monthlyQuota,response,sessionGuard} from './security';
+import {CAPACITY} from './capacity';
 import type {Env} from './types';
 type Photo={id:string;owner_id:string;key:string;bytes:number;state:string;fingerprint:string};
 // Far beyond the body, decode, transform and output deadlines of a live upload.
@@ -16,11 +17,13 @@ async function enabled(env:Env){
 }
 export async function removePhoto(env:Env,photo:Photo){
  const claimed=await env.DB.prepare(`UPDATE w2_photos SET state='deleting' WHERE id=? AND
+ NOT EXISTS(SELECT 1 FROM w2_photo_activity WHERE photo_id=w2_photos.id AND expires_at>?) AND
  (state='deleting' OR NOT EXISTS(SELECT 1 FROM w2_invitations i WHERE i.owner_id=w2_photos.owner_id AND
- (instr(i.data,'/api/photos/'||w2_photos.id)>0 OR instr(COALESCE(i.public_data,''),'/api/photos/'||w2_photos.id)>0))) RETURNING id`).bind(photo.id).first();
+ (instr(i.data,'/api/photos/'||w2_photos.id)>0 OR instr(COALESCE(i.public_data,''),'/api/photos/'||w2_photos.id)>0))) RETURNING id`).bind(photo.id,Date.now()).first();
  if(!claimed)return false;
  // Keep the reservation until R2 confirms removal, including provider failures.
- await quota(env,'global','r2-write',2000,86400);
+ await monthlyQuota(env,'global','r2-write-month',CAPACITY.r2WritesPerMonth);
+ await quota(env,'global','r2-write',CAPACITY.r2WritesPerDay,86400);
  await env.MEDIA.delete(photo.key);
  await env.DB.prepare("DELETE FROM w2_photos WHERE id=? AND state='deleting'").bind(photo.id).run();
  return true;
@@ -35,26 +38,35 @@ export async function upload(env:Env,request:Request){
  if(!env.IMAGES)throw new ApiError(503,'사진 저장 연결을 확인하고 있어요');
  const id=crypto.randomUUID(),key=`w2/${user.id}/${id}.webp`,maxBytes=1572864;
  // A cancelled invocation never reaches the catch below; its stale row keeps the byte reservation but not a processing slot.
- const claimed=await env.DB.prepare(`INSERT INTO w2_photos
+ const accountGuard=await sessionGuard(request);
+ await env.DB.batch([env.DB.prepare(`INSERT INTO w2_photos
  SELECT ?,?,?,?,'uploading',?,?,? WHERE
- (SELECT COALESCE(SUM(bytes),0) FROM w2_photos)+?<=1000000000 AND
- (SELECT COALESCE(SUM(bytes),0) FROM w2_photos WHERE owner_id=?)+?<=100000000 AND
- (SELECT COUNT(*) FROM w2_photos WHERE state='uploading' AND created_at>=?)<4 RETURNING id`)
- .bind(id,user.id,key,maxBytes,mutation,fingerprint,new Date().toISOString(),maxBytes,user.id,maxBytes,new Date(Date.now()-UPLOAD_STALE_MS).toISOString()).first();
+ ${accountGuard} AND
+ (SELECT COALESCE(SUM(bytes),0) FROM w2_photos)+?<=? AND
+ (SELECT COALESCE(SUM(bytes),0) FROM w2_photos WHERE owner_id=?)+?<=? AND
+ (SELECT COUNT(*) FROM w2_photos WHERE state='uploading' AND created_at>=?)<?`)
+ .bind(id,user.id,key,maxBytes,mutation,fingerprint,new Date().toISOString(),maxBytes,CAPACITY.servicePhotoBytes,user.id,maxBytes,CAPACITY.ownerPhotoBytes,new Date(Date.now()-UPLOAD_STALE_MS).toISOString(),CAPACITY.uploadingSlots),
+ env.DB.prepare('INSERT INTO w2_photo_activity SELECT ?,? WHERE EXISTS(SELECT 1 FROM w2_photos WHERE id=?)').bind(id,Date.now()+UPLOAD_STALE_MS,id)]);
+ const claimed=await env.DB.prepare('SELECT id FROM w2_photos WHERE id=?').bind(id).first();
  if(!claimed)throw new ApiError(429,'사진 저장 공간 또는 처리 한도에 도달했어요. 사용하지 않는 사진을 지운 뒤 다시 시도해 주세요');
  try{
   let info;try{info=await imageDeadline(env.IMAGES.info(stream(data)));}catch(error){if(error instanceof ApiError)throw error;throw new ApiError(400,'사진 파일을 확인해 주세요');}
   if(!info.width||!info.height||info.width*info.height>40000000||!['image/jpeg','image/png','image/webp','jpeg','png','webp'].includes(info.format))throw new ApiError(400,'사진 파일을 확인해 주세요');
-  await quota(env,'global','image-transform',100,86400);
+  await monthlyQuota(env,user.id,'image-transform-month',CAPACITY.ownerTransformsPerMonth);
+  await monthlyQuota(env,'global','image-transform-month',CAPACITY.imageTransformsPerMonth);
+  await quota(env,'global','image-transform',CAPACITY.imageTransformsPerDay,86400);
   const transformed=(await imageDeadline(env.IMAGES.input(stream(data)).transform({width:1600,height:1600,fit:'scale-down',metadata:'none'}).output({format:'image/webp',quality:82,anim:false}))).response();
   if(!transformed.ok)throw new ApiError(503,'사진을 처리하지 못했어요');
   const output=await bytes(new Request('https://image.local',{method:'POST',body:transformed.body,duplex:'half'} as RequestInit),maxBytes);
-  await quota(env,'global','r2-write',2000,86400);
+  await monthlyQuota(env,'global','r2-write-month',CAPACITY.r2WritesPerMonth);
+  await quota(env,'global','r2-write',CAPACITY.r2WritesPerDay,86400);
   await env.MEDIA.put(key,output,{httpMetadata:{contentType:'image/webp'}});
-  const ready=await env.DB.prepare("UPDATE w2_photos SET state='ready',bytes=? WHERE id=? AND state='uploading' RETURNING id").bind(output.length,id).first();
+  const ready=await env.DB.prepare(`UPDATE w2_photos SET state='ready',bytes=? WHERE id=? AND state='uploading' AND ${accountGuard} RETURNING id`).bind(output.length,id).first();
+  await env.DB.prepare('DELETE FROM w2_photo_activity WHERE photo_id=?').bind(id).run();
   if(!ready)throw new ApiError(503,'사진을 저장하지 못했어요');
   return response({url:`/api/photos/${id}`},201);
  }catch(error){
+  await env.DB.prepare('DELETE FROM w2_photo_activity WHERE photo_id=?').bind(id).run();
   await env.DB.prepare("UPDATE w2_photos SET state='deleting' WHERE id=?").bind(id).run();
   try{await removePhoto(env,{id,owner_id:user.id,key,bytes:maxBytes,state:'deleting',fingerprint});}catch{/* Scheduled cleanup retries; storage remains reserved. */}
   throw error;
@@ -66,9 +78,11 @@ export async function photo(env:Env,request:Request,id:string){
  if(!row)throw new ApiError(404,'사진을 찾을 수 없어요');
  const reference=`EXISTS(SELECT 1 FROM w2_invitations i WHERE i.owner_id=w2_photos.owner_id AND i.public_data IS NOT NULL AND i.public_expires_at>?
  AND NOT EXISTS(SELECT 1 FROM deletion_jobs WHERE owner_id=i.owner_id AND state<>'complete')
+ AND NOT EXISTS(SELECT 1 FROM w2_moderation_holds WHERE slug=i.slug)
  AND (json_extract(i.public_data,'$.coverPhoto')=? OR EXISTS(SELECT 1 FROM json_each(i.public_data,'$.gallery') WHERE value=?)))`;
  if(user?.id!==row.owner_id&&!await env.DB.prepare(`SELECT id FROM w2_photos WHERE id=? AND ${reference}`).bind(id,new Date().toISOString(),`/api/photos/${id}`,`/api/photos/${id}`).first())throw new ApiError(404,'사진을 찾을 수 없어요');
- await quota(env,'global','r2-read',20000,86400);
+ await monthlyQuota(env,'global','r2-read-month',CAPACITY.r2ReadsPerMonth);
+ await quota(env,'global','r2-read',CAPACITY.r2ReadsPerDay,86400);
  const object=await env.MEDIA.get(row.key);if(!object)throw new ApiError(404,'사진을 찾을 수 없어요');
  // Stable OG URL, but no client/shared cache can outlive unpublish revocation.
  return new Response(request.method==='HEAD'?null:object.body,{headers:{'Content-Type':'image/webp','Content-Length':String(object.size),'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});

@@ -18,7 +18,7 @@ export function Footer() {
         {[
           { title: "만들기", links: [["모바일 청첩장", "/templates?type=wedding"], ["돌잔치 초대장", "/templates?type=dol"], ["부모님 잔치", "/templates?type=party"]] },
           { title: "서비스", links: [["앱 소개", "/app-intro/index.html"], ["요금 안내", "/pricing"], ["내 청첩장", "/my"], ["로그인", "/login"]] },
-          { title: "이용 안내", links: [["자주 묻는 질문", "/#faq"], ["서비스 안내", "/pricing"]] },
+          { title: "이용 안내", links: [["자주 묻는 질문", "/#faq"], ["개인정보처리방침", "/privacy"], ["이용약관", "/terms"], ["고객지원", "/support"], ["계정 및 개인정보", "/settings"]] },
         ].map((col) => (
           <div key={col.title}>
             <p className="text-[14px] font-semibold">{col.title}</p>

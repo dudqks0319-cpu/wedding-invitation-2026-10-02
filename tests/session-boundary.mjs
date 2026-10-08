@@ -6,6 +6,8 @@ const source=await readFile(new URL('../src/lib/sessionWatcher.ts',import.meta.u
 const output=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
 const exports={};vm.runInNewContext(output,{exports});
 const {createSessionWatcher}=exports;
+for(const pathname of ['/my','/my/details','/create/blossom','/settings','/support','/operations','/i/private-slug'])assert.equal(exports.isPrivateView(pathname),true,pathname);
+for(const pathname of ['/','/login','/privacy','/terms','/templates','/i/sample-blossom','/supporting'])assert.equal(exports.isPrivateView(pathname),false,pathname);
 assert.equal(exports.isEmbeddedFocus(true,'visible','IFRAME'),true);
 assert.equal(exports.isEmbeddedFocus(false,'visible','IFRAME'),false,'Leaving the app still covers data even with iframe active');
 assert.equal(exports.isEmbeddedFocus(true,'hidden','IFRAME'),false,'Background tabs remain covered');
@@ -26,4 +28,4 @@ resolveNew('owner-B');await current;assert.equal(hidden,false);
 read=()=>Promise.reject(new Error('Offline'));await raced.check();assert.equal(hidden,true);assert.equal(failures,1,'Network failure keeps private content covered');
 read=async()=>null;await raced.check();assert.equal(hidden,true);assert.equal(reloads,3,'Retry after a failure must retain the previous identity and detect logout');
 read=()=>new Promise(resolve=>{resolveOld=resolve;});const disposed=raced.check();raced.dispose();resolveOld('owner-B');await disposed;assert.equal(hidden,true,'Disposed checks cannot reveal the page');
-console.log('PASS session boundary: same account, account switch, logout, stale response, offline, disposal, embedded focus/departure');
+console.log('PASS session boundary: private routes, same account, account switch, logout, stale response, offline, disposal, embedded focus/departure');

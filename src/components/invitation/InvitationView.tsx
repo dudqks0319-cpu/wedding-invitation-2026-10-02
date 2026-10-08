@@ -17,6 +17,8 @@ import {
 } from "./Sections";
 import { InvitationProvider, type ViewMode } from "./shared";
 import { SITE } from "@/lib/site";
+import {ReportButton} from './ReportButton';
+import {REMOTE_DATA} from '@/lib/dataMode';
 
 /** 테마 색/글꼴을 CSS 변수로 변환 */
 export function themeVars(theme: Theme, font?: InvitationFont): CSSProperties {
@@ -58,6 +60,7 @@ export function InvitationView({ invitation: inv, theme, mode = "page", readOnly
       {o.showRsvp && <RsvpSection />}
       {o.showGuestbook && <GuestbookSection />}
       <EndingSection />
+      {REMOTE_DATA&&!readOnly&&!inv.slug.startsWith('sample-')&&<div className="mx-auto max-w-md px-5 pb-6"><ReportButton slug={inv.slug}/><div className="mt-3 flex gap-4 text-[13px] underline"><a href="/support">고객지원</a><a href="/privacy">개인정보 안내</a></div></div>}
       <footer className="pb-10 text-center text-[11px] tracking-[0.2em] opacity-50" style={{ fontFamily: "var(--font-sans)" }}>
         MADE WITH {SITE.nameEn}
       </footer>

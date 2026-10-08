@@ -1,12 +1,12 @@
 import {useEffect,useRef,useState,type ReactNode} from 'react';
 import {ClientError,request} from '@/lib/api';
-import {createSessionWatcher,isEmbeddedFocus} from '@/lib/sessionWatcher';
+import {createSessionWatcher,isEmbeddedFocus,isPrivateView} from '@/lib/sessionWatcher';
 import {useLocation} from './router';
 import {AuthContext,type AuthStatus} from '@/lib/authSession';
 
 export function SessionBoundary({children}:{children:ReactNode}){
   const {pathname}=useLocation();
-  const privateView=/^\/(my|create)(\/|$)/.test(pathname)||(/^\/i\//.test(pathname)&&!pathname.startsWith('/i/sample-'));
+  const privateView=isPrivateView(pathname);
   const [checking,setChecking]=useState(true);
   const [failed,setFailed]=useState(false);
   const [attempt,setAttempt]=useState(0);

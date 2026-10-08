@@ -59,6 +59,7 @@ next-env.d.ts
 # 코덱스 작업 기록
 /.codex-logs
 /.omx/
+/.worktrees/
 # 개인 Claude 대화/계정이 포함된 앱 캡처는 로컬 보관
 /docs/evidence/claude-*.png
 
@@ -79,3 +80,12 @@ next-env.d.ts
 /ios/WeddingInvitation.xcodeproj/
 /ios/private/
 /ios/scripts/__pycache__/
+
+# Android local build/cache/signing outputs
+/android/.gradle/
+/android/.build/
+/android/local.properties
+/android/app/build/
+/android/build/
+/android/private/
+/android/scripts/__pycache__/
