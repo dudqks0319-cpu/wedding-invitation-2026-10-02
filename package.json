@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test:backend": "node tests/backend.integration.mjs",
+    "test:rsvp": "node tests/rsvp-summary.mjs && node tests/rsvp-csv.mjs",
     "build:preview": "vite build --config preview/vite.config.mts",
     "build:sites": "node scripts/prepare-sites.mjs",
     "photos": "node scripts/generate-photos.mjs",

@@ -10,6 +10,8 @@ import { CATEGORY_SHORT, getTemplate } from "@/data/templates";
 import { formatKoreanDate } from "@/lib/date";
 import { getDisplay } from "@/lib/display";
 import type { Invitation } from "@/types/invitation";
+import { summarizeRsvps } from "@/lib/rsvpSummary";
+import { rsvpsToCsv } from "@/lib/rsvpCsv";
 import {useAuthSession} from '@/lib/authSession';
 
 function GuestbookModeration({slug}:{slug:string}){
@@ -19,7 +21,7 @@ function GuestbookModeration({slug}:{slug:string}){
   if(!REMOTE_DATA)return null;
   return <details className="mt-3 rounded-2xl bg-cream p-4 text-[13px]"><summary>방명록 승인 · {entries.filter(e=>!e.approved).length}건 대기</summary>
     {(state.error||msg)&&<p role="alert">{msg||state.error?.message}</p>}
-    {entries.map(e=><div key={e.id} className="mt-3 rounded-lg bg-white p-3"><b>{e.name}</b><p className="whitespace-pre-line">{e.message}</p><button className="mt-2 underline" onClick={async()=>{try {await request(path,'PATCH',{id:e.id,approved:!e.approved});refreshApi(path);refreshApi(`/api/invitations/${slug}/guestbook`);}catch(error){setMsg((error as Error).message);}}}>{e.approved?'숨기기':'승인하여 공개'}</button><button className="ml-4 underline" onClick={async()=>{if(!confirm('이 방명록을 삭제할까요?'))return;try{await request(path,'DELETE',{id:e.id});refreshApi(path);refreshApi(`/api/invitations/${slug}/guestbook`);}catch(error){setMsg((error as Error).message);}}}>삭제</button></div>)}
+    {entries.map(e=><div key={e.id} className="mt-3 rounded-lg bg-white p-3"><b>{e.name}</b><p className="whitespace-pre-line">{e.message}</p><button className="mt-2 underline" onClick={async()=>{try {await request(path,'PATCH',{id:e.id,approved:!e.approved});refreshApi(path);refreshApi(`/api/invitations/${slug}/guestbook`);}catch(error){setMsg((error as Error).message);}}}>{e.approved?'숨기기':'승인하여 공개'}</button><button className="ml-4 underline" onClick={async()=>{if(!confirm('이 방명록을 삭제할까요?'))return;try{await request(path,'DELETE',{id:e.id});refreshApi(path);refreshApi(`/api/invitations/${slug}/guestbook`);}catch(error){setMsg((error as Error).message);}}}>삭제</button><button className="ml-4 min-h-11 underline" onClick={async()=>{if(!confirm("이 작성 브라우저를 차단하고 같은 작성자의 메시지를 숨길까요?"))return;try{await request(path,"POST",{id:e.id});refreshApi(path);refreshApi(`/api/invitations/${slug}/guestbook`);setMsg("작성 브라우저를 차단했어요");}catch(error){setMsg((error as Error).message);}}}>작성자 차단</button></div>)}
   </details>;
 }
 
@@ -27,29 +29,57 @@ function RsvpSummary({ inv }: { inv: Invitation }) {
   const list = useRsvpList(inv.slug);
   const status = useApiState(`/api/invitations/${inv.slug}/rsvp`);
   const [open, setOpen] = useState(false);
-  const yes = list.filter((r) => r.attending);
-  const people = yes.reduce((s, r) => s + r.count, 0);
+  const [downloadMessage, setDownloadMessage] = useState("");
+  const { people, meals, unknownMeals } = summarizeRsvps(list);
+  const ready = !REMOTE_DATA || (!status.loading && !status.error);
+  function downloadRsvps() {
+    if (!ready || list.length === 0) return;
+    try {
+      const url = URL.createObjectURL(new Blob([rsvpsToCsv(list)], { type: "text/csv;charset=utf-8" }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "청첩장-참석명단.csv";
+      document.body.appendChild(link);
+      try { link.click(); } finally {
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+      }
+      setDownloadMessage("다운로드를 요청했어요. 다운로드 목록에서 확인해 주세요.");
+    } catch {
+      setDownloadMessage("파일을 만들지 못했어요. 다시 시도해 주세요.");
+    }
+  }
   return (
     <div className="mt-4 rounded-2xl bg-cream p-4">
       <button onClick={() => setOpen((o) => !o)} className="flex w-full items-center justify-between text-[13px]">
         <span>
-          💌 참석 의사 <b>{list.length}</b>건 · 참석 예정 <b className="text-brand-600">{people}</b>명
+          {ready ? <>💌 참석 의사 <b>{list.length}</b>건 · 참석 예정 <b className="text-brand-600">{people}</b>명</> : status.error ? "참석 응답 연결 확인 필요" : "참석 응답을 불러오는 중…"}
         </span>
         <span className="text-muted">{open ? "접기" : "자세히"}</span>
       </button>
-      {status.error && <p role="alert" className="mt-2 text-[13px]">{status.error.message}</p>}
-      {open && (
+      {ready && <p className="mt-2 text-[13px]">식사 예정 {meals}명 · 식사 미정 {unknownMeals}명</p>}
+      {status.error && <p role="alert" className="mt-2 text-[13px]">{status.error.message} <button className="underline" onClick={() => refreshApi(`/api/invitations/${inv.slug}/rsvp`)}>다시 불러오기</button></p>}
+      {open && ready && (
+        <>
+        <div className="mt-3">
+          <button onClick={downloadRsvps} disabled={list.length === 0} className="min-h-11 rounded-full border border-black/10 bg-white px-4 py-2.5 text-[13px] font-medium disabled:cursor-not-allowed disabled:opacity-50">명단 CSV 내려받기</button>
+          {list.length > 0 && <p className="mt-2 text-[12px] text-muted">이름과 메모가 담긴 파일이에요. 필요한 분에게만 전달해 주세요. 수식처럼 시작하는 내용에는 ‘문자: ’가 붙어요.</p>}
+          {downloadMessage && <p role="status" className="mt-2 text-[13px]">{downloadMessage}</p>}
+        </div>
         <ul className="mt-3 space-y-1.5 text-[13px]">
           {list.length === 0 && <li className="text-muted">아직 도착한 응답이 없어요</li>}
           {list.map((r) => (
-            <li key={r.id} className="flex justify-between rounded-lg bg-white px-3 py-2">
-              <span>
-                {r.name} <span className="text-muted">({r.side === "groom" ? "신랑측" : r.side === "bride" ? "신부측" : "하객"})</span>
-              </span>
-              <span className={r.attending ? "text-brand-600" : "text-muted"}>{r.attending ? `참석 ${r.count}명` : "불참"}</span>
+            <li key={r.id} className="rounded-lg bg-white px-3 py-2">
+              <div className="flex flex-wrap justify-between gap-2">
+                <span className="min-w-0 break-words">{r.name} <span className="text-muted">({r.side === "groom" ? "신랑측" : r.side === "bride" ? "신부측" : "하객"})</span></span>
+                <span className={r.attending ? "text-brand-600" : "text-muted"}>{r.attending ? `참석 ${r.count}명` : "불참"}</span>
+              </div>
+              {r.attending && <p className="mt-1 text-muted">식사 {r.meal === "yes" ? "예정" : r.meal === "no" ? "안 함" : "미정"}</p>}
+              {r.memo && <p className="mt-1 whitespace-pre-wrap break-words">{r.memo}</p>}
             </li>
           ))}
         </ul>
+        </>
       )}
     </div>
   );
@@ -80,7 +110,7 @@ export default function MyPage() {
         {REMOTE_DATA ? "초안은 나만 볼 수 있어요. 공유를 시작하면 링크로 하객을 초대할 수 있어요." : "이 브라우저에만 저장된 미리보기예요. 다른 기기로 공유하려면 서버 연결이 필요해요."}
       </p>
 
-      {REMOTE_DATA && <div className="mt-4 flex gap-5 text-[13px]"><span>로그인됨</span><button onClick={async()=>{try {await request('/api/auth/logout','POST',{});clearPrivateDrafts();window.location.assign(new URL('/login',window.location.origin).href);} catch(error) {setMsg((error as Error).message);}}} className="underline">로그아웃</button>{process.env.NEXT_PUBLIC_BACKEND==='cloudflare'&&<a href="https://osamosam-app.jyb1126.chatgpt.site/dashboard" className="underline">오삼오삼에서 만든 이전 초대장</a>}</div>}
+      {REMOTE_DATA && <div className="mt-4 flex gap-5 text-[13px]"><span>로그인됨</span><Link href="/settings" className="underline">계정 및 개인정보</Link><button onClick={async()=>{try {await request('/api/auth/logout','POST',{});clearPrivateDrafts();window.location.assign(new URL('/login',window.location.origin).href);} catch(error) {setMsg((error as Error).message);}}} className="underline">로그아웃</button>{process.env.NEXT_PUBLIC_BACKEND==='cloudflare'&&<a href="https://osamosam-app.jyb1126.chatgpt.site/dashboard" className="underline">오삼오삼에서 만든 이전 초대장</a>}</div>}
       {status.loading && <p className="mt-5">불러오는 중…</p>}
       {(status.error || msg) && <p role="alert" className="mt-5">{msg ?? status.error?.message} {status.error?.status===401 && <Link href="/login?next=%2Fmy" className="underline">로그인하기</Link>}</p>}
       {hydrated && !status.loading && !status.error && list.length === 0 && (

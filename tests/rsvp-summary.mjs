@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import { build } from 'vite';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+const bundle = await build({configFile:false,logLevel:'error',build:{write:false,minify:false,lib:{entry:path.join(root,'src/lib/rsvpSummary.ts'),formats:['es']}}});
+const chunk = (Array.isArray(bundle)?bundle[0]:bundle).output.find(v=>v.type==='chunk'&&v.isEntry);
+const {summarizeRsvps} = await import('data:text/javascript;base64,'+Buffer.from(chunk.code).toString('base64'));
+assert.deepEqual(summarizeRsvps([]),{people:0,meals:0,unknownMeals:0});
+const entries = [{attending:true,count:3,meal:'yes'},{attending:true,count:2,meal:'no'},{attending:true,count:4,meal:'unknown'},{attending:false,count:5,meal:'yes'},{attending:false,count:6,meal:'unknown'}];
+const before = structuredClone(entries);
+assert.deepEqual(summarizeRsvps(entries),{people:9,meals:3,unknownMeals:4});
+assert.deepEqual(entries,before);
+assert.deepEqual(summarizeRsvps([{attending:true,count:2}]),{people:2,meals:0,unknownMeals:2});
+console.log('PASS RSVP: empty, attendance/meal totals, declined exclusions, legacy unknown, source preservation');

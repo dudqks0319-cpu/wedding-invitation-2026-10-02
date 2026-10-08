@@ -1,6 +1,7 @@
 import type {Env} from './types';
 import {ApiError,safeNext,object,text} from '../src/lib/server/validation';
 import {csrf,hex,json,publicQuota,quota,response} from './security';
+import {createServiceSession} from './serviceSession';
 
 export const WEDDING_ORIGIN='https://wedding-invitation-2026-10-02.jyb1126.chatgpt.site';
 export const LEGACY_ORIGIN='https://osamosam-app.jyb1126.chatgpt.site';
@@ -78,12 +79,7 @@ export async function redeemNativeWeddingLogin(env:Env,request:Request){
   AND NOT EXISTS(SELECT 1 FROM deletion_jobs WHERE owner_id=native_auth_tickets.user_id AND state<>'complete') RETURNING user_id`)
   .bind(hex((await digest(code)).buffer),await challenge(verifier),state,new Date().toISOString()).first<{user_id:string}>();
  if(!ticket)throw new ApiError(401,'로그인이 만료됐어요. 다시 시작해 주세요');
- const token=random(24),now=new Date();
- await env.DB.prepare('INSERT INTO sessions(token_hash,user_id,created_at,expires_at) VALUES(?,?,?,?)')
-  .bind(hex((await digest(token)).buffer),ticket.user_id,now.toISOString(),new Date(now.getTime()+30*86400000).toISOString()).run();
- const result=redirect(new URL(safeNext(input.next),WEDDING_ORIGIN));
- result.headers.set('Set-Cookie',setCookie('__Host-osam-session',token,30*86400));
- return result;
+ return createServiceSession(env,ticket.user_id,input.next);
 }
 
 export async function completeWeddingLogin(env:Env,request:Request){
@@ -98,10 +94,7 @@ export async function completeWeddingLogin(env:Env,request:Request){
    AND NOT EXISTS(SELECT 1 FROM deletion_jobs WHERE owner_id=native_auth_tickets.user_id AND state<>'complete') RETURNING user_id`)
    .bind(hex((await digest(code)).buffer),await challenge(flow.verifier),state,new Date().toISOString()).first<{user_id:string}>();
   if(!ticket)return failure();
-  const token=random(24),now=new Date(),result=redirect(new URL(safeNext(flow.next),WEDDING_ORIGIN));
-  await env.DB.prepare('INSERT INTO sessions(token_hash,user_id,created_at,expires_at) VALUES(?,?,?,?)')
-   .bind(hex((await digest(token)).buffer),ticket.user_id,now.toISOString(),new Date(now.getTime()+30*86400000).toISOString()).run();
-  result.headers.append('Set-Cookie',setCookie('__Host-osam-session',token,30*86400));
+  const result=await createServiceSession(env,ticket.user_id,flow.next);
   result.headers.append('Set-Cookie',setCookie(flowCookie,'',0));return result;
  }catch{return failure();}
 }

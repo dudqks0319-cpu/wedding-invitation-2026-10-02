@@ -3,11 +3,16 @@ import {ALL_PHOTO_KEYS,photo as samplePhoto} from '../src/data/photos';
 import {ApiError,invitationValue,guestbookValue,rsvpValue,object,slugValue,text,safeNext} from '../src/lib/server/validation';
 import type {Invitation} from '../src/types/invitation';
 import type {Env} from './types';
-import {actor,csrf,hex,hmac,json,operation,publicQuota,quota,replay,response} from './security';
-import {cleanup,ownedPhotos,photo,removePhoto,upload} from './photos';
+import {actor,csrf,hex,hmac,json,operation,publicQuota,quota,apiQuota,replay,response} from './security';
+import {cleanup as cleanupPhotos,ownedPhotos,photo,removePhoto,upload} from './photos';
+import {accountRoute,cleanupAccounts} from './accounts';
+import {appleRoute} from './appleLogin';
+import {guestIdentity,guestResponse,reportRoute} from './moderation';
+import {operatorRoute} from './operator';
+import {billingRoute} from './billing';
 import {WEDDING_ORIGIN,startWeddingLogin,startNativeWeddingLogin,redeemNativeWeddingLogin} from './authBridge';
-type Row={slug:string;owner_id:string;revision:number;data:string;public_data:string|null;expires_at:string;public_expires_at:string|null};
-const output=(row:Row):Invitation=>({...JSON.parse(row.data),revision:row.revision,ownerView:true,published:!!row.public_data&&(row.public_expires_at??'')>new Date().toISOString()});
+type Row={slug:string;owner_id:string;revision:number;data:string;public_data:string|null;expires_at:string;public_expires_at:string|null;moderation_hold?:number};
+const output=(row:Row):Invitation=>({...JSON.parse(row.data),revision:row.revision,ownerView:true,published:!row.moderation_hold&&!!row.public_data&&(row.public_expires_at??'')>new Date().toISOString()});
 function expires(inv:Invitation){
  const expiry=Date.parse(inv.dateTime+'+09:00')+30*86400000;
  if(expiry<Date.now()||Date.parse(inv.dateTime+'+09:00')>Date.now()+2*365*86400000)throw new ApiError(400,'행사일은 지난 30일 이내부터 앞으로 2년 이내로 선택해 주세요');
@@ -16,16 +21,21 @@ function expires(inv:Invitation){
 function revision(input:Record<string,unknown>){
  const n=input.revision??0;if(!Number.isSafeInteger(n)||(n as number)<0)throw new ApiError(400,'저장 버전을 확인해 주세요');return n as number;
 }
-async function find(env:Env,slug:string){return env.DB.prepare(`SELECT * FROM w2_invitations WHERE slug=?
+async function find(env:Env,slug:string){return env.DB.prepare(`SELECT *,EXISTS(SELECT 1 FROM w2_moderation_holds WHERE slug=w2_invitations.slug) AS moderation_hold FROM w2_invitations WHERE slug=?
  AND NOT EXISTS(SELECT 1 FROM deletion_jobs WHERE owner_id=w2_invitations.owner_id AND state<>'complete')`).bind(slug).first<Row>();}
 async function owned(env:Env,slug:string,owner:string){const row=await find(env,slug);if(!row||row.owner_id!==owner)throw new ApiError(404,'청첩장을 찾을 수 없어요');return row;}
-async function published(env:Env,slug:string){const row=await find(env,slug);if(!row?.public_data||(row.public_expires_at??'')<=new Date().toISOString())throw new ApiError(404,'청첩장을 찾을 수 없어요');return row;}
+async function published(env:Env,slug:string){const row=await find(env,slug);if(!row?.public_data||row.moderation_hold||(row.public_expires_at??'')<=new Date().toISOString())throw new ApiError(404,'청첩장을 찾을 수 없어요');return row;}
 export async function route(env:Env,request:Request):Promise<Response>{
  const url=new URL(request.url),path=url.pathname.replace(/^\/api\/v2\/?/,'').split('/').filter(Boolean),[first,slugRaw,action,id]=path;
  const enabled=await env.DB.prepare("SELECT enabled FROM w2_controls WHERE name='api'").first<{enabled:number}>();
  if(enabled?.enabled!==1)throw new ApiError(503,'서비스를 점검 중이에요. 잠시 후 다시 시도해 주세요');
  if(first==='health')return response({status:'ok',backend:'cloudflare',storage:'D1/R2',schema:2});
+ if(first==='account')return accountRoute(env,request,slugRaw??'');
+ if(first==='billing'&&path.length===2)return billingRoute(env,request,slugRaw);
+ if(first==='reports')return reportRoute(env,request);
+ if(first==='operator')return operatorRoute(env,request,slugRaw??'');
  if(first==='auth'){
+  if(slugRaw==='apple')return appleRoute(env,request,action??'');
   if(env.NEXT_PUBLIC_SITE_URL===WEDDING_ORIGIN&&url.pathname==='/api/v2/auth/native/start'&&request.method==='GET')return startNativeWeddingLogin(env,request);
   if(env.NEXT_PUBLIC_SITE_URL===WEDDING_ORIGIN&&url.pathname==='/api/v2/auth/native/redeem'&&request.method==='POST')return redeemNativeWeddingLogin(env,request);
   if(request.method==='POST'&&slugRaw==='start'){
@@ -59,7 +69,7 @@ export async function route(env:Env,request:Request):Promise<Response>{
  if(first!=='invitations')throw new ApiError(404,'요청을 찾을 수 없어요');
  if(!slugRaw){
   const user=(await actor(env,request))!;if(request.method!=='GET')throw new ApiError(405,'지원하지 않는 요청이에요');
-  const list=(await env.DB.prepare('SELECT * FROM w2_invitations WHERE owner_id=? ORDER BY updated_at DESC LIMIT 20').bind(user.id).all<Row>()).results;
+  const list=(await env.DB.prepare('SELECT *,EXISTS(SELECT 1 FROM w2_moderation_holds WHERE slug=w2_invitations.slug) AS moderation_hold FROM w2_invitations WHERE owner_id=? ORDER BY updated_at DESC LIMIT 20').bind(user.id).all<Row>()).results;
   return response(Object.fromEntries(list.map(r=>[r.slug,output(r)])));
  }
  const slug=slugValue(slugRaw);
@@ -67,7 +77,7 @@ export async function route(env:Env,request:Request):Promise<Response>{
   await publicQuota(env,request);const user=await actor(env,request,false);
   if(!action){const row=await find(env,slug);if(!row)throw new ApiError(404,'청첩장을 찾을 수 없어요');
    if(user?.id===row.owner_id)return response(output(row));
-   if(!row.public_data||(row.public_expires_at??'')<=new Date().toISOString())throw new ApiError(404,'청첩장을 찾을 수 없어요');return response({...JSON.parse(row.public_data),published:true});}
+   if(!row.public_data||row.moderation_hold||(row.public_expires_at??'')<=new Date().toISOString())throw new ApiError(404,'청첩장을 찾을 수 없어요');return response({...JSON.parse(row.public_data),published:true});}
   if(action==='rsvp'){
    await owned(env,slug,user?.id??'');const list=(await env.DB.prepare('SELECT id,data,created_at FROM w2_rsvp WHERE slug=? ORDER BY created_at DESC LIMIT 500').bind(slug).all<{id:string;data:string;created_at:string}>()).results;
    return response(list.map(r=>({...JSON.parse(r.data),id:r.id,createdAt:r.created_at})));
@@ -77,7 +87,7 @@ export async function route(env:Env,request:Request):Promise<Response>{
   }
   if(action==='guestbook'){
    const p=await published(env,slug);if(!JSON.parse(p.public_data!).options.showGuestbook)throw new ApiError(404,'방명록을 사용하지 않아요');
-   return response((await env.DB.prepare('SELECT id,name,message,created_at AS createdAt FROM w2_guestbook WHERE slug=? AND approved=1 ORDER BY created_at DESC LIMIT 100').bind(slug).all()).results);
+   return guestResponse(env,request,(await env.DB.prepare('SELECT id,name,message,created_at AS createdAt FROM w2_guestbook WHERE slug=? AND approved=1 ORDER BY created_at DESC LIMIT 100').bind(slug).all()).results);
   }
   throw new ApiError(404,'요청을 찾을 수 없어요');
  }
@@ -118,21 +128,32 @@ export async function route(env:Env,request:Request):Promise<Response>{
  }
  if(action==='publish'&&request.method==='POST'){
   const current=await owned(env,slug,user!.id);if(typeof input.published!=='boolean')throw new ApiError(400,'공유 상태를 확인해 주세요');
+  if(input.published&&current.moderation_hold)throw new ApiError(403,'신고 검토로 공개가 제한됐어요. 고객지원으로 문의해 주세요');
   const inv=invitationValue(JSON.parse(current.data),TEMPLATES);
   if(input.published&&[inv.coverPhoto,...inv.gallery].some(p=>!p.startsWith('/api/photos/')))throw new ApiError(400,'AI 예시 사진을 실제 사진으로 바꾸고, 갤러리의 예시 사진도 지워 주세요');
   await ownedPhotos(env,user!.id,[inv.coverPhoto,...inv.gallery]);
   const publicContent={...inv,accounts:inv.options.showAccounts?inv.accounts:[],gallery:inv.options.showGallery?inv.gallery:[]};
   const expected=revision(input);if(expected!==current.revision)throw new ApiError(409,'최신 청첩장을 다시 불러와 주세요');
   return response(await operation(env,request,scope,raw,{...inv,revision:expected,published:input.published},(guard,claim,mutation)=>[
-   env.DB.prepare(`UPDATE w2_invitations SET public_data=?,public_expires_at=?,updated_at=? WHERE slug=? AND owner_id=? AND revision=? AND ${guard}`).bind(input.published?JSON.stringify(publicContent):null,input.published?expires(inv):null,now,slug,user!.id,expected,scope,mutation,claim)]));
+   env.DB.prepare(`UPDATE w2_invitations SET public_data=?,public_expires_at=?,updated_at=? WHERE slug=? AND owner_id=? AND revision=? AND ${guard} ${input.published?'AND NOT EXISTS(SELECT 1 FROM w2_moderation_holds WHERE slug=w2_invitations.slug)':''}`).bind(input.published?JSON.stringify(publicContent):null,input.published?expires(inv):null,now,slug,user!.id,expected,scope,mutation,claim)]));
  }
  if(action==='moderation'&&request.method==='DELETE'){
   await owned(env,slug,user!.id);const entry=text(input.id,36,'글');
   return response(await operation(env,request,scope,raw,{deleted:true},(guard,claim,mutation)=>[env.DB.prepare(`DELETE FROM w2_guestbook WHERE id=? AND slug=? AND ${guard}`).bind(entry,slug,scope,mutation,claim)]));
  }
+ if(action==='moderation'&&request.method==='POST'){
+  await owned(env,slug,user!.id);const entry=text(input.id,36,'글');
+  const author=await env.DB.prepare('SELECT author_key FROM w2_guest_authors WHERE entry_id=? AND EXISTS(SELECT 1 FROM w2_guestbook WHERE id=? AND slug=?)').bind(entry,entry,slug).first<{author_key:string}>();
+  if(!author)throw new ApiError(409,'이전에 등록된 메시지는 작성자 차단 대신 삭제해 주세요');
+  return response(await operation(env,request,scope,raw,{blocked:true},(guard,claim,mutation)=>[
+   env.DB.prepare(`INSERT INTO w2_guest_blocks SELECT ?,?,? WHERE ${guard} ON CONFLICT(slug,author_key) DO NOTHING`).bind(slug,author.author_key,now,scope,mutation,claim),
+   env.DB.prepare(`UPDATE w2_guestbook SET approved=0 WHERE slug=? AND id IN(SELECT entry_id FROM w2_guest_authors WHERE author_key=?) AND ${guard}`).bind(slug,author.author_key,scope,mutation,claim),
+  ]));
+ }
  if(action==='moderation'&&request.method==='PATCH'){
   await owned(env,slug,user!.id);const entry=text(input.id,36,'글'),approved=input.approved;if(typeof approved!=='boolean')throw new ApiError(400,'승인 상태를 확인해 주세요');
-  return response(await operation(env,request,scope,raw,{updated:true},(guard,claim,mutation)=>[env.DB.prepare(`UPDATE w2_guestbook SET approved=? WHERE id=? AND slug=? AND ${guard}`).bind(approved?1:0,entry,slug,scope,mutation,claim)]));
+  if(approved&&await env.DB.prepare('SELECT b.author_key FROM w2_guest_blocks b JOIN w2_guest_authors a ON a.author_key=b.author_key WHERE b.slug=? AND a.entry_id=?').bind(slug,entry).first())throw new ApiError(403,'차단한 작성자의 메시지는 공개할 수 없어요');
+  return response(await operation(env,request,scope,raw,{updated:true},(guard,claim,mutation)=>[env.DB.prepare(`UPDATE w2_guestbook SET approved=? WHERE id=? AND slug=? AND ${guard} ${approved?'AND NOT EXISTS(SELECT 1 FROM w2_guest_blocks b JOIN w2_guest_authors a ON a.author_key=b.author_key WHERE b.slug=w2_guestbook.slug AND a.entry_id=w2_guestbook.id)':''}`).bind(approved?1:0,entry,slug,scope,mutation,claim)]));
  }
  if(action==='guestbook'&&request.method==='DELETE'&&id){
   const entry=await env.DB.prepare('SELECT password_hash,salt FROM w2_guestbook WHERE id=? AND slug=?').bind(id,slug).first<{password_hash:string;salt:string}>();if(!entry)throw new ApiError(404,'글을 찾을 수 없어요');
@@ -144,22 +165,28 @@ export async function route(env:Env,request:Request):Promise<Response>{
  if(action==='rsvp'&&request.method==='POST'){
   if(!inv.options.showRsvp)throw new ApiError(404,'참석 응답을 사용하지 않아요');
   const value=rsvpValue(raw),id=crypto.randomUUID(),result={...value,id,createdAt:now};
-  return response(await operation(env,request,scope,raw,result,(guard,claim,mutation)=>[env.DB.prepare(`INSERT INTO w2_rsvp SELECT ?,?,?,? WHERE ${guard} AND EXISTS(SELECT 1 FROM w2_invitations WHERE slug=? AND public_data IS NOT NULL AND public_expires_at>?) AND (SELECT COUNT(*) FROM w2_rsvp WHERE slug=?)<500`).bind(id,slug,JSON.stringify(value),now,scope,mutation,claim,slug,now,slug)]),201);
+  return response(await operation(env,request,scope,raw,result,(guard,claim,mutation)=>[env.DB.prepare(`INSERT INTO w2_rsvp SELECT ?,?,?,? WHERE ${guard} AND EXISTS(SELECT 1 FROM w2_invitations WHERE slug=? AND public_data IS NOT NULL AND public_expires_at>? AND NOT EXISTS(SELECT 1 FROM w2_moderation_holds WHERE slug=w2_invitations.slug)) AND (SELECT COUNT(*) FROM w2_rsvp WHERE slug=?)<500`).bind(id,slug,JSON.stringify(value),now,scope,mutation,claim,slug,now,slug)]),201);
  }
  if(action==='guestbook'&&request.method==='POST'&&!id){
   if(!inv.options.showGuestbook)throw new ApiError(404,'방명록을 사용하지 않아요');
+  const identity=await guestIdentity(env,request);
+  if(await env.DB.prepare('SELECT author_key FROM w2_guest_blocks WHERE slug=? AND author_key=?').bind(slug,identity.key).first())throw new ApiError(403,'이 청첩장에는 메시지를 작성할 수 없어요');
   const value=guestbookValue(raw),entry=crypto.randomUUID(),salt=crypto.randomUUID(),hash=await hmac(env,`guest-password:${salt}:${value.password}`);
   const result={id:entry,name:value.name,message:value.message,createdAt:now,pending:true};
-  return response(await operation(env,request,scope,raw,result,(guard,claim,mutation)=>[env.DB.prepare(`INSERT INTO w2_guestbook SELECT ?,?,?,?,?,?,?,0 WHERE ${guard} AND EXISTS(SELECT 1 FROM w2_invitations WHERE slug=? AND public_data IS NOT NULL AND public_expires_at>?) AND (SELECT COUNT(*) FROM w2_guestbook WHERE slug=?)<100`).bind(entry,slug,value.name,value.message,hash,salt,now,scope,mutation,claim,slug,now,slug)]),201);
+  const saved=await operation(env,request,scope,raw,result,(guard,claim,mutation)=>[
+   env.DB.prepare(`INSERT INTO w2_guestbook SELECT ?,?,?,?,?,?,?,0 WHERE ${guard} AND EXISTS(SELECT 1 FROM w2_invitations WHERE slug=? AND public_data IS NOT NULL AND public_expires_at>? AND NOT EXISTS(SELECT 1 FROM w2_moderation_holds WHERE slug=w2_invitations.slug)) AND NOT EXISTS(SELECT 1 FROM w2_guest_blocks WHERE slug=? AND author_key=?) AND (SELECT COUNT(*) FROM w2_guestbook WHERE slug=?)<100`).bind(entry,slug,value.name,value.message,hash,salt,now,scope,mutation,claim,slug,now,slug,identity.key,slug),
+   env.DB.prepare(`INSERT INTO w2_guest_authors SELECT ?,? WHERE ${guard} AND EXISTS(SELECT 1 FROM w2_guestbook WHERE id=? AND slug=?)`).bind(entry,identity.key,scope,mutation,claim,entry,slug)
+  ]);
+  const res=response(saved,201);if(identity.cookie)res.headers.set('Set-Cookie',identity.cookie);return res;
  }
 
  throw new ApiError(404,'요청을 찾을 수 없어요');
 }
 export async function api(env:Env,request:Request){
- try{await quota(env,'global','api-total',10000,86400);return await route(env,request);}catch(error){
+ try{await apiQuota(env);return await route(env,request);}catch(error){
   if(error instanceof ApiError){const res=response({error:error.message},error.status);if(error.status===429)res.headers.set('Retry-After','60');return res;}
   // No body, names, IP, passwords or tokens in logs.
   console.error('w2_backend_failure',error instanceof Error?error.name:'unknown');return response({error:'서비스 연결을 확인하고 있어요. 잠시 후 다시 시도해 주세요'},503);
  }
 }
-export {cleanup};
+export async function cleanup(env:Env){await cleanupPhotos(env);await cleanupAccounts(env);}

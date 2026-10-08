@@ -17,7 +17,7 @@ private final class DownloadBridge: NSObject, WKScriptMessageHandler {
     }
 }
 
-@MainActor final class WebSession: NSObject, ObservableObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate, ASWebAuthenticationPresentationContextProviding {
+@MainActor final class WebSession: NSObject, ObservableObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate, ASWebAuthenticationPresentationContextProviding, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
     let webView: WKWebView
     @Published var canGoBack = false
     @Published var loading = true
@@ -28,6 +28,7 @@ private final class DownloadBridge: NSObject, WKScriptMessageHandler {
     @Published var safariURL: ShareFile?
     @Published var shareURL: URL?
     @Published var currentPath = "/"
+    @Published private(set) var appleLoginAvailable = false
     private var observations: [NSKeyValueObservation] = []
     private var downloads: [ObjectIdentifier: URL] = [:]
     private var activeDownloads: [ObjectIdentifier: WKDownload] = [:]
@@ -35,12 +36,18 @@ private final class DownloadBridge: NSObject, WKScriptMessageHandler {
     private var recoveredWebProcess = false
     private var temporaryShareURL: URL?
     private var authenticationSession: ASWebAuthenticationSession?
+    private var appleController: ASAuthorizationController?
+    private var appleAttempt: AppleLoginAttempt?
+    private var preparingApple = false
+    private var pendingAppleUser: String?
+    private var completingOtherLogin = false
+    private static let appleUserKey = "wedding.apple-user"
 
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
         webView.window ?? ASPresentationAnchor()
     }
     func beginLogin(_ url: URL) {
-        guard authenticationSession == nil, webView.window != nil else { return }
+        guard authenticationSession == nil, appleController == nil, !preparingApple, webView.window != nil else { return }
         let attempt = NativeLogin()
         guard let start = attempt.startURL(url) else { return }
         error = nil
@@ -55,6 +62,7 @@ private final class DownloadBridge: NSObject, WKScriptMessageHandler {
                 }
                 // WebKit receives the HttpOnly cookie directly from our server.
                 // Neither a provider token nor an app session appears in the callback.
+                self.completingOtherLogin = true
                 self.webView.load(request)
             }
         }
@@ -63,6 +71,98 @@ private final class DownloadBridge: NSObject, WKScriptMessageHandler {
         if !auth.start() {
             authenticationSession = nil
             error = "로그인 창을 열지 못했어요. 다시 시도해 주세요."
+        }
+    }
+
+    func beginAppleLogin() {
+        guard authenticationSession == nil, appleController == nil, !preparingApple, webView.window != nil else { return }
+        preparingApple = true
+        error = nil
+        Task {
+            defer { preparingApple = false }
+            let configuration = URLSessionConfiguration.ephemeral
+            configuration.httpShouldSetCookies = false
+            configuration.timeoutIntervalForResource = 20
+            let client = URLSession(configuration: configuration)
+            defer { client.finishTasksAndInvalidate() }
+            do {
+                let (data, response) = try await client.data(for: AppleLoginAttempt.challengeRequest())
+                guard (response as? HTTPURLResponse)?.statusCode == 200, data.count <= 4096 else {
+                    error = "Apple 로그인을 준비 중이거나 연결이 지연되고 있어요. 다시 시도해 주세요."
+                    return
+                }
+                let attempt = try JSONDecoder().decode(AppleLoginAttempt.self, from: data)
+                guard attempt.valid, webView.window != nil else { return }
+                let request = ASAuthorizationAppleIDProvider().createRequest()
+                request.requestedScopes = []
+                request.state = attempt.id
+                request.nonce = attempt.nonce
+                let controller = ASAuthorizationController(authorizationRequests: [request])
+                controller.delegate = self
+                controller.presentationContextProvider = self
+                appleAttempt = attempt
+                appleController = controller
+                controller.performRequests()
+            } catch { self.error = "Apple 로그인 연결을 확인하고 다시 시도해 주세요." }
+        }
+    }
+    private func refreshServiceAvailability() {
+        Task {
+            struct Availability: Decodable { let appleEnabled: Bool }
+            let configuration = URLSessionConfiguration.ephemeral
+            configuration.httpShouldSetCookies = false
+            configuration.timeoutIntervalForResource = 15
+            let client = URLSession(configuration: configuration)
+            defer { client.finishTasksAndInvalidate() }
+            do {
+                let url = NavigationPolicy.site.appendingPathComponent("api/v2/account/config")
+                let (data, response) = try await client.data(from: url)
+                guard (response as? HTTPURLResponse)?.statusCode == 200, data.count <= 8192 else { return }
+                let available = try JSONDecoder().decode(Availability.self, from: data)
+                appleLoginAvailable = available.appleEnabled
+            } catch { appleLoginAvailable = false }
+        }
+    }
+    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        webView.window ?? ASPresentationAnchor()
+    }
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+        guard controller === appleController else { return }
+        defer { appleController = nil; appleAttempt = nil }
+        guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential,
+              let token = credential.identityToken, let code = credential.authorizationCode,
+              let request = appleAttempt?.completion(identityToken: token, authorizationCode: code, state: credential.state) else {
+            error = "Apple 인증을 완료하지 못했어요. 다시 시작해 주세요."
+            return
+        }
+        pendingAppleUser = credential.user
+        completingOtherLogin = false
+        // POST credentials directly to our origin. The server writes the HttpOnly session to WebKit.
+        webView.load(request)
+    }
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithError issue: Error) {
+        guard controller === appleController else { return }
+        appleController = nil; appleAttempt = nil
+        if (issue as? ASAuthorizationError)?.code != .canceled { error = "Apple 인증을 완료하지 못했어요. 다시 시작해 주세요." }
+    }
+    func checkAppleCredential() {
+        guard let user = UserDefaults.standard.string(forKey: Self.appleUserKey) else { return }
+        ASAuthorizationAppleIDProvider().getCredentialState(forUserID: user) { [weak self] state, issue in
+            guard issue == nil, state == .revoked || state == .notFound else { return }
+            Task { @MainActor in
+                guard let self else { return }
+                guard UserDefaults.standard.string(forKey: Self.appleUserKey) == user else { return }
+                UserDefaults.standard.removeObject(forKey: Self.appleUserKey)
+                if let url = self.webView.url, NavigationPolicy.isInternal(url) {
+                    let script = "await fetch('/api/v2/auth/logout',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','Idempotency-Key':crypto.randomUUID()},body:'{}'}); window.location.assign('/login');"
+                    _ = try? await self.webView.callAsyncJavaScript(script, arguments: [:], in: nil, contentWorld: .page)
+                }
+                let store = self.webView.configuration.websiteDataStore.httpCookieStore
+                for cookie in await store.allCookies() where cookie.name == "__Host-osam-session" && cookie.domain == NavigationPolicy.site.host {
+                    await store.deleteCookie(cookie)
+                }
+                self.open(NavigationPolicy.site.appendingPathComponent("login"))
+            }
         }
     }
 
@@ -89,7 +189,7 @@ private final class DownloadBridge: NSObject, WKScriptMessageHandler {
                 if let url = view.url, NavigationPolicy.isInternal(url) { self?.currentPath = url.path }
             } }
         ]
-        if startImmediately { open(NavigationPolicy.site) }
+        if startImmediately { open(NavigationPolicy.site); refreshServiceAvailability() }
     }
     func open(_ url: URL) {
         guard NavigationPolicy.isInternal(url) || NavigationPolicy.isAuthLink(url) else { return }
@@ -104,8 +204,10 @@ private final class DownloadBridge: NSObject, WKScriptMessageHandler {
         let origin = message.frameInfo.securityOrigin
         guard message.frameInfo.isMainFrame, origin.protocol == "https",
               origin.host == NavigationPolicy.site.host, origin.port == 0 || origin.port == 443,
-              let provider = message.body as? String, ["google", "kakao"].contains(provider) else { return }
-        beginLogin(NavigationPolicy.site.appendingPathComponent("auth/" + provider))
+              let provider = message.body as? String else { return }
+        if provider == "accountDeleted" { UserDefaults.standard.removeObject(forKey: Self.appleUserKey); pendingAppleUser = nil }
+        else if provider == "apple" { beginAppleLogin() }
+        else if ["google", "kakao"].contains(provider) { beginLogin(NavigationPolicy.site.appendingPathComponent("auth/" + provider)) }
     }
     private func openExternal(_ url: URL) {
         guard NavigationPolicy.externalLinkAllowed(url) else { return }
@@ -132,14 +234,21 @@ private final class DownloadBridge: NSObject, WKScriptMessageHandler {
     }
     func webView(_ view: WKWebView, decidePolicyFor response: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
         if let http = response.response as? HTTPURLResponse, let url = http.url,
-           NavigationPolicy.isInternal(url), url.path == "/api/v2/auth/native/redeem", http.statusCode >= 400 {
+           NavigationPolicy.isInternal(url), ["/api/v2/auth/native/redeem", "/api/v2/auth/apple/complete"].contains(url.path), http.statusCode >= 400 {
+            pendingAppleUser = nil; completingOtherLogin = false
             error = "로그인을 완료하지 못했어요. 다시 로그인해 주세요."
             decisionHandler(.cancel)
         } else if !response.canShowMIMEType, let url = response.response.url, NavigationPolicy.isInternal(url) {
             decisionHandler(.download)
         } else { decisionHandler(.allow) }
     }
-    func webView(_ view: WKWebView, didFinish navigation: WKNavigation!) { error = nil; recoveredWebProcess = false }
+    func webView(_ view: WKWebView, didFinish navigation: WKNavigation!) {
+        error = nil; recoveredWebProcess = false
+        if view.url?.path == "/my" {
+            if let user = pendingAppleUser { UserDefaults.standard.set(user, forKey: Self.appleUserKey); pendingAppleUser = nil }
+            if completingOtherLogin { UserDefaults.standard.removeObject(forKey: Self.appleUserKey); completingOtherLogin = false }
+        }
+    }
     func webView(_ view: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError issue: Error) { showLoadError(issue) }
     func webView(_ view: WKWebView, didFail navigation: WKNavigation!, withError issue: Error) { showLoadError(issue) }
     private func showLoadError(_ issue: Error) {
@@ -302,6 +411,7 @@ struct WeddingView: View {
                         Menu {
                             Button("새로고침", systemImage: "arrow.clockwise") { session.retry() }
                             Button("간편 로그인", systemImage: "person.crop.circle") { session.open(NavigationPolicy.site.appendingPathComponent("login")) }
+                            if session.appleLoginAvailable { Button("Apple로 로그인", systemImage: "apple.logo") { session.beginAppleLogin() } }
                             Button("카카오로 로그인", systemImage: "message") { session.beginLogin(NavigationPolicy.site.appendingPathComponent("auth/kakao")) }
                             Button("Google로 로그인", systemImage: "person.crop.circle.badge.checkmark") { session.beginLogin(NavigationPolicy.site.appendingPathComponent("auth/google")) }
                             if let url = session.shareURL { Button("초대장 공유", systemImage: "square.and.arrow.up") { session.shareFile = ShareFile(url: url) } }
@@ -312,6 +422,8 @@ struct WeddingView: View {
         }.tint(Color(red: 0.94, green: 0.32, blue: 0.47))
             .sheet(item: $session.safariURL) { SafariSheet(url: $0.url) }
             .sheet(item: $session.shareFile, onDismiss: { session.finishSharing() }) { file in ShareSheet(url: file.url) { session.finishSharing() } }
+            .onReceive(NotificationCenter.default.publisher(for: ASAuthorizationAppleIDProvider.credentialRevokedNotification)) { _ in session.checkAppleCredential() }
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in session.checkAppleCredential() }
     }
     private func navigationButton(_ title: String, symbol: String, path: String) -> some View {
         let selected = session.currentPath == path

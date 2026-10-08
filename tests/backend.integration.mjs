@@ -73,7 +73,15 @@ async function call(path,{method='GET',data,cookie,key=randomUUID(),origin=base,
 async function check(name,fn){await fn();passed++;console.log(`PASS ${name}`);}
 const partner={name:'샘플',order:'장남',englishName:'Sample'};
 const inv={slug:'test-wedding',templateId:'blossom',type:'wedding',dateTime:'2027-03-28T12:30',wedding:{groom:partner,bride:{...partner,order:'장녀'}},venue:{name:'예시 장소',address:'예시 주소',lat:37.5,lng:127},greetingTitle:'초대합니다',greeting:'테스트 초대장',coverPhoto:'/photos/wedding-blossom.webp',gallery:['/photos/gallery-hands.webp'],accounts:[],options:{showCalendar:true,showDday:true,showGallery:true,showAccounts:false,showGuestbook:true,showRsvp:true,showEffect:false},shareTitle:'테스트 청첩장',shareDescription:'테스트 설명'};
+let photoManifest='';
+function registeredPhoto(key){
+  const value=photoManifest.match(new RegExp('"'+key+'":\\s*"([^"\\n]+)"'))?.[1];
+  assert(value,'registered fixture photo: '+key);return value;
+}
 try {
+  photoManifest=await readFile('src/data/photos.generated.ts','utf8');
+  inv.coverPhoto=registeredPhoto('wedding-blossom');
+  inv.gallery=[registeredPhoto('gallery-hands')];
   let ready=false;for(let i=0;i<80;i++){try {if((await fetch(base+'/api/auth/session')).status===200){ready=true;break;}}catch{} await new Promise(r=>setTimeout(r,500));}assert(ready,'Next test server ready');
   state.counters.clear();
   await check('anonymous save denied',async()=>assert.equal((await call('/api/invitations/test-wedding',{method:'PUT',data:inv})).status,401));
@@ -90,7 +98,7 @@ try {
   await check('other owner cannot publish',async()=>assert.equal((await call('/api/invitations/test-wedding/publish',{method:'POST',data:{published:true},cookie:'other-token'})).status,404));
   await check('draft guestbook writes denied',async()=>assert.equal((await call('/api/invitations/test-wedding/guestbook',{method:'POST',data:{name:'하객',message:'축하해요',password:'1234'}})).status,404));
   await check('owner publishes, anonymous can read',async()=>{assert.equal((await call('/api/invitations/test-wedding/publish',{method:'POST',data:{published:true},cookie:'owner-token'})).status,200);assert.equal((await call('/api/invitations/test-wedding')).status,200);});
-  await check('server emits share metadata',async()=>{const r=await call('/i/test-wedding');assert.equal(r.status,200);assert.match(r.body,/property="og:image"/);assert.match(r.body,/wedding-blossom.webp/);});
+  await check('server emits share metadata',async()=>{const r=await call('/i/test-wedding');assert.equal(r.status,200);assert.match(r.body,/property="og:image"/);assert.ok(r.body.includes(inv.coverPhoto),'registered cover photo appears in server output');});
   const guestKey=randomUUID(),entry={name:'하객',message:'축하합니다 <script>literal</script>',password:'good-password'};let guest;
   await check('guestbook hash stays server-side',async()=>{guest=await call('/api/invitations/test-wedding/guestbook',{method:'POST',data:entry,key:guestKey});assert.equal(guest.status,200);assert(!JSON.stringify(guest.body).includes('password'));assert.match(state.tables.guestbook[0].password_hash,/^scrypt:/);});
   await check('guestbook replay creates one entry',async()=>{assert.equal((await call('/api/invitations/test-wedding/guestbook',{method:'POST',data:entry,key:guestKey})).status,200);assert.equal(state.tables.guestbook.length,1);});
@@ -102,7 +110,7 @@ try {
   await check('forged upload content rejected',async()=>assert.equal((await call('/api/uploads',{method:'POST',cookie:'owner-token',bytes:Buffer.from('<svg>bad</svg>'),type:'image/png'})).status,400));
   await check('oversized upload rejected',async()=>assert.equal((await call('/api/uploads',{method:'POST',cookie:'owner-token',bytes:Buffer.alloc(2*1024*1024+1),type:'image/png'})).status,413));
   let photo;
-  await check('image upload converts into private storage',async()=>{photo=await call('/api/uploads',{method:'POST',cookie:'owner-token',bytes:await readFile('public/photos/wedding-classic.webp'),type:'image/webp'});assert.equal(photo.status,200,JSON.stringify(photo.body));assert.equal(state.objects.size,1);assert.match(photo.body.url,/^\/api\/photos\//);});
+  await check('image upload converts into private storage',async()=>{photo=await call('/api/uploads',{method:'POST',cookie:'owner-token',bytes:await readFile('public'+registeredPhoto('wedding-classic')),type:'image/webp'});assert.equal(photo.status,200,JSON.stringify(photo.body));assert.equal(state.objects.size,1);assert.match(photo.body.url,/^\/api\/photos\//);});
   await check('private photo denies guests, permits owner',async()=>{assert.equal((await call(photo.body.url)).status,404);assert.equal((await call(photo.body.url,{cookie:'owner-token'})).status,302);});
   await check('photo ownership prevents cross-account attachment',async()=>assert.equal((await call('/api/invitations/other-wedding',{method:'PUT',cookie:'other-token',data:{...inv,slug:'other-wedding',coverPhoto:photo.body.url}})).status,403));
   await check('attached published photo visible, stops on unpublish',async()=>{

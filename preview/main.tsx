@@ -11,6 +11,11 @@ import { TemplateDetailView } from "@/app/(site)/templates/[id]/TemplateDetailVi
 import PricingPage from "@/app/(site)/pricing/page";
 import MyPage from "@/app/(site)/my/page";
 import LoginPage from "@/app/(site)/login/page";
+import PrivacyPage from "@/app/(site)/privacy/page";
+import TermsPage from "@/app/(site)/terms/page";
+import SettingsPage from "@/app/(site)/settings/page";
+import SupportPage from "@/app/(site)/support/page";
+import OperationsPage from "@/app/(site)/operations/page";
 import { EditorLoader } from "@/app/create/[id]/EditorLoader";
 import { InvitationRoute } from "@/app/i/[slug]/InvitationRoute";
 import NotFound from "@/app/not-found";
@@ -57,6 +62,11 @@ function App() {
   } else if (first === "pricing") page = <PricingPage />;
   else if (first === "my") page = <MyPage />;
   else if (first === "login") page = <LoginPage />;
+  else if (first === "privacy") page = <PrivacyPage />;
+  else if (first === "terms") page = <TermsPage />;
+  else if (first === "settings") page = <SettingsPage />;
+  else if (first === "support") page = <SupportPage />;
+  else if (first === "operations") page = <OperationsPage />;
   else return <NotFound />;
 
   return (

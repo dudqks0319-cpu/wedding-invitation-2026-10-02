@@ -1,10 +1,15 @@
 import type {Env} from './types';
 import {api,cleanup} from './service';
-import {actor,publicQuota,quota} from './security';
+import {actor,publicQuota,apiQuota} from './security';
 import {safeNext,ApiError} from '../src/lib/server/validation';
 import {getSampleBySlug} from '../src/data/samples';
 import {WEDDING_ORIGIN,completeWeddingLogin} from './authBridge';
 export {weddingBridgeRequest,weddingBridgeReturn} from './authBridge';
+export {verifyAppleIdentity} from './appleLogin';
+export {recordVerifiedAppleTransaction,recordVerifiedAppleRefundNotification,billingSummary} from './billing';
+export {applyEventCredit,eventCreditStatus} from './eventCredits';
+export {CAPACITY} from './capacity';
+export {quota,monthlyQuota} from './security';
 export const weddingOrigin=()=>WEDDING_ORIGIN;
 const escape=(value:string)=>value.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
 export async function replacementRequest(request:Request,env:Env):Promise<Response|null>{
@@ -20,14 +25,14 @@ export async function replacementRequest(request:Request,env:Env):Promise<Respon
   const headers=new Headers(asset.headers);headers.set('X-Content-Type-Options','nosniff');headers.set('Referrer-Policy','strict-origin-when-cross-origin');headers.set('X-Frame-Options','SAMEORIGIN');headers.set('Cache-Control','public, max-age=300');
   return new Response(request.method==='HEAD'?null:asset.body,{status:asset.status,headers});
  }
- if(!/^\/(?:|templates(?:\/[a-z0-9-]+)?|pricing|my|login|create\/[a-z0-9-]+|i\/[a-z0-9-]{3,30})$/.test(path))return null;
+ if(!/^\/(?:|templates(?:\/[a-z0-9-]+)?|pricing|my|login|privacy|terms|settings|support|operations|create\/[a-z0-9-]+|i\/[a-z0-9-]{3,30})$/.test(path))return null;
  if(!env.ASSETS)return new Response('화면 연결을 준비하고 있어요',{status:503});
  let title='청첩장 만들기',description='내 사진으로 만드는 모바일 청첩장',image='',status=200;
  if(path.startsWith('/i/')){
   const slug=path.slice(3),sample=getSampleBySlug(slug);
   if(sample){title=sample.shareTitle??title;description='AI 예시 사진을 사용한 디자인 미리보기';image=sample.coverPhoto;}
   else try{
-   await quota(env,'global','api-total',10000,86400);await publicQuota(env,request);
+   await apiQuota(env);await publicQuota(env,request);
    const row=await env.DB.prepare(`SELECT owner_id,public_data,public_expires_at FROM w2_invitations WHERE slug=?
     AND NOT EXISTS(SELECT 1 FROM deletion_jobs WHERE owner_id=w2_invitations.owner_id AND state<>'complete')`).bind(slug).first<{owner_id:string;public_data:string|null;public_expires_at:string}>();
    if(row?.public_data&&row.public_expires_at>new Date().toISOString()){

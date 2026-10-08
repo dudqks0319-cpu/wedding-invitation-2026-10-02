@@ -1,5 +1,6 @@
 import {ApiError} from '../src/lib/server/validation';
 import type {Env,Query} from './types';
+import {CAPACITY} from './capacity';
 const encode=new TextEncoder();
 export const hex=(bytes:ArrayBuffer)=>Array.from(new Uint8Array(bytes),v=>v.toString(16).padStart(2,'0')).join('');
 export async function hmac(env:Env,value:string){
@@ -12,24 +13,52 @@ export async function actor(env:Env,request:Request,required=true){
  if(!token||!/^[a-f0-9]{48}$/.test(token)){if(required)throw new ApiError(401,'로그인해 주세요');return null;}
  const hash=hex(await crypto.subtle.digest('SHA-256',encode.encode(token)));
  const user=await env.DB.prepare(`SELECT user_id AS id FROM sessions WHERE token_hash=? AND expires_at>?
- AND NOT EXISTS(SELECT 1 FROM deletion_jobs WHERE owner_id=sessions.user_id AND state<>'complete')`).bind(hash,new Date().toISOString()).first<{id:string}>();
+ AND NOT EXISTS(SELECT 1 FROM deletion_jobs WHERE owner_id=sessions.user_id AND state<>'complete')
+ AND NOT EXISTS(SELECT 1 FROM w2_account_deletions d WHERE d.owner_id=sessions.user_id AND
+  (d.state<>'complete' OR sessions.created_at<=d.requested_at))`).bind(hash,new Date().toISOString()).first<{id:string}>();
  if(!user&&required)throw new ApiError(401,'다시 로그인해 주세요');
  return user;
 }
-export async function quota(env:Env,scope:string,action:string,limit:number,seconds:number,amount=1){
- const now=Math.floor(Date.now()/1000),window=Math.floor(now/seconds)*seconds;
- const row=await env.DB.prepare(`INSERT INTO w2_limits VALUES(?,?,?,?,?)
+/** A SQL guard keeps an in-flight write from reviving data after account deletion. */
+export async function sessionGuard(request:Request){
+ const token=request.headers.get('cookie')?.match(/(?:^|;\s*)__Host-osam-session=([a-f0-9]{48})(?:;|$)/)?.[1];
+ if(!token)return '0';
+ const hash=hex(await crypto.subtle.digest('SHA-256',encode.encode(token)));
+ // The interpolated value is a SHA-256 hex digest, never input SQL or a raw token.
+ return `EXISTS(SELECT 1 FROM sessions s WHERE s.token_hash='${hash}' AND s.expires_at>strftime('%Y-%m-%dT%H:%M:%fZ','now')
+  AND NOT EXISTS(SELECT 1 FROM deletion_jobs d WHERE d.owner_id=s.user_id AND d.state<>'complete')
+  AND NOT EXISTS(SELECT 1 FROM w2_account_deletions d WHERE d.owner_id=s.user_id AND (d.state<>'complete' OR s.created_at<=d.requested_at)))`;
+}
+async function takeQuota(env:Env,scope:string,action:string,limit:number,window:number,expires:number,amount:number){
+ if(!Number.isSafeInteger(limit)||limit<=0||!Number.isSafeInteger(amount)||amount<=0)throw new ApiError(503,'사용량을 확인하고 있어요. 잠시 후 다시 시도해 주세요');
+ const row=await env.DB.prepare(`INSERT INTO w2_limits SELECT ?,?,?,?,? WHERE ?<=?
  ON CONFLICT(scope,action,window) DO UPDATE SET hits=hits+excluded.hits WHERE hits+excluded.hits<=?
- RETURNING hits`).bind(scope,action,window,amount,window+seconds,limit).first();
+ RETURNING hits`).bind(scope,action,window,amount,expires,amount,limit,limit).first();
  if(!row)throw new ApiError(429,'요청이 많아요. 잠시 후 다시 시도해 주세요');
+}
+export async function quota(env:Env,scope:string,action:string,limit:number,seconds:number,amount=1){
+ if(!Number.isSafeInteger(seconds)||seconds<=0)throw new ApiError(503,'사용량을 확인하고 있어요');
+ const now=Math.floor(Date.now()/1000),window=Math.floor(now/seconds)*seconds;
+ await takeQuota(env,scope,action,limit,window,window+seconds,amount);
+}
+/** UTC calendar months match provider metering; every account uses the same global row.
+ * Reserve before the provider call. Failed/unknown calls never release the count.
+ */
+export async function monthlyQuota(env:Env,scope:string,action:string,limit:number,amount=1){
+ const now=new Date(),year=now.getUTCFullYear(),month=now.getUTCMonth();
+ await takeQuota(env,scope,action,limit,Date.UTC(year,month,1)/1000,Date.UTC(year,month+1,1)/1000,amount);
+}
+export async function apiQuota(env:Env){
+ await monthlyQuota(env,'global','api-total-month',CAPACITY.apiRequestsPerMonth);
+ await quota(env,'global','api-total',CAPACITY.apiRequestsPerDay,86400);
 }
 export async function publicQuota(env:Env,request:Request,write=false){
  const ip=request.headers.get('cf-connecting-ip');
  if(!ip||!/^[a-fA-F0-9:.]{3,64}$/.test(ip))throw new ApiError(503,'연결을 확인하고 다시 시도해 주세요');
  // Only Cloudflare's peer or the verified gateway can supply this header.
  const key=await hmac(env,`ip:${Math.floor(Date.now()/86400000)}:${ip}`);
- await quota(env,key,write?'guest-write':'read',write?12:300,60);
- await quota(env,'global',write?'guest-write':'read',write?2000:50000,86400);
+ await quota(env,key,write?'guest-write':'read',write?CAPACITY.guestWritesPerMinute:CAPACITY.publicReadsPerMinute,60);
+ await quota(env,'global',write?'guest-write':'read',write?CAPACITY.guestWritesPerDay:CAPACITY.apiRequestsPerDay,86400);
  return key;
 }
 export async function bytes(request:Request,max:number){
@@ -67,7 +96,8 @@ export function csrf(env:Env,request:Request){
 }
 export async function operation(env:Env,request:Request,scope:string,input:unknown,result:unknown,mutations:(guard:string,claim:string,id:string)=>Query[]){
  const id=csrf(env,request),fingerprint=await hmac(env,JSON.stringify(input)),claim=crypto.randomUUID();
- const guard='EXISTS(SELECT 1 FROM w2_operations WHERE scope=? AND id=? AND claim=?)';
+ const account=scope.startsWith('guest:')?'1':await sessionGuard(request);
+ const guard=`EXISTS(SELECT 1 FROM w2_operations WHERE scope=? AND id=? AND claim=?) AND ${account}`;
  await env.DB.batch([
   env.DB.prepare('INSERT INTO w2_operations VALUES(?,?,?,?,?,?) ON CONFLICT(scope,id) DO NOTHING').bind(scope,id,fingerprint,claim,'pending',Date.now()+86400000),
   ...mutations(guard,claim,id),

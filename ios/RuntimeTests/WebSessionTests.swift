@@ -1,5 +1,6 @@
 import XCTest
 import WebKit
+import CryptoKit
 @testable import WeddingInvitation
 
 @MainActor final class WebSessionTests: XCTestCase {
@@ -33,6 +34,51 @@ import WebKit
         s.shareFile = nil // Interactive sheet dismissal clears SwiftUI's binding first.
         s.finishSharing()
         XCTAssertFalse(FileManager.default.fileExists(atPath: file.path))
+    }
+    func testLatestRsvpCsvPreservesKoreanAndAll500RowsThroughNativeShare() async throws {
+        struct Fixture: Decodable {
+            let synthetic: Bool
+            let csvSha256: String
+            let entryCount: Int
+            let csv: String
+        }
+        let fixtureURL = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "rsvp-native-export", withExtension: "json"))
+        let input = try JSONDecoder().decode(Fixture.self, from: Data(contentsOf: fixtureURL))
+        XCTAssertTrue(input.synthetic)
+        XCTAssertEqual(input.entryCount, 500)
+        let expected = Data(input.csv.utf8)
+        XCTAssertEqual(expected.prefix(3), Data([0xEF, 0xBB, 0xBF]))
+        let s = WebSession(startImmediately: false)
+        defer { s.finishSharing() }
+        try await fixture(s, "<p>합성 참석 명단 내보내기 검수</p>")
+        let csvJSON = String(data: try JSONEncoder().encode(input.csv), encoding: .utf8)!
+        _ = try await s.webView.evaluateJavaScript("""
+        (() => {
+          const blob = new Blob([\(csvJSON)], {type:'text/csv;charset=utf-8'});
+          const link = document.createElement('a');
+          const url = URL.createObjectURL(blob);
+          link.href = url; link.download = '참석-명단.csv';
+          document.body.appendChild(link); link.click(); link.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 60000);
+          return true;
+        })()
+        """)
+        try await waitUntil("latest RSVP download") { s.shareFile != nil || s.error != nil }
+        XCTAssertNil(s.error)
+        let file = try XCTUnwrap(s.shareFile?.url)
+        let actual = try Data(contentsOf: file)
+        XCTAssertEqual(actual, expected, "The native bridge must preserve the exact web-generated CSV bytes")
+        XCTAssertEqual(SHA256.hash(data: actual).map { String(format: "%02x", $0) }.joined(), input.csvSha256)
+        XCTAssertTrue(input.csv.contains("가상 하객 499"))
+        XCTAssertTrue(input.csv.contains("문자: =1+1"))
+        XCTAssertTrue(input.csv.contains("2026-10-04 08:30"))
+        XCTAssertEqual(file.pathExtension, "csv")
+        let attributes = try FileManager.default.attributesOfItem(atPath: file.path)
+        XCTAssertEqual((attributes[.posixPermissions] as? NSNumber)?.intValue, 0o600)
+        s.shareFile = nil // The sheet binding can clear before onDismiss.
+        s.finishSharing()
+        s.finishSharing() // Completion and onDismiss may both run.
+        XCTAssertFalse(FileManager.default.fileExists(atPath: file.deletingLastPathComponent().path))
     }
     func testExternalLinkIsRoutedWithoutReplacingTheWebApp() async throws {
         let s = WebSession(startImmediately: false)

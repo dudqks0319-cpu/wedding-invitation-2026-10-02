@@ -4,7 +4,7 @@ export default function PricingPage() {
   return <main className="mx-auto max-w-3xl px-5 pt-14">
     <p className="font-script text-[32px] text-brand-400">Invitation</p>
     <h1 className="mt-1 text-[32px] font-bold">서비스 안내</h1>
-    <p className="mt-4 text-muted">현재 무료 시험 운영 중입니다. 결제 기능은 제공하지 않아요.</p>
+    <p className="mt-4 text-muted">첫 버전은 무료로 제공합니다. 청첩장 제작과 공유에 결제가 필요하지 않아요.</p>
     <section className="mt-8 rounded-[28px] border border-black/5 bg-white p-7">
       <h2 className="text-xl font-bold">내 사진으로 초대하세요</h2>
       <ul className="mt-5 space-y-3 text-[15px] leading-7">

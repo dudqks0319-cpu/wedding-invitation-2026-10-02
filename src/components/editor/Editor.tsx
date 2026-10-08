@@ -297,7 +297,7 @@ export function Editor({ initial, draftKey = `editor-v2:new:${initial.templateId
           <Panel title="청첩장 주소" emoji="🔗" defaultOpen>
             {conflict && <div role="alert" className="mb-4 rounded-2xl bg-brand-50 p-5 text-[14px]">
               <p>다른 기기에서 변경되었거나 사용 중인 주소예요. 미저장 내용은 이 기기에 남아 있어요.</p>
-              <button className="mt-3 min-h-11 underline" onClick={async()=>{try{const latest=await request<Invitation>(`/api/invitations/${initial.slug}`);setInv(latest);writeStored(draftKey,null);setConflict(false);}catch(error){toast((error as Error).message);}}}>미저장 내용 대신 서버 내용 불러오기</button>
+              <button className="mt-3 min-h-11 underline" onClick={async()=>{if(!window.confirm('이 기기의 미저장 내용을 서버 내용으로 바꿀까요? 현재 편집한 내용은 복구할 수 없어요.'))return;try{const latest=await request<Invitation>(`/api/invitations/${initial.slug}`);setInv(latest);writeStored(draftKey,null);setConflict(false);}catch(error){toast((error as Error).message);}}}>미저장 내용 대신 서버 내용 불러오기</button>
             </div>}
             <Field label="주소" hint="영문 소문자, 숫자, - 만 사용할 수 있어요. 예) minjun-seoyeon">
               <div className="flex items-center overflow-hidden rounded-xl border border-black/10 bg-white focus-within:border-brand-300 focus-within:ring-4 focus-within:ring-brand-100">

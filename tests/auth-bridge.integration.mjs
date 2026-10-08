@@ -26,6 +26,9 @@ const complete=(token,cookieValue=c,state=flow.state)=>worker.fetch(get(origin+'
 try{
  await db.exec('CREATE TABLE users(id TEXT PRIMARY KEY,email TEXT,created_at TEXT);CREATE TABLE sessions(token_hash TEXT PRIMARY KEY,user_id TEXT,created_at TEXT,expires_at TEXT);CREATE TABLE deletion_jobs(id TEXT PRIMARY KEY,owner_id TEXT,state TEXT);CREATE TABLE native_auth_tickets(code_hash TEXT PRIMARY KEY,user_id TEXT,challenge TEXT,state TEXT,expires_at TEXT);');
  for(const sql of (await readFile('cloudflare/migrations/0005_replacement.sql','utf8')).replace(/^--.*$/gm,'').split(';').filter(s=>s.trim()))await db.prepare(sql).run();
+ for(const sql of (await readFile('cloudflare/migrations/0006_service_accounts.sql','utf8')).replace(/^--.*$/gm,'').split(';').filter(s=>s.trim()))await db.prepare(sql).run();
+ for(const sql of (await readFile('cloudflare/migrations/0007_operator_review.sql','utf8')).replace(/^--.*$/gm,'').split(';').filter(s=>s.trim()))await db.prepare(sql).run();
+ for(const sql of (await readFile('cloudflare/migrations/0008_billing_ledger.sql','utf8')).replace(/^--.*$/gm,'').split(';').filter(s=>s.trim()))await db.prepare(sql).run();
  await db.prepare('INSERT INTO users VALUES(?,NULL,?)').bind(user,new Date().toISOString()).run();
  await check('new origin rejects foreign login start',async()=>assert.equal((await start(undefined,legacy)).status,403));
  await check('provider and next are validated',async()=>{assert.equal((await start({provider:'naver'})).status,400);});

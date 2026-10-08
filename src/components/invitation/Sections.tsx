@@ -11,6 +11,8 @@ import { addGuestbook, removeGuestbook, submitRsvp, useGuestbook } from "@/lib/a
 import { MapEmbed } from "./MapEmbed";
 import { HeartIcon } from "./Ornaments";
 import { Photo, Section, SectionTitle, copyText, useInv } from "./shared";
+import {ReportButton} from './ReportButton';
+import {useStored,writeStored} from '@/lib/localStore';
 
 /* ─────────────── 공용 작은 부품 ─────────────── */
 
@@ -730,6 +732,7 @@ export function RsvpSection() {
 
 /* ─────────────── 7. 방명록 ─────────────── */
 
+const EMPTY_REPORTED:string[]=[];
 const DEMO_GUESTBOOK = [
   { id: "demo1", name: "지현", message: "두 사람 너무 잘 어울려요! 행복하게 오래오래 사랑하길 💕", createdAt: "2027-03-02T10:00:00Z" },
   { id: "demo2", name: "대리 박성우", message: "진심으로 축하드립니다. 예쁜 가정 이루세요!", createdAt: "2027-03-01T09:00:00Z" },
@@ -738,7 +741,8 @@ const DEMO_GUESTBOOK = [
 export function GuestbookSection() {
   const { inv, readOnly, toast } = useInv();
   const stored = useGuestbook(inv.slug);
-  const list = stored.length || !inv.slug.startsWith("sample-") ? stored : DEMO_GUESTBOOK;
+  const hidden=useStored<string[]>('reported:'+inv.slug,EMPTY_REPORTED);
+  const list = (stored.length || !inv.slug.startsWith("sample-") ? stored : DEMO_GUESTBOOK).filter(g=>!hidden.includes(g.id));
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ name: "", password: "", message: "" });
   const [busy, setBusy] = useState(false);
@@ -794,6 +798,7 @@ export function GuestbookSection() {
               </span>
             </div>
             <p className="mt-1.5 whitespace-pre-line text-[14px] leading-6">{g.message}</p>
+            {REMOTE_DATA&&!readOnly&&!g.id.startsWith('demo')&&<ReportButton slug={inv.slug} entryId={g.id} onReported={()=>{writeStored('reported:'+inv.slug,[...hidden,g.id]);toast('신고를 접수하고 이 화면에서 메시지를 숨겼어요');}}/>}
           </div>
         ))}
       </div>

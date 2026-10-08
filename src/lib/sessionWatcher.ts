@@ -6,6 +6,11 @@ type Callbacks = {
   fail: () => void;
 };
 
+export function isPrivateView(pathname: string) {
+  return /^\/(my|create|settings|support|operations)(\/|$)/.test(pathname)
+    || (/^\/i\//.test(pathname) && !pathname.startsWith('/i/sample-'));
+}
+
 /** An embedded input owns focus without leaving the authenticated document. */
 export function isEmbeddedFocus(hasFocus: boolean, visibility: string, activeTag?: string) {
   return hasFocus && visibility === 'visible' && activeTag === 'IFRAME';
